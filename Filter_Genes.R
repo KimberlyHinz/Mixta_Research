@@ -68,7 +68,7 @@ for(row in 1:nrow(fastaFiles)) {
                                                       stringsAsFactors = FALSE),
                          TRUE ~ gene_file)
 }
-
+## Maybe also keep ID number and nucleotide locations
 ###############
 
 for(row in 1:nrow(fastaFiles)) {                                          # Lets pass genes that meet requirements
