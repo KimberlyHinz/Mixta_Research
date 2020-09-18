@@ -12,18 +12,16 @@
 library("tidyverse")
 library("seqinr")
 
-theme_set(theme_bw())
-
 setwd("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396")
 #
 # Functions -------------------------------------------------------------------------------------------------------------------------------------
 my_read_fasta <- function(path){
   gene_file <- read.delim(file = path, header = FALSE, sep = "\n", 
-                          stringsAsFactors = FALSE)                                       # Reads in the fasta files as a table
+                          stringsAsFactors = FALSE)                                       # Reads in the fasta file names as a dataframe
 }
 
-rows_sequences <- function(gene, num_rows) {                                            # Checks there are 11 or 10 sequences in the file
-  right_rows <- case_when(nrow(gene) == num_rows ~ "Yes",                                     # 22 rows b/c names/info AND sequences in diff rows
+rows_sequences <- function(gene, num_rows) {                                              # Checks there are 11 or 10 sequences in the file
+  right_rows <- case_when(nrow(gene) == num_rows ~ "Yes",                                 # 22 rows b/c names/info AND sequences in diff rows
                       TRUE ~ "No")
 }
 
@@ -169,7 +167,7 @@ rm(fastaFiles, Fltr_FastaFiles, gene_file, gene_file_fasta, gene_file_org, row)
 fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Ten_NT/"), 
                          pattern = ".fasta")                                              # Dataframe containing the fasta gene file names
 fastaFiles <- mutate(fastaFiles,
-                     Path_name = paste("3_Homologous_Ten_NT", File_name, sep = "/"))   # Adds file pathway
+                     Path_name = paste("3_Homologous_Ten_NT", File_name, sep = "/"))      # Adds file pathway
 
 for(row in 1:nrow(fastaFiles)) {
   gene_file <- my_read_fasta(fastaFiles$Path_name[row])
@@ -239,7 +237,7 @@ fastaFiles <- mutate(fastaFiles,
 fastaFiles <- subset(fastaFiles, Filtered == TRUE, select = File_name)
 
 fastaFiles <- mutate(fastaFiles,
-                     Path_name = paste("3_Homologous_Ten_AA", File_name, sep = "/"))   # Adds file pathway
+                     Path_name = paste("3_Homologous_Ten_AA", File_name, sep = "/"))      # Adds file pathway
 
 
 for(row in 1:nrow(fastaFiles)) {
