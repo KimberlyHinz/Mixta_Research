@@ -1,5 +1,5 @@
-# The following code aligns the genes using the ClustalW algorithm through the R package "msa". The parameters are 100 maximum iterations 
-# (default is 16) and default parameters. The genes are then written into a new fasta file.
+# The following code aligns the genes using the ClustalW algorithm through the R package "msa". The parameters are 100 maximum iterations (default
+# is 16) and default parameters. The genes are then written into a new fasta file.
 
 # NOTE: Two projects will be done concurrently. One project contains all eleven (Project_ELEVEN) genomes. The other project contains ten 
 # (Project_TEN) genomes with Vibrio cholerae being excluded.
