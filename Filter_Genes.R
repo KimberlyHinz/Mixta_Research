@@ -14,7 +14,7 @@ library("seqinr")
 
 setwd("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396")
 #
-# Functions -------------------------------------------------------------------------------------------------------------------------------------
+# Functions --------------------------------------------------------------------------------------------------------------------------------------
 my_read_fasta <- function(path){
   gene_file <- read.delim(file = path, header = FALSE, sep = "\n", 
                           stringsAsFactors = FALSE)                                       # Reads in the fasta file names as a dataframe
@@ -35,8 +35,8 @@ gene_length_check <- function(gene_file) {
   count
 }
 
-# Project_ELEVEN --------------------------------------------------------------------------------------------------------------------------------
-## ELEVEN - Nucleotides =========================================================================================================================
+# Project_ELEVEN ---------------------------------------------------------------------------------------------------------------------------------
+## ELEVEN - Nucleotides ==========================================================================================================================
 fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Eleven_NT/"), 
                          pattern = ".fasta")                                              # Dataframe containing the fasta gene file names
 fastaFiles <- mutate(fastaFiles,
@@ -97,7 +97,7 @@ for(row in 1:nrow(fastaFiles)) {
 
 rm(fastaFiles, gene_file, gene_file_fasta, gene_file_org, count, eleven, row)
 
-## ELEVEN - Amino Acids =========================================================================================================================
+## ELEVEN - Amino Acids ==========================================================================================================================
 fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Eleven_AA/"), 
                          pattern = ".fasta")                                              # Dataframe containing the fasta gene file names
 
@@ -162,8 +162,8 @@ for(row in 1:nrow(fastaFiles)) {
 
 rm(fastaFiles, Fltr_FastaFiles, gene_file, gene_file_fasta, gene_file_org, row)
 
-# Project_TEN -----------------------------------------------------------------------------------------------------------------------------------
-## TEN - Nucleotides ============================================================================================================================
+# Project_TEN ------------------------------------------------------------------------------------------------------------------------------------
+## TEN - Nucleotides =============================================================================================================================
 fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Ten_NT/"), 
                          pattern = ".fasta")                                              # Dataframe containing the fasta gene file names
 fastaFiles <- mutate(fastaFiles,
@@ -224,7 +224,7 @@ for(row in 1:nrow(fastaFiles)) {
 
 rm(fastaFiles, gene_file, gene_file_fasta, gene_file_org, count, ten, row)
 
-## TEN - Amino Acids ============================================================================================================================
+## TEN - Amino Acids =============================================================================================================================
 fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Ten_AA/"), 
                          pattern = ".fasta")                                              # Dataframe containing the fasta gene file names
 
