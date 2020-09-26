@@ -9,17 +9,7 @@
 # NOTE: Two projects will be done concurrently. One project contains all eleven (Project_ELEVEN) genomes. The other project contains ten 
 # (Project_TEN) genomes with Vibrio cholerae being excluded.
 
-# library("msa")
-# library("beepr")
-# library("dplyr")
-# library("ape")
-# library("adegenet")
-# library("Rfast")
-# 
 library("tidyverse")
-# library("seqinr")
-# library("msa")
-# library("beepr")
 
 setwd("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396")
 
@@ -141,5 +131,41 @@ fastaFiles_model <- mutate(fastaFiles_model,
 gene_models <- best_model_gene(fastaFiles_model, pttrn = "-15932.csv", path = "5_Aligned_Eleven_AA/", NTAA = "AA")
 
 unique_models_txt(gene_models, project = "Eleven_AA")
+
+rm(fastaFiles_model, gene_models)
+
+## TEN - Nucleotides =============================================================================================================================
+mod_sel_txt("Ten_NT")                                                                     # Creates a .txt with pathways for model selection
+
+# Model selection run in command line using: megacc -a model_sel_ml_nucleotide.mao -d model_sel_Ten_NT.txt -o 6_Model_Ten_NT/
+
+fastaFiles_model <- data.frame(File_name = list.files(path = "6_Model_Ten_NT/", 
+                                                      pattern = ".csv"))                  # Reads in the csv file names as a dataframe
+
+fastaFiles_model <- mutate(fastaFiles_model,
+                           Path_name = paste("6_Model_Ten_NT",
+                                             fastaFiles_model$File_name, sep = "/"))
+
+gene_models <- best_model_gene(fastaFiles_model, pttrn = "-12176.csv", path = "5_Aligned_Ten_NT/", NTAA = "NT")
+
+unique_models_txt(gene_models, project = "Ten_NT")
+
+rm(fastaFiles_model, gene_models)
+
+## TEN - Amino Acids =============================================================================================================================
+mod_sel_txt("Ten_AA")                                                                     # Creates a .txt with pathways for model selection
+
+# Model selection run in command line using: megacc -a model_sel_ml_amino_acid.mao -d model_sel_Ten_AA.txt -o 6_Model_Ten_AA/
+
+fastaFiles_model <- data.frame(File_name = list.files(path = "6_Model_Ten_AA/", 
+                                                      pattern = ".csv"))                  # Reads in the csv file names as a dataframe
+
+fastaFiles_model <- mutate(fastaFiles_model,
+                           Path_name = paste("6_Model_Ten_AA",
+                                             fastaFiles_model$File_name, sep = "/"))
+
+gene_models <- best_model_gene(fastaFiles_model, pttrn = "-22716.csv", path = "5_Aligned_Ten_AA/", NTAA = "AA")
+
+unique_models_txt(gene_models, project = "Ten_AA")
 
 rm(fastaFiles_model, gene_models)
