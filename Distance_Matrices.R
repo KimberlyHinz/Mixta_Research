@@ -3,7 +3,7 @@
 # NOTE: Two projects will be done concurrently. One project contains all eleven (Project_ELEVEN) genomes. The other project contains ten 
 # (Project_TEN) genomes with Vibrio cholerae being excluded.
 
-# library("tidyverse")
+library("tidyverse")
 # library("seqinr")
 # library("plyr")
 # library("msa")
@@ -29,8 +29,12 @@ setwd("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396")
 #                                              megacc -a dist_mat_pw_NT_T92_G.mao -d DM_Eleven_NT_T92_G.txt -o 7_Distance_Eleven_NT/
 #                                              megacc -a dist_mat_pw_NT_TN93_G.mao -d DM_Eleven_NT_TN93_G.txt -o 7_Distance_Eleven_NT/
 
-test <- data.frame(File_name = list.files(path = "5_Aligned_Eleven_NT/", 
-                                          pattern = ".mao")); test
+megFiles <- data.frame(File_name = list.files(path = "7_Distance_Eleven_NT/",
+                                              pattern = ".meg"))                          # Reads in the dist mat (meg) file names as a dataframe
+
+megFiles <- mutate(megFiles,
+                   Path_name = paste("7_Distance_Eleven_NT", File_name, sep = "/"),
+                   Gene = gsub(pattern = ".meg", replacement = "", x = File_name))        # Adds the gene name (no extension)
 
 
 ## ELEVEN - Amino Acids ==========================================================================================================================
@@ -63,11 +67,6 @@ megFiles <- data.frame(File_name = list.files())
 # .meg files and transform them into a more readable format. This is what the first portion of the for loop does. The second portion names the relatives
 # in order (more recent the evolutionary divide, the lower the distance number).
 
-megFiles <- as.data.frame(list.files(path = "7Distance/",
-                                     pattern = ".meg"))                   # Makes a list of all .meg file in this diretory
-colnames(megFiles) <- "File_name"                                         # Changes the column name
-megFiles$Path_name <- paste("C:/Users/officePC/Documents/Kim_Honours/Mixta_Mosaic/7Distance/",
-                            megFiles$File_name, sep = "")                 # Adds the path name for each gene
 megFiles$Gene <- best_model$Gene                                          # Adds the gene name (no extension)
 
 close_relative <- function(gen, spcs) {                                   # Returns the row number of the three closest relatives in the matrices
