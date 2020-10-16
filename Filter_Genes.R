@@ -1,3 +1,5 @@
+# This is the first R File for this project.
+
 # The following code is a filter that passes through gene files that have full sequences (genes that aren't split or have portions missing), and 
 # that are not truncated (genes must be at least 90% of the length of the longest gene in each file). For example, if the longest sequence is
 # 1000 bp, then the rest of the sequences must be at least 900 bp. If at least one is shorter than this limit, then the whole file is excluded.
@@ -25,6 +27,43 @@ rows_sequences <- function(gene, num_rows) {                                    
                       TRUE ~ "No")
 }
 
+organize_fasta <- function(file, num_rows, char) {
+  gene_file <- file
+  
+  gene_file_org <- data.frame(sequences = gene_file$V1[1:num_rows * 2],
+                              species = gene_file$V1[1:num_rows * 2 - 1],
+                              stringsAsFactors = FALSE)
+  
+  gene_file_org <- mutate(gene_file_org,
+                          ID = gsub(pattern = "\\|.*", replacement = "", x = species),    # Removes everything after the "|" symbol
+                          ID = as.numeric(gsub(pattern = ".*_", replacement = "", 
+                                               x = ID)))                                  # Removes everything before the "_" symbol
+  
+  gene_file_org <- separate(data = gene_file_org, col = species, 
+                            into = paste("V", 1:8, sep = ""), 
+                            sep = ":", remove = TRUE, extra = "merge")                    # Splits the species info into 8 columns by ":" symbol
+  
+  gene_file_org <- subset(gene_file_org, select = c(sequences, V2:V3, ID))                # Keep needed columns
+  
+  gene_file_org <- separate(data = gene_file_org, col = V2,
+                            into = paste("C", 1:7, sep = ""),
+                            sep = "\\|", remove = TRUE, extra = "merge")                  # Splits the spcies info into 7 columns by "|" symbol
+  
+  gene_file_org <- subset(gene_file_org, select = c(sequences, C4, C6, V3:ID))            # Keep needed columns
+  
+  colnames(gene_file_org) <- c("sequences", "species", "gene_length", char, "ID")
+  
+  gene_file_org <- separate(data = gene_file_org, col = char, 
+                            into = c("Beg", "End"), sep = "-", remove = TRUE)             # Change nucleotide number column into Beg and End
+  
+  gene_file_org <- mutate(gene_file_org,
+                          species = gsub(pattern = ".gbk", replacement = "", 
+                                         x = species),                                    # Removes the ".gbk" from species and strain
+                          gene_length = as.numeric(gene_length),
+                          Beg = as.numeric(Beg),
+                          End = as.numeric(End))
+}
+
 gene_length_check <- function(gene_file) {
   count = 0
   
@@ -37,10 +76,13 @@ gene_length_check <- function(gene_file) {
 
 # Project_ELEVEN ---------------------------------------------------------------------------------------------------------------------------------
 ## ELEVEN - Nucleotides ==========================================================================================================================
-fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Eleven_NT/"), 
-                         pattern = ".fasta")                                              # Dataframe containing the fasta gene file names
+fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Eleven_NT/", 
+                                                pattern = ".fasta"))                      # Dataframe containing the fasta gene file names
 fastaFiles <- mutate(fastaFiles,
                      Path_name = paste("3_Homologous_Eleven_NT", File_name, sep = "/"))   # Adds file pathway
+
+longer_genes <- data.frame(matrix(ncol = 7, nrow = 0))                                    # For genes that do not meet the 90% cutoff
+extra_gene_copies <- data.frame(matrix(ncol = 1, nrow = 0))                               # For genes where at least one species has an extra copy
 
 for(row in 1:nrow(fastaFiles)) {
   gene_file <- my_read_fasta(fastaFiles$Path_name[row])
@@ -48,38 +90,7 @@ for(row in 1:nrow(fastaFiles)) {
   eleven <- rows_sequences(gene_file, 22)
   
   if(eleven == "Yes") {
-    gene_file_org <- data.frame(sequences = gene_file$V1[1:11 * 2],
-                                species = gene_file$V1[1:11 * 2 - 1],
-                                stringsAsFactors = FALSE)
-    
-    gene_file_org <- mutate(gene_file_org,
-                            ID = gsub(pattern = "\\|.*", replacement = "", x = species),  # Removes everything after the "|" symbol
-                            ID = as.numeric(gsub(pattern = ".*_", replacement = "", 
-                                                 x = ID)))                                # Removes everything before the "_" symbol
-    
-    gene_file_org <- separate(data = gene_file_org, col = species, 
-                              into = paste("V", 1:8, sep = ""), 
-                              sep = ":", remove = TRUE, extra = "merge")                  # Splits the species info into 8 columns by ":" symbol
-    
-    gene_file_org <- subset(gene_file_org, select = c(sequences, V2:V3, ID))              # Keep needed columns
-    
-    gene_file_org <- separate(data = gene_file_org, col = V2,
-                              into = paste("C", 1:7, sep = ""),
-                              sep = "\\|", remove = TRUE, extra = "merge")                # Splits the spcies info into 7 columns by "|" symbol
-    
-    gene_file_org <- subset(gene_file_org, select = c(sequences, C4, C6, V3:ID))          # Keep needed columns
-    
-    colnames(gene_file_org) <- c("sequences", "species", "gene_length", "nucleotides", "ID")
-    
-    gene_file_org <- separate(data = gene_file_org, col = nucleotides, 
-                              into = c("Beg", "End"), sep = "-", remove = TRUE)           # Change nucleotide number column into Beg and End
-    
-    gene_file_org <- mutate(gene_file_org,
-                            species = gsub(pattern = ".gbk", replacement = "", 
-                                           x = species),                                  # Removes the ".gbk" from species and strain
-                            gene_length = as.numeric(gene_length),
-                            Beg = as.numeric(Beg),
-                            End = as.numeric(End))
+    gene_file_org <- organize_fasta(file = gene_file, num_rows = 11, char = "nucleotides")
     
     count <- gene_length_check(gene_file = gene_file_org)                                 # Makes sure all gene lengths are within limits
     if(count == 11) {                                                                     # If all are, proceed
@@ -90,24 +101,32 @@ for(row in 1:nrow(fastaFiles)) {
                   names = gene_file_fasta$spp_GL_Beg_End_ID,
                   file.out = paste("4_Filtered_Eleven_NT", fastaFiles$File_name[row], sep = "/"),
                   open = "w", nbchar = 10000, as.string = TRUE)                           # Creates a fasta file
+    } else {
+      gene_file_org$gene <- fastaFiles$File_name[row]
+      longer_genes <- rbind(longer_genes, gene_file_org)                                  # Genes that don't pass the 90% cutoff
     }
+  } else {
+    extra_gene_copies <- rbind(extra_gene_copies, 
+                               data.frame(Gene = fastaFiles$File_name[row]))              # Genes that have at least one extra sequence copy
   }
   
 }
 
 rm(fastaFiles, gene_file, gene_file_fasta, gene_file_org, count, eleven, row)
 
+write.csv(x = extra_gene_copies, 
+          file = "8_Results_Eleven_NT/Files_w_Extra_Gene_Sequences_1.csv", 
+          row.names = FALSE)
+
+write.csv(x = longer_genes,
+          file = "8_Results_Eleven_NT/Files_w_Longer_Sequences_45.csv",
+          row.names = FALSE)
+
+rm(extra_gene_copies, longer_genes)
+
 ## ELEVEN - Amino Acids ==========================================================================================================================
-fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Eleven_AA/"), 
-                         pattern = ".fasta")                                              # Dataframe containing the fasta gene file names
-
-Fltr_FastaFiles <- data.frame(File_name = list.files(path = "4_Filtered_Eleven_NT/"),
-                              pattern = ".fasta")                                         # Dataframe containing the filtered file names
-
-fastaFiles <- mutate(fastaFiles,
-                     Filtered = case_when(File_name %in% Fltr_FastaFiles$File_name ~ TRUE,
-                                          TRUE ~ FALSE))
-fastaFiles <- subset(fastaFiles, Filtered == TRUE, select = File_name)
+fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Eleven_AA/", 
+                                                pattern = ".fasta"))                      # Dataframe containing the fasta gene file names
 
 fastaFiles <- mutate(fastaFiles,
                      Path_name = paste("3_Homologous_Eleven_AA", File_name, sep = "/"))   # Adds file pathway
@@ -116,38 +135,7 @@ fastaFiles <- mutate(fastaFiles,
 for(row in 1:nrow(fastaFiles)) {
   gene_file <- my_read_fasta(fastaFiles$Path_name[row])
   
-  gene_file_org <- data.frame(sequences = gene_file$V1[1:11 * 2],
-                              species = gene_file$V1[1:11 * 2 - 1],
-                              stringsAsFactors = FALSE)
-  
-  gene_file_org <- mutate(gene_file_org,
-                          ID = gsub(pattern = "\\|.*", replacement = "", x = species),    # Removes everything after the "|" symbol
-                          ID = as.numeric(gsub(pattern = ".*_", replacement = "", 
-                                               x = ID)))                                  # Removes everything before the "_" symbol
-  
-  gene_file_org <- separate(data = gene_file_org, col = species, 
-                            into = paste("V", 1:8, sep = ""), 
-                            sep = ":", remove = TRUE, extra = "merge")                    # Splits the species info into 8 columns by ":" symbol
-  
-  gene_file_org <- subset(gene_file_org, select = c(sequences, V2:V3, ID))                # Keep needed columns
-    
-  gene_file_org <- separate(data = gene_file_org, col = V2,
-                            into = paste("C", 1:7, sep = ""),
-                            sep = "\\|", remove = TRUE, extra = "merge")                  # Splits the spcies info into 7 columns by "|" symbol
-  
-  gene_file_org <- subset(gene_file_org, select = c(sequences, C4, C6, V3:ID))            # Keep needed columns
-  
-  colnames(gene_file_org) <- c("sequences", "species", "gene_length", "nucleotides", "ID")
-  
-  gene_file_org <- separate(data = gene_file_org, col = nucleotides, 
-                            into = c("Beg", "End"), sep = "-", remove = TRUE)             # Change nucleotide number column into Beg and End
-  
-  gene_file_org <- mutate(gene_file_org,
-                          species = gsub(pattern = ".gbk", replacement = "", 
-                                         x = species),                                    # Removes the ".gbk" from species and strain
-                          gene_length = as.numeric(gene_length),
-                          Beg = as.numeric(Beg),
-                          End = as.numeric(End))
+  gene_file_org <- organize_fasta(file = gene_file, num_rows = 11, char = "amino_acids")
   
   count <- gene_length_check(gene_file = gene_file_org)                                   # Makes sure all gene lengths are within limits
   
@@ -160,14 +148,17 @@ for(row in 1:nrow(fastaFiles)) {
               open = "w", nbchar = 10000, as.string = TRUE)                               # Creates a fasta file
 }
 
-rm(fastaFiles, Fltr_FastaFiles, gene_file, gene_file_fasta, gene_file_org, row)
+rm(fastaFiles, gene_file, gene_file_fasta, gene_file_org, count, row)
 
 # Project_TEN ------------------------------------------------------------------------------------------------------------------------------------
 ## TEN - Nucleotides =============================================================================================================================
-fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Ten_NT/"), 
-                         pattern = ".fasta")                                              # Dataframe containing the fasta gene file names
+fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Ten_NT/", 
+                                                pattern = ".fasta"))                      # Dataframe containing the fasta gene file names
 fastaFiles <- mutate(fastaFiles,
                      Path_name = paste("3_Homologous_Ten_NT", File_name, sep = "/"))      # Adds file pathway
+
+longer_genes <- data.frame(matrix(ncol = 7, nrow = 0))                                    # For genes that do not meet the 90% cutoff
+extra_gene_copies <- data.frame(matrix(ncol = 1, nrow = 0))                               # For genes where at least one species has an extra copy
 
 for(row in 1:nrow(fastaFiles)) {
   gene_file <- my_read_fasta(fastaFiles$Path_name[row])
@@ -175,38 +166,7 @@ for(row in 1:nrow(fastaFiles)) {
   ten <- rows_sequences(gene_file, 20)
   
   if(ten == "Yes") {
-    gene_file_org <- data.frame(sequences = gene_file$V1[1:10 * 2],
-                                species = gene_file$V1[1:10 * 2 - 1],
-                                stringsAsFactors = FALSE)
-    
-    gene_file_org <- mutate(gene_file_org,
-                            ID = gsub(pattern = "\\|.*", replacement = "", x = species),  # Removes everything after the "|" symbol
-                            ID = as.numeric(gsub(pattern = ".*_", replacement = "", 
-                                                 x = ID)))                                # Removes everything before the "_" symbol
-    
-    gene_file_org <- separate(data = gene_file_org, col = species, 
-                              into = paste("V", 1:8, sep = ""), 
-                              sep = ":", remove = TRUE, extra = "merge")                  # Splits the species info into 8 columns by ":" symbol
-    
-    gene_file_org <- subset(gene_file_org, select = c(sequences, V2:V3, ID))              # Keep needed columns
-    
-    gene_file_org <- separate(data = gene_file_org, col = V2,
-                              into = paste("C", 1:7, sep = ""),
-                              sep = "\\|", remove = TRUE, extra = "merge")                # Splits the spcies info into 7 columns by "|" symbol
-    
-    gene_file_org <- subset(gene_file_org, select = c(sequences, C4, C6, V3:ID))          # Keep needed columns
-    
-    colnames(gene_file_org) <- c("sequences", "species", "gene_length", "nucleotides", "ID")
-    
-    gene_file_org <- separate(data = gene_file_org, col = nucleotides, 
-                              into = c("Beg", "End"), sep = "-", remove = TRUE)           # Change nucleotide number column into Beg and End
-    
-    gene_file_org <- mutate(gene_file_org,
-                            species = gsub(pattern = ".gbk", replacement = "", 
-                                           x = species),                                  # Removes the ".gbk" from species and strain
-                            gene_length = as.numeric(gene_length),
-                            Beg = as.numeric(Beg),
-                            End = as.numeric(End))
+    gene_file_org <- organize_fasta(file = gene_file, num_rows = 10, char = "nucleotides")
     
     count <- gene_length_check(gene_file = gene_file_org)                                 # Makes sure all gene lengths are within limits
     if(count == 10) {                                                                     # If all are, proceed
@@ -217,24 +177,30 @@ for(row in 1:nrow(fastaFiles)) {
                   names = gene_file_fasta$spp_GL_Beg_End_ID,
                   file.out = paste("4_Filtered_Ten_NT", fastaFiles$File_name[row], sep = "/"),
                   open = "w", nbchar = 10000, as.string = TRUE)                           # Creates a fasta file
+    } else {
+      gene_file_org$gene <- fastaFiles$File_name[row]
+      longer_genes <- rbind(longer_genes, gene_file_org)                                  # Genes that don't pass the 90% cutoff
     }
+  } else {
+    extra_gene_copies <- rbind(extra_gene_copies, 
+                               data.frame(Gene = fastaFiles$File_name[row]))              # Genes that have at least one extra sequence copy
   }
-  
 }
-
 rm(fastaFiles, gene_file, gene_file_fasta, gene_file_org, count, ten, row)
 
+write.csv(x = extra_gene_copies, 
+          file = "8_Results_Ten_NT/Files_w_Extra_Gene_Sequences_38.csv", 
+          row.names = FALSE)
+
+write.csv(x = longer_genes,
+          file = "8_Results_Ten_NT/Files_w_Longer_Sequences_175.csv",
+          row.names = FALSE)
+
+rm(extra_gene_copies, longer_genes)
+#
 ## TEN - Amino Acids =============================================================================================================================
-fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Ten_AA/"), 
-                         pattern = ".fasta")                                              # Dataframe containing the fasta gene file names
-
-Fltr_FastaFiles <- data.frame(File_name = list.files(path = "4_Filtered_Ten_NT/"),
-                              pattern = ".fasta")                                         # Dataframe containing the filtered file names
-
-fastaFiles <- mutate(fastaFiles,
-                     Filtered = case_when(File_name %in% Fltr_FastaFiles$File_name ~ TRUE,
-                                          TRUE ~ FALSE))
-fastaFiles <- subset(fastaFiles, Filtered == TRUE, select = File_name)
+fastaFiles <- data.frame(File_name = list.files(path = "4_Filtered_Ten_NT/",
+                                                pattern = ".fasta"))                      # Dataframe containing the fasta gene file names
 
 fastaFiles <- mutate(fastaFiles,
                      Path_name = paste("3_Homologous_Ten_AA", File_name, sep = "/"))      # Adds file pathway
@@ -243,38 +209,7 @@ fastaFiles <- mutate(fastaFiles,
 for(row in 1:nrow(fastaFiles)) {
   gene_file <- my_read_fasta(fastaFiles$Path_name[row])
   
-  gene_file_org <- data.frame(sequences = gene_file$V1[1:10 * 2],
-                              species = gene_file$V1[1:10 * 2 - 1],
-                              stringsAsFactors = FALSE)
-  
-  gene_file_org <- mutate(gene_file_org,
-                          ID = gsub(pattern = "\\|.*", replacement = "", x = species),    # Removes everything after the "|" symbol
-                          ID = as.numeric(gsub(pattern = ".*_", replacement = "", 
-                                               x = ID)))                                  # Removes everything before the "_" symbol
-  
-  gene_file_org <- separate(data = gene_file_org, col = species, 
-                            into = paste("V", 1:8, sep = ""), 
-                            sep = ":", remove = TRUE, extra = "merge")                    # Splits the species info into 8 columns by ":" symbol
-  
-  gene_file_org <- subset(gene_file_org, select = c(sequences, V2:V3, ID))                # Keep needed columns
-  
-  gene_file_org <- separate(data = gene_file_org, col = V2,
-                            into = paste("C", 1:7, sep = ""),
-                            sep = "\\|", remove = TRUE, extra = "merge")                  # Splits the spcies info into 7 columns by "|" symbol
-  
-  gene_file_org <- subset(gene_file_org, select = c(sequences, C4, C6, V3:ID))            # Keep needed columns
-  
-  colnames(gene_file_org) <- c("sequences", "species", "gene_length", "nucleotides", "ID")
-  
-  gene_file_org <- separate(data = gene_file_org, col = nucleotides, 
-                            into = c("Beg", "End"), sep = "-", remove = TRUE)             # Change nucleotide number column into Beg and End
-  
-  gene_file_org <- mutate(gene_file_org,
-                          species = gsub(pattern = ".gbk", replacement = "", 
-                                         x = species),                                    # Removes the ".gbk" from species and strain
-                          gene_length = as.numeric(gene_length),
-                          Beg = as.numeric(Beg),
-                          End = as.numeric(End))
+  gene_file_org <- organize_fasta(file = gene_file, num_rows = 10, char = "amino_acids")
   
   count <- gene_length_check(gene_file = gene_file_org)                                   # Makes sure all gene lengths are within limits
   
@@ -287,4 +222,4 @@ for(row in 1:nrow(fastaFiles)) {
               open = "w", nbchar = 10000, as.string = TRUE)                               # Creates a fasta file
 }
 
-rm(fastaFiles, Fltr_FastaFiles, gene_file, gene_file_fasta, gene_file_org, count, row)
+rm(fastaFiles, gene_file, gene_file_fasta, gene_file_org, count, row)
