@@ -1,26 +1,75 @@
+# This is the fourth R File for this project.
+
 # The following code reads in the distance matrices and determines the order of the relatives to M. calida and M. gaviniae.
 
 # NOTE: Two projects will be done concurrently. One project contains all eleven (Project_ELEVEN) genomes. The other project contains ten 
 # (Project_TEN) genomes with Vibrio cholerae being excluded.
 
 library("tidyverse")
-# library("seqinr")
-# library("plyr")
-# library("msa")
-# library("beepr")
-# library("dplyr")
-# library("ape")
-# library("adegenet")
-# library("Rfast")
-# library("plyr")
-# library("tidyr")
-# library("ggplot2")
-# theme_set(theme_bw())
 
 setwd("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396")
 
 # Functions --------------------------------------------------------------------------------------------------------------------------------------
-
+dist_results <- function(Files, skip_name, max_name, skip_mat, last_col, last_row, saveFolder, Project) {
+  
+  relative_dist <- data.frame(matrix(ncol = 6, nrow = 0))
+  first_four <- data.frame(matrix(ncol = 4, nrow = 0))
+  for(row in 1:nrow(Files)) {
+    names <- read_delim(file = Files$Path_name[row], delim = "\n", skip = skip_name, n_max = max_name, col_types = "c", col_names = "Species")
+    
+    names <- mutate(names,
+                    Species = substring(Species, first = 7))
+    
+    dist_mat <- read.table(file = Files$Path_name[row], stringsAsFactors = FALSE, skip = skip_mat, fill = TRUE)
+    dist_mat <- subset(dist_mat, select = 2:last_col)
+    
+    dist_mat <- data.frame(lapply(dist_mat, gsub, pattern = "\\[|\\]", replacement = "")) # Remove the brackets
+    
+    for(row2 in 2:(nrow(dist_mat) - last_row)) {                                          # Shift over distance cells so SE are separate
+      for(col in 1:(row2 - 1)) {
+        dist_mat[row2, col] <- dist_mat[row2, col + 1]
+      }
+    }; rm(col, row2)
+    
+    if(max_name == 11) {
+      dist_mat[10, 11] <- dist_mat[10, 10]                                                # Shift last SE over to the right rather than left
+    }
+    
+    diag(dist_mat) <- 0                                                                   # Diagonal 0s since closest is itself
+    
+    if(max_name == 11) {
+      colnames(dist_mat) <- rownames(dist_mat) <- c("TS", "OUT_E", "EA", "ET", "MC", "MG", "PA", "PS", "OUT_P", "TP", "OUT_V")
+    } else {
+      colnames(dist_mat) <- rownames(dist_mat) <- c("TS", "OUT_E", "EA", "ET", "MC", "MG", "PA", "PS", "OUT_P", "TP")
+    }
+    results <- data.frame(gene = Files$Gene[row],
+                          species = names$Species,
+                          cal_dist = c(t(dist_mat[5, 1:5]), dist_mat[6:max_name, 5]),
+                          cal_SE = c(dist_mat[1:5, 5], t(dist_mat[5, 6:max_name])),
+                          gav_dist = c(t(dist_mat[6, 1:6]), dist_mat[7:max_name, 6]),
+                          gav_SE = c(dist_mat[1:6, 6], t(dist_mat[6, 7:max_name])))
+    
+    relative_dist <- rbind(relative_dist, results)
+    
+    cal <- arrange(results, cal_dist)
+    gav <- arrange(results, gav_dist)
+    
+    four <- data.frame(gene = Files$Gene[row],
+                       order = c("First_check", "Second", "Third", "Four"),
+                       cal_four = cal$species[1:4],
+                       gav_four = gav$species[1:4])
+    
+    first_four <- rbind(first_four, four)
+  }
+  # rm(cal, dist_mat, four, gav, names, results, row)
+  
+  write.csv(x = first_four, 
+            file = paste(saveFolder, "Four_Relatives_", Project, ".csv", sep = ""), 
+            row.names = FALSE)
+  write.csv(x = relative_dist, 
+            file = paste(saveFolder, "Relatives_Distances_", Project, ".csv", sep = ""), 
+            row.names = FALSE)
+}
 
 # Project_ELEVEN ---------------------------------------------------------------------------------------------------------------------------------
 ## ELEVEN - Nucleotides ==========================================================================================================================
@@ -34,146 +83,67 @@ megFiles <- data.frame(File_name = list.files(path = "7_Distance_Eleven_NT/",
 
 megFiles <- mutate(megFiles,
                    Path_name = paste("7_Distance_Eleven_NT", File_name, sep = "/"),
-                   Gene = gsub(pattern = ".meg", replacement = "", x = File_name))        # Adds the gene name (no extension)
+                   Gene = gsub(pattern = "-24792.meg|-10084.meg|-27040.meg|-27004.meg", 
+                               replacement = "", x = File_name))                          # Adds the gene name (no extension)
 
+dist_results(Files = megFiles, skip_name = 34, max_name = 11, skip_mat = 48, last_col = 12, last_row = 2,
+             saveFolder = "8_Results_Eleven_NT/", Project = "Eleven_NT")
 
+rm(megFiles)
+#
 ## ELEVEN - Amino Acids ==========================================================================================================================
 # Distance matrices run in command line using: megacc -a dist_mat_pw_AA_JTT_G.mao -d DM_Eleven_AA_JTT_G.txt -o 7_Distance_Eleven_AA/
 #                                              megacc -a dist_mat_pw_AA_JTT.mao -d DM_Eleven_AA_JTT.txt -o 7_Distance_Eleven_AA/
 #                                              megacc -a dist_mat_pw_AA_Dayhoff_G.mao -d DM_Eleven_AA_Dayhoff_G.txt -o 7_Distance_Eleven_AA/
 #                                              megacc -a dist_mat_pw_AA_Dayhoff.mao -d DM_Eleven_AA_Dayhoff.txt -o 7_Distance_Eleven_AA/
 
-megFiles <- data.frame(File_name = list.files())
+megFiles <- data.frame(File_name = list.files(path = "7_Distance_Eleven_AA/",
+                                              pattern = ".meg"))                          # Reads in the dist mat (meg) file names as a dataframe
 
+megFiles <- mutate(megFiles,
+                   Path_name = paste("7_Distance_Eleven_AA", File_name, sep = "/"),
+                   Gene = gsub(pattern = "-18344.meg|-6460.meg|-964.meg|-21376.meg", 
+                               replacement = "", x = File_name))                          # Adds the gene name (no extension)
+
+dist_results(Files = megFiles, skip_name = 33, max_name = 11, skip_mat = 46,last_col = 12, last_row = 2,
+             saveFolder = "8_Results_Eleven_AA/", Project = "Eleven_AA")
+
+rm(megFiles)
+#
 ## TEN - Nucleotides =============================================================================================================================
 # Distance matrices run in command line using: megacc -a dist_mat_pw_NT_K2.mao -d DM_Ten_NT_K2.txt -o 7_Distance_Ten_NT/
 #                                              megacc -a dist_mat_pw_NT_K2_G.mao -d DM_Ten_NT_K2_G.txt -o 7_Distance_Ten_NT/
 #                                              megacc -a dist_mat_pw_NT_T92_G.mao -d DM_Ten_NT_T92_G.txt -o 7_Distance_Ten_NT/
 #                                              megacc -a dist_mat_pw_NT_TN93_G.mao -d DM_Ten_NT_TN93_G.txt -o 7_Distance_Ten_NT/
 
+megFiles <- data.frame(File_name = list.files(path = "7_Distance_Ten_NT/",
+                                              pattern = ".meg"))                          # Reads in the dist mat (meg) file names as a dataframe
 
+megFiles <- mutate(megFiles,
+                   Path_name = paste("7_Distance_Ten_NT", File_name, sep = "/"),
+                   Gene = gsub(pattern = "-19020.meg|-7720.meg|-23436.meg|-24416.meg", 
+                               replacement = "", x = File_name))                          # Adds the gene name (no extension)
+
+dist_results(Files = megFiles, skip_name = 34, max_name = 10, skip_mat = 47, last_col = 11, last_row = 1,
+             saveFolder = "8_Results_Ten_NT/", Project = "Ten_NT")
+
+rm(megFiles)
+#
 ## TEN - Amino Acids =============================================================================================================================
 # Distance matrices run in command line using: megacc -a dist_mat_pw_AA_JTT_G.mao -d DM_Ten_AA_JTT_G.txt -o 7_Distance_Ten_AA/
 #                                              megacc -a dist_mat_pw_AA_JTT.mao -d DM_Ten_AA_JTT.txt -o 7_Distance_Ten_AA/
 #                                              megacc -a dist_mat_pw_AA_Dayhoff_G.mao -d DM_Ten_AA_Dayhoff_G.txt -o 7_Distance_Ten_AA/
 #                                              megacc -a dist_mat_pw_AA_Dayhoff.mao -d DM_Ten_AA_Dayhoff.txt -o 7_Distance_Ten_AA/
 
+megFiles <- data.frame(File_name = list.files(path = "7_Distance_Ten_AA/",
+                                              pattern = ".meg"))                          # Reads in the dist mat (meg) file names as a dataframe
 
+megFiles <- mutate(megFiles,
+                   Path_name = paste("7_Distance_Ten_AA", File_name, sep = "/"),
+                   Gene = gsub(pattern = "-6676.meg|-10760.meg|-6136.meg|-18080.meg", 
+                               replacement = "", x = File_name))                          # Adds the gene name (no extension)
 
+dist_results(Files = megFiles, skip_name = 33, max_name = 10, skip_mat = 45, last_col = 11, last_row = 1,
+             saveFolder = "8_Results_Ten_AA/", Project = "Ten_AA")
 
-
-### Closest relative ######################################################################################################################################
-# This section uses the distance matrices to extract Mixta calida's and Mixta gaviniae's relatives in order. To do this, the code must first read in the
-# .meg files and transform them into a more readable format. This is what the first portion of the for loop does. The second portion names the relatives
-# in order (more recent the evolutionary divide, the lower the distance number).
-
-megFiles$Gene <- best_model$Gene                                          # Adds the gene name (no extension)
-
-close_relative <- function(gen, spcs) {                                   # Returns the row number of the three closest relatives in the matrices
-  min1 <- Rfast::nth(x = spcs, k = 1, descending = FALSE, 
-                     index.return = TRUE)
-  min2 <- Rfast::nth(x = spcs, k = 2, descending = FALSE, 
-                     index.return = TRUE)
-  min3 <- Rfast::nth(x = spcs, k = 3, descending = FALSE, 
-                     index.return = TRUE)
-  min4 <- Rfast::nth(x = spcs, k = 4, descending = FALSE, 
-                     index.return = TRUE)
-  min5 <- Rfast::nth(x = spcs, k = 5, descending = FALSE, 
-                     index.return = TRUE)
-  min6 <- Rfast::nth(x = spcs, k = 6, descending = FALSE, 
-                     index.return = TRUE)
-  min7 <- Rfast::nth(x = spcs, k = 7, descending = FALSE, 
-                     index.return = TRUE)
-  min8 <- Rfast::nth(x = spcs, k = 8, descending = FALSE, 
-                     index.return = TRUE)
-  min9 <- Rfast::nth(x = spcs, k = 9, descending = FALSE, 
-                     index.return = TRUE)
-  min10 <- Rfast::nth(x = spcs, k = 10, descending = FALSE, 
-                      index.return = TRUE)
-  
-  rela <- data.frame(Gene = gen,
-                     One = relative(min1),
-                     Two = relative(min2),
-                     Three = relative(min3),
-                     Four = relative(min4),
-                     Five = relative(min5),
-                     Six = relative(min6),
-                     Seven = relative(min7),
-                     Eight = relative(min8),
-                     Nine = relative(min9),
-                     Ten = relative(min10))
-}
-
-relative <- function(number) {                                            # Returns the relative name given row number
-  rltv <- case_when(
-    number == 1 ~ "Tatumella_saanichensis",
-    number == 2 ~ "Citrobacter_freundii",
-    number == 3 ~ "Enterobacter_cloacae",
-    number == 4 ~ "Erwinia_amylovora",
-    number == 5 ~ "Erwinia_tasmaniensis",
-    number == 6 ~ "Mixta_calida",
-    number == 7 ~ "Mixta_gaviniae",
-    number == 8 ~ "Pantoea_agglomerans",
-    number == 9 ~ "Pantoea_septica",
-    number == 10 ~ "Tatumella_ptyseos")
-}
-
-M_cal_rel <- as.data.frame(matrix(ncol = 11, nrow = 0))                   # Dataframe for M. calida's closest relatives
-colnames(M_cal_rel) <- c("Gene", "Itself_check", "First_rel", "Second_rel", "Third_rel", "Fourth_rel", "Fifth_rel", "Sixth_rel", "Seventh_rel",
-                         "Eighth_rel", "Ninth_rel")                        # Changes the column names
-
-M_gav_rel <- as.data.frame(matrix(ncol = 11, nrow = 0))                   # Dataframe for M. gaviniae's closest relatives
-colnames(M_gav_rel) <- c("Gene", "Itself_check", "First_rel", "Second_rel", "Third_rel", "Fourth_rel", "Fifth_rel", "Sixth_rel", "Seventh_rel",
-                         "Eighth_rel", "Ninth_rel")                      # Changes the column names
-
-for(row in 1:nrow(megFiles)) {                                            # Finds the two closest relatives to Mixta species
-  path <- megFiles$Path_name[row]                                         # Path name
-  gene <- megFiles$Gene[row]                                              # Gene name
-  
-  mega <- case_when(
-    gene %in% c("37818_hypothetical_protein", "38262_ygbE", "38956_hypothetical_protein", "39709_yciH", "39916_eamA") 
-    ~ read.table(file = path, stringsAsFactors = FALSE, skip = 37,        # These five genes had to be run manually (therefore different format)
-                 fill = TRUE),
-    TRUE ~ read.table(file = path, stringsAsFactors = FALSE, skip = 45,   # For the rest
-                      fill = TRUE)
-  )
-  
-  mega2 <- as.data.frame(matrix(ncol = 1, nrow = 10))
-  for(i in 1:length(mega)) {                                              # Removes the square brackets
-    hel <- as.character(mega[[i]])
-    
-    for(j in 1:length(hel)) {
-      hel[j] <- gsub(pattern = "\\[|\\]", replacement = "", x = hel[j])
-    }
-    mega2 <- cbind(mega2, hel, stringsAsFactors = FALSE) 
-  }
-  rm(hel, i, j)
-  colnames(mega2) <- paste("V", 1:13, sep = "")                           # Changes the column names
-  
-  dist <- subset(mega2, select = V3:V12)                                  # Subsets mega2, keeping only the important columns
-  colnames(dist) <- paste("V", 1:10, sep = "")                            # Changes the column names
-  
-  for(row in 2:(nrow(dist) - 1)) {                                        # Moves things over so that the SE's are separate
-    for(i in 1:(row - 1)) {
-      dist[row, i] <- dist[row, i + 1]
-    }
-  }
-  rm(i, row)
-  diag(dist) <- 0                                                         # Adds zeros down the diagonal since each species' gene is closest to itself
-  
-  M_cal <- as.numeric(rbind(t(dist[6, 1:6]), dist[7, 6], dist[8, 6],      # Grabs the distances for each species relative to M. calida
-                            dist[9, 6], dist[10, 6]))
-  M_gav <- as.numeric(rbind(t(dist[7, 1:7]), dist[8, 7], dist[9, 7],      # Grabs the distances for each species relative to M. gaviniae
-                            dist[10, 7]))
-  
-  MCclorel <- close_relative(gene, M_cal)                                 # Calls the close_relative function
-  MGclorel <- close_relative(gene, M_gav)
-  
-  M_cal_rel <- rbind(M_cal_rel, MCclorel)                                 # Combines everything together
-  M_gav_rel <- rbind(M_gav_rel, MGclorel)
-}
-beep(8)
-rm(dist, MCclorel, mega, mega2, MGclorel, gene, M_cal, M_gav, path)
-
-write.csv(x = M_cal_rel, file = "8Results/M_calida_Relatives.csv", row.names = FALSE)
-write.csv(x = M_gav_rel, file = "8Results/M_gaviniae_Relatives.csv", row.names = FALSE)
+rm(megFiles)
