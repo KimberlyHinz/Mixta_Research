@@ -1,3 +1,5 @@
+# This is the third R File for this project.
+
 # The following code first creates a .txt file to run MEGA-CC in order to find the best model for distance matrices.
 
 # Next, the best (available) model for distance matrices are extracted from the MEGA-CC Model Selection output. GTR and HKY are not options for 
