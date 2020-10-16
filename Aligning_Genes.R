@@ -1,3 +1,5 @@
+# This is the second R File for this project.
+
 # The following code aligns the genes using the ClustalW algorithm through the R package "msa". The parameters are 100 maximum iterations (default
 # is 16) and default parameters. The genes are then written into a new fasta file.
 
