@@ -125,7 +125,7 @@ write.csv(x = longer_genes,
 rm(extra_gene_copies, longer_genes)
 
 ## ELEVEN - Amino Acids ==========================================================================================================================
-fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Eleven_AA/", 
+fastaFiles <- data.frame(File_name = list.files(path = "4_Filtered_Eleven_NT/", 
                                                 pattern = ".fasta"))                      # Dataframe containing the fasta gene file names
 
 fastaFiles <- mutate(fastaFiles,
