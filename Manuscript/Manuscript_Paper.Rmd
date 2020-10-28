@@ -1,0 +1,54 @@
+---
+title: "Untitled"
+author: "Kimberly Hinz"
+date: "2020/12/08"
+output:
+  word_document:
+    reference_docx: Styles1.docx
+    fig_caption: true
+    # toc: true
+    # toc_depth: 5
+# bibliography: References.bib
+csl: nature-genetics.csl
+---
+
+```{=openxml}
+<w:p><w:r><w:br w:type="page"/></w:r></w:p>
+```
+# Abstract
+*Mixta* is a recently described genus within the bacterial family *Erwiniaceae* that is closely related to *Pantoea*, *Erwinia*, and *Tatumella*. Depending on the genes and method used for phylogenetic analysis, the genus with which *Mixta* shares the most recent ancestor differs. This study aimed to determine the cause behind these contentious results, and identified genes that resulted from horizontal gene transfer. Ten complete or partial genomes – two *Mixta* species, six species from other *Erwiniaceae* genera, and two outgroups – were retrieved from NCBI and annotated. Homologous genes were extracted yielding a dataset of 1035 genes. The genes were aligned With the ClustalW algorithm and MEGA-CC was used for model testing and computing the distance matrix for each gene. *Pantoea* was the closest relative to the *Mixta* species in most of the analyses; however, results varied for some genes and gene datasets as they have likely resulted from horizontal gene transfer. Diligence must be given to the selection of genes for phylogenetic analysis in order to prevent xenologous signal from distorting the true relationships.
+
+# Introduction
+The bacterial family Erwiniaceae includes diverse Gram-negative 1 2 organisms including the genera Mixta, Pantoea, Erwinia, Tatumella, Buchnera, Wigglesworthia, Phaseolibacter, Kalamiella (LPSN, http://www.bacterio.net/). Three of these, Mixta, Pantoea, and Erwinia, have been the focus of numerous studies given their relevance to plant and human pathogens. For example, the genus Erwinia contains plant pathogens (e.g. E. amylovora) 3 4 5, epiphytes (e.g. E. tasmaniensis) 6 7, species that may contribute to plant disease 8, and others that are insect-associated 9 10 11. Similarly, Pantoea, a genus reported by Gavini et al. 12, includes species that inhabit a variety of environments 12 13 14, including human and plant pathogens 2 15 16 17 18 19 20 as well as species associated with plant growth 21 22, insects 23, and fungi 24 25. Mixta, originally Pantoea, is a novel genus first suggested by Palmer et al. 26 and then later proposed by the same researchers in 2018 27. Two species, M. calida and M. gaviniae (previously species of Pantoea), were originally found in infant formula and its production environment 13 and Fritz et al. 28 demonstrated that some strains of M. calida were linked with post-surgical meningitis in humans. Currently, there are only five Mixta species validly published (LPSN, http://www.bacterio.net/).
+
+Understanding the phylogeny of bacterial species and genes allows researchers to investigate the evolutionary history of the species, their relatedness, and the individual genes that allow the species to survive under various conditions 26 29 30 31 32 33. The most common methods in phylogenetic analysis are those including 16S ribosomal RNA (rRNA) sequences 34, multi-locus sequence analysis (MLSA) with several housekeeping genes 34 35 36, and ribosomal MLSA with 53 structural ribosomal proteins 26 29 37. However, the phylogenetic trees generated from these methods may not be very robust 34 36 38 because of the lower phylogenetic signal from the highly conserved housekeeping genes 34 35 39 40 41 42. This is particularly seen within Erwiniaceae wherein most of our understanding of the phylogeny and interrelationships are based on the 16S rRNA genes 43 44 45 46 47 because of its ubiquity. However, it has insufficient resolution at the species level 36 and the genera Pantoea, Erwinia, Tatumella, and Mixta are often not monophyletic 48. Another issue that may arise with MLSA is unknowingly including paralogues (i.e. genes originating from an intragenomic duplication event) or xenologues (i.e. genes originating from horizontal gene transfer) 26 *49.
+
+The DNA topoisomerase (gyrase) subunit (gyrB), DNA-directed RNA polymerase subunit (rpoB), ATP synthase subunit (atpD), and initiation translation factor (infB) have been shown to be more reliable than 16S rRNA gene sequences for determining intra- and intergeneric relationships 50 51 52 53 and a robust method for the Erwiniaceae family 54. The genera within Erwiniaceae are monophyletic when concatenated partial gyrB, rpoB, atpD, and infB gene sequences are used 38 55 56.
+
+Nevertheless, despite efforts to find a suitable method for identifying the species tree for Erwiniaceae genera, Mixta’s position with relation to Pantoea, Erwinia, and Tatumella vastly differs between studies 2 26 27 47 57 48 58 59. Not only do different gene combinations provide different results, but different algorithms and models for alignments and phylogenetic trees also contribute the contentious results 45 60. For example, Prakash et al. 2, Palmer et al. 26, Rezzonico et al. 48, and Gueule et al. 59 all used gyrB, rpoB, atpD, and infB nucleotide gene sequences in their phylogenetic analyses. Prakash et al. conducted a neighbour-joining statistical method while the others used a maximum-likelihood (ML) method. Three of the studies – Rezzonico et al., Prakash et al., and Gueule et al. – placed the Mixta species within the Pantoea genera whereas the analysis in Palmer et al. places Mixta outside of the other three genera. Palmer et al. 27, Rezzonico et al. 48, and Brady et al. 58 also ran analyses with the four MLSA genes as amino acid sequences. These three studies show contentious results as Rezzonico et al. shows that Mixta is related closest with Tatumella, Palmer et al. shows that Mixta is related closest with Pantoea, and Brady et al. shows Mixta within the Pantoea genus. In a separate study conducted by Palmer et al. 26, two ML trees were computed, one with 1039 core amino acid sequence and the other with 52 ribosomal MLSA nucleotide genes. Both ML trees contained species from Mixta, Pantoea, Erwinia, and Tatumella; however, the analysis with the core genes placed Pantoea and Tatumella as sister taxa followed by two Mixta species whereas the analysis with ribosomal MLSA genes placed Pantoea and Tatumella as sister taxa followed by Erwinia and then by the Mixta species. A possible cause behind these contentious results may be horizontal gene transfer (HGT) events within the Erwiniaceae or from unrelated species. HGT events occur frequently within bacteria and often the genes provide the bacteria the ability to adapt to new environments and/or survive selective pressures.
+
+The objective of my honours thesis was to determine the cause behind the contentious phylogenetic results for Mixta species. To accomplish this, ten complete or partial genomes – two each for Mixta, Pantoea, Erwinia, Tatumella, and outgroup – were retrieved from public databases, annotated, and homologous genes were extracted. Genes were used to make individual phylogenetic trees, and the trees were examined for inconsistent evolutionary histories.
+
+# Materials and Methods
+## Genomes and Gene Sets
+Publicly available full genomes were retrieved from NCBI comprising of ten type strains from Mixta, Pantoae, Erwinia, Tatumella, Citrobacter, and Enterobacter (Table 1). The genomes were annotated with Prokka v1.14.1 61 using default parameters and homologous genes were extracted using GET_HOMOLOGUES software package 62 with the bidirectional best-hit search algorithm using default parameters. GET_HOMOLOGUES extracted 1284 genes that were common between the ten species.
+Within R 63, a filtering function was created to pass forward fasta files with ten, non-truncated sequences. The minimum gene length to pass through the filter was 90% of the length of the longest sequence in that file. This filter ensured that files containing split, missing, or paralogous genes were not included in the analysis. As a result, 1035 files of the 1284 passed this filtering stage.
+
+## Gene Alignment
+Gene alignments were done in R with a few software packages. The fasta files were read in using the readDNAStringSet() function 64 (package: Biostrings). The alignments were made using the ClustalW algorithm with the msaClustalW() 65 (package: msa). The number of maximum iterations was set to 100 and the other parameters were kept at default settings 65. Alignments were then converted into a readable format using msaConvert 65 (package: msa) and then written as fasta files using write.fasta() 66 (package: seqinr).
+
+## Distance Matrices
+Prior to computing distance matrices, model testing was done for each of the 1035 gene files through MEGA-CC 67 by calling a text file containing the file pathways and a MAO file detailing the analysis preferences. These results were exported as comma-separated values (CSV) and read into R. The best model was chosen based on the lowest Bayesian Information Criterion (BIC) and if it was available for distance matrices in MEGAX 68. General Time Reversible (GTR) models and Hasegawa-Kishino-Yano (HKY) models were not available for distance matrices and so these models were not considered during model testing. Furthermore, the rates among sites option invariant sites (+I) was also not available for distance matrices and were subsequently ignored.
+
+The gene files were separated into groups according to the suggested model and text files were created with their file pathways. These text files were called in turn along with a corresponding MAO file through MEGA-CC to compute the distance matrices for each gene. Variance was estimated with 500 bootstraps, transitions and transversions were allowed, and gaps and missing data were treated with pairwise deletion.
+
+The genetic distances and standard errors relative to M. calida and M. gaviniae were extracted to create plots in R, categorize the closest relatives, run generalized additive models to determine potential non-linear relationships between parameters and genetic distances, and identify genes for further analysis using phylogenetic trees. The ML phylogenetic trees were created using MEGAX and with a model suggested through model testing.
+
+# Results and Discussion
+
+# Conclusion
+
+```{=openxml}
+<w:p><w:r><w:br w:type="page"/></w:r></w:p>
+```
+# Literature Cited
