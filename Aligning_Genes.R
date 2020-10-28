@@ -12,6 +12,7 @@ library("msa")
 library("beepr")
 
 setwd("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396")
+setwd("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/Extra_Longer_Genes/")
 
 # Functions --------------------------------------------------------------------------------------------------------------------------------------
 align_gene <- function(gene_file, NTAA) {                                                 # Aligns sequences and converts to a dataframe
