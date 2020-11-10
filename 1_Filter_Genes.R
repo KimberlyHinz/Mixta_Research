@@ -71,7 +71,7 @@ gene_length_check <- function(gene_file) {
   count
 }
 
-## Nucleotides =============================================================================================================================
+## Nucleotides ===================================================================================================================================
 fastaFiles <- data.frame(File_name = list.files(path = "3_Homologous_Ten_NT/", 
                                                 pattern = ".fasta"))                      # Dataframe containing the fasta gene file names
 fastaFiles <- mutate(fastaFiles,
@@ -109,17 +109,17 @@ for(row in 1:nrow(fastaFiles)) {
 rm(fastaFiles, gene_file, gene_file_fasta, gene_file_org, count, ten, row)
 
 write.csv(x = extra_gene_copies, 
-          file = "8_Results_Ten_NT/Files_w_Extra_Gene_Sequences_38.csv", 
+          file = "8_Results_NT/Files_w_Extra_Gene_Sequences_38.csv", 
           row.names = FALSE)
 
 write.csv(x = longer_genes,
-          file = "8_Results_Ten_NT/Files_w_Longer_Sequences_175.csv",
+          file = "8_Results_NT/Files_w_Longer_Sequences_175.csv",
           row.names = FALSE)
 
 rm(extra_gene_copies, longer_genes)
 #
-## Amino Acids =============================================================================================================================
-fastaFiles <- data.frame(File_name = list.files(path = "4_Filtered_Ten_NT/",
+## Amino Acids ===================================================================================================================================
+fastaFiles <- data.frame(File_name = list.files(path = "4_Filtered_NT/",
                                                 pattern = ".fasta"))                      # Dataframe containing the fasta gene file names
 
 fastaFiles <- mutate(fastaFiles,
@@ -138,7 +138,7 @@ for(row in 1:nrow(fastaFiles)) {
   
   write.fasta(sequences = as.list(gene_file_fasta$sequences),
               names = gene_file_fasta$spp_GL_Beg_End_ID,
-              file.out = paste("4_Filtered_Ten_AA", fastaFiles$File_name[row], sep = "/"),
+              file.out = paste("4_Filtered_AA", fastaFiles$File_name[row], sep = "/"),
               open = "w", nbchar = 10000, as.string = TRUE)                               # Creates a fasta file
 }
 
