@@ -29,59 +29,20 @@ mod_sel_txt <- function(project) {
               row.names = FALSE, col.names = FALSE, quote = FALSE)                        # Creates a txt file listing the gene pathways
 }
 
-model_code_NT <- function(model) {
-  code <- case_when(model %in% c("JC", "JC+I") ~ "JC",
-                    model %in% c("JC+G", "JC+G+I") ~ "JC_G",
-                    model %in% c("K2", "K2+I") ~ "K2",
-                    model %in% c("K2+G", "K2+G+I") ~ "K2_G",
-                    model %in% c("T92", "T92+I") ~ "T92",
-                    model %in% c("T92+G", "T92+G+I") ~ "T92_G",
-                    model %in% c("TN93", "TN93+I") ~ "TN93",
-                    model %in% c("TN93+G", "TN93+G+I") ~ "TN93_G")
-  return(code)
-}
-
-model_code_AA <- function(model) {
-  code <- case_when(model %in% c("Dayhoff", "Dayhoff+F", "Dayhoff+I", "Dayhoff+I+F") ~ "Dayhoff",
-                    model %in% c("Dayhoff+G", "Dayhoff+G+F", "Dayhoff+G+I", "Dayhoff+G+I+F") ~ "Dayhoff_G",
-                    model %in% c("JTT", "JTT+F", "JTT+I", "JTT+I+F") ~ "JTT",
-                    model %in% c("JTT+G", "JTT+G+F", "JTT+G+I", "JTT+G+I+F") ~ "JTT_G")
-  return(code)
-}
-
-best_model_gene <- function(fastaFiles, pttrn, path, NTAA) {
+best_model_gene <- function(fastaFiles, pttrn, path) {
   best <- data.frame(matrix(ncol = 5, nrow = 0))
   
   for(row in 1:nrow(fastaFiles)) {
     mod_sel <- read.csv(file = fastaFiles$Path_name[row])
     
-    bm <- mod_sel$Model[1]
-    bm_BIC <- mod_sel$BIC[1]
-    
-    mod_sel <- mutate(mod_sel,
-                      Model_Available = case_when(Model %in% c("GTR+G+I", "GTR+G", "GTR+I", "GTR", "HKY+G+I", "HKY+G", "HKY+I", "HKY",
-                                                               "cpREV", "cpREV+F", "cpREV+G", "cpREV+G+F", "cpREV+G+I", "cpREV+G+I+F", "cpREV+I", 
-                                                               "cpREV+I+F", "LG", "LG+F", "LG+G", "LG+G+F", "LG+G+I", "LG+G+I+F", "LG+I", 
-                                                               "LG+I+F", "mtREV24", "mtREV24+F", "mtREV24+G", "mtREV24+G+F", "mtREV24+G+I", 
-                                                               "mtREV24+G+I+F", "mtREV24+I", "mtREV24+I+F", "rtREV", "rtREV+F", "rtREV+G", 
-                                                               "rtREV+G+F", "rtREV+G+I",  "rtREV+G+I+F", "rtREV+I", "rtREV+I+F", "WAG",  "WAG+F", 
-                                                               "WAG+G", "WAG+G+F", "WAG+G+I", "WAG+G+I+F",  "WAG+I", "WAG+I+F") ~ FALSE,
-                                                  TRUE ~ TRUE))                           # If unavailable model for dist matrices, set as FALSE
-    
-    mod_sel <- subset(mod_sel, Model_Available == TRUE)                                   # Keep available models
-    
-    model <- data.frame(BM_Avail = mod_sel$Model[1],
-                        BM_Avail_BIC = mod_sel$BIC[1],
-                        BM = bm,
-                        BM_BIC = bm_BIC,
+    model <- data.frame(BM = mod_sel$Model[1],
                         File_name = fastaFiles_model$File_name[row])
     
     best <- rbind(best, model)
   }
   
   best <- mutate(best,
-                 Code = case_when(NTAA == "NT" ~ model_code_NT(BM_Avail),
-                                  NTAA == "AA" ~ model_code_AA(BM_Avail)),
+                 BM = gsub("\\+", "_", BM),
                  Gene = gsub(pttrn, replacement = "", x = File_name),
                  Path_name = paste("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/", path,
                                    Gene, ".fasta", sep = ""))
@@ -90,16 +51,24 @@ best_model_gene <- function(fastaFiles, pttrn, path, NTAA) {
 }
 
 unique_models_txt <- function(genes, project) {
-  uniq <- data.frame(Model = unique(genes$Code))
+  uniq <- data.frame(Model = unique(genes$BM))
   
   for(row in 1:nrow(uniq)) {
-    paths <- subset(genes, Code == uniq$Model[row], select = Path_name)
+    paths <- subset(genes, BM == uniq$Model[row], select = Path_name)
     
     write.table(paths,
                 file = paste("5_Aligned_", project, "/", 
-                             "DM_", project, "_", uniq$Model[row], ".txt", sep = ""),
+                             "Phylo_", project, "_", uniq$Model[row], ".txt", sep = ""),
                 sep = "\n", row.names = FALSE, col.names = FALSE, quote = FALSE)
   }
+}
+
+my_write.fasta <- function(fasta, file_row) {
+  file <- fasta
+  
+  write.fasta(sequences = as.list(file$x), names = rownames(file),
+              file.out = fastaFiles$Out_path[file_row],
+              open = "w", nbchar = 10000, as.string = TRUE)
 }
 #
 ## Nucleotides ===================================================================================================================================
@@ -114,17 +83,34 @@ fastaFiles_model <- mutate(fastaFiles_model,
                            Path_name = paste("6_Model_NT",
                                              fastaFiles_model$File_name, sep = "/"))
 
-gene_models <- best_model_gene(fastaFiles = fastaFiles_model, pttrn = "-10320.csv", path = "5_Aligned_NT/", NTAA = "NT")
+gene_models <- best_model_gene(fastaFiles = fastaFiles_model, pttrn = "-10320.csv", path = "5_Aligned_NT/")
 
-gene_models <- mutate(gene_models,
-                      Same_Model = BM_Avail == BM,
-                      BIC_Diff = BM_Avail_BIC - BM_BIC)
-
-write.csv(gene_models, "8_Results_NT/DM_Models_NT.csv", row.names = FALSE)
+write.csv(gene_models, "8_Results_NT/Phylo_Models_NT.csv", row.names = FALSE)
 
 unique_models_txt(gene_models, project = "NT")
 
 rm(fastaFiles_model, gene_models)
+
+# Rename species so they aren't so long
+fastaFiles <- data.frame(File_name = list.files(path = "5_Aligned_NT/", 
+                                                pattern = ".fasta"))                      # Reads in the fasta file names as a dataframe
+
+fastaFiles <- mutate(fastaFiles,
+                     Path_name = paste("5_Aligned_NT", 
+                                       File_name, sep = "/"),                             # Adds file pathway
+                     Out_path = paste("5_2_Renamed_NT",
+                                      File_name, sep = "/"))                              # Adds new file pathway for aligned sequences
+
+for(row in 1:nrow(fastaFiles)) {
+  gene_file <- readDNAStringSet(filepath = fastaFiles$Path_name[row])
+  
+  gene_file@ranges@NAMES <- c("T_saanichensis", "E_cloacae", "E_amylovora", "E_tasmaniensis", "M_calida", "M_gaviniae", "P_agglomerans", 
+                              "P_septica", "P_syringae", "T_ptyseos")
+  
+  gene_file <- as.data.frame(gene_file)
+  
+  my_write.fasta(gene_file, file_row = row)
+}
 
 ## Amino Acids ===================================================================================================================================
 mod_sel_txt("AA")                                                                     # Creates a .txt with pathways for model selection
@@ -138,30 +124,31 @@ fastaFiles_model <- mutate(fastaFiles_model,
                            Path_name = paste("6_Model_AA",
                                              fastaFiles_model$File_name, sep = "/"))
 
-gene_models <- best_model_gene(fastaFiles = fastaFiles_model, pttrn = "-9444.csv", path = "5_Aligned_AA/", NTAA = "AA")
+gene_models <- best_model_gene(fastaFiles = fastaFiles_model, pttrn = "-9444.csv", path = "5_Aligned_AA/")
 
-gene_models <- mutate(gene_models,
-                      Same_Model = BM_Avail == BM,
-                      BIC_Diff = BM_Avail_BIC - BM_BIC)
+write.csv(gene_models, "8_Results_AA/Phylo_Models_AA.csv", row.names = FALSE)
 
-write.csv(gene_models, "8_Results_AA/DM_Models_AA.csv", row.names = FALSE)
-
+unique_models_txt(gene_models, project = "AA")
 
 rm(fastaFiles_model, gene_models)
 
+# Rename species so they aren't so long
+fastaFiles <- data.frame(File_name = list.files(path = "5_Aligned_AA/", 
+                                                pattern = ".fasta"))                      # Reads in the fasta file names as a dataframe
 
-# library(ape)
-library("phangorn")
-test <- read.phyDat("5_Aligned_AA/37869_efeN-Copy.fasta", format = "fasta", type = "AA")
+fastaFiles <- mutate(fastaFiles,
+                     Path_name = paste("5_Aligned_AA", 
+                                       File_name, sep = "/"),                             # Adds file pathway
+                     Out_path = paste("5_2_Renamed_AA",
+                                      File_name, sep = "/"))                              # Adds new file pathway for aligned sequences
 
-test2 <- modelTest(test, model = "all")
-
-
-
-
-
-dna_dist <- dist.ml(x = test, model = "JTT")
-dist <- as.data.frame(as.matrix(dna_dist))
-
-treeNJ <- NJ(dna_dist)
-plot(treeNJ, "unrooted", main="NJ")
+for(row in 1:nrow(fastaFiles)) {
+  gene_file <- readAAStringSet(filepath = fastaFiles$Path_name[row])
+  
+  gene_file@ranges@NAMES <- c("T_saanichensis", "E_cloacae", "E_amylovora", "E_tasmaniensis", "M_calida", "M_gaviniae", "P_agglomerans", 
+                              "P_septica", "P_syringae", "T_ptyseos")
+  
+  gene_file <- as.data.frame(gene_file)
+  
+  my_write.fasta(gene_file, file_row = row)
+}
