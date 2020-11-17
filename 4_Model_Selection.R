@@ -153,7 +153,14 @@ rm(fastaFiles_model, gene_models)
 # library(ape)
 library("phangorn")
 test <- read.phyDat("5_Aligned_AA/37869_efeN-Copy.fasta", format = "fasta", type = "AA")
-dna_dist <- dist.ml(x = test, model = "JTT", k = 5, shape = 0.95)
+
+test2 <- modelTest(test, model = "all")
+
+
+
+
+
+dna_dist <- dist.ml(x = test, model = "JTT")
 dist <- as.data.frame(as.matrix(dna_dist))
 
 treeNJ <- NJ(dna_dist)
