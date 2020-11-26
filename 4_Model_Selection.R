@@ -9,6 +9,7 @@
 # Finally, .txt files containing the gene file pathways for each model are created. 
 
 library("tidyverse")
+library("msa")
 
 setwd("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396")
 
@@ -112,6 +113,19 @@ for(row in 1:nrow(fastaFiles)) {
   my_write.fasta(gene_file, file_row = row)
 }
 
+# Phylogenetic trees in command line: megacc -a model_phylo_nt_GTR_G.mao -d Phylo_NT_GTR_G.txt -o 7_Trees_NT/
+#                                     megacc -a model_phylo_nt_GTR_G_I.mao -d Phylo_NT_GTR_G_I.txt -o 7_Trees_NT/
+#                                     megacc -a model_phylo_nt_HKY_G.mao -d Phylo_NT_HKY_G.txt -o 7_Trees_NT2/
+#                                     megacc -a model_phylo_nt_HKY_G_I.mao -d Phylo_NT_HKY_G_I.txt -o 7_Trees_NT3/
+#                                     megacc -a model_phylo_nt_K2.mao -d Phylo_NT_K2.txt -o 7_Trees_NT4/
+#                                     megacc -a model_phylo_nt_K2_G.mao -d Phylo_NT_K2_G.txt -o 7_Trees_NT5/
+#                                     megacc -a model_phylo_nt_K2_G_I.mao -d Phylo_NT_K2_G_I.txt -o 7_Trees_NT/
+#                                     megacc -a model_phylo_nt_K2_I.mao -d Phylo_NT_K2_I.txt -o 7_Trees_NT2/
+#                                     megacc -a model_phylo_nt_T92_G.mao -d Phylo_NT_T92_G.txt -o 7_Trees_NT3/
+#                                     megacc -a model_phylo_nt_T92_G_I.mao -d Phylo_NT_T92_G_I.txt -o 7_Trees_NT4/
+#                                     megacc -a model_phylo_nt_TN93_G.mao -d Phylo_NT_TN93_G.txt -o 7_Trees_NT/
+#                                     megacc -a model_phylo_nt_TN93_G_I.mao -d Phylo_NT_TN93_G_I.txt -o 7_Trees_NT2/
+
 ## Amino Acids ===================================================================================================================================
 mod_sel_txt("AA")                                                                     # Creates a .txt with pathways for model selection
 
@@ -152,3 +166,30 @@ for(row in 1:nrow(fastaFiles)) {
   
   my_write.fasta(gene_file, file_row = row)
 }
+
+# Phylogenetic trees in command line: megacc -a model_phylo_aa_cpREV.mao -d Phylo_AA_cpREV.txt -o 7_Trees_AA/
+#                                     megacc -a model_phylo_aa_cpREV_G.mao -d Phylo_AA_cpREV_G.txt -o 7_Trees_AA2/
+#                                     megacc -a model_phylo_aa_Dayhoff.mao -d Phylo_AA_Dayhoff.txt -o 7_Trees_AA3/
+#                                     megacc -a model_phylo_aa_Dayhoff_G.mao -d Phylo_AA_Dayhoff_G.txt -o 7_Trees_AA4/
+#                                     megacc -a model_phylo_aa_Dayhoff_I.mao -d Phylo_AA_Dayhoff_I.txt -o 7_Trees_AA5/
+#                                     megacc -a model_phylo_aa_JTT.mao -d Phylo_AA_JTT.txt -o 7_Trees_AA6/
+#                                     megacc -a model_phylo_aa_JTT_G.mao -d Phylo_AA_JTT_G.txt -o 7_Trees_AA7/
+#                                     megacc -a model_phylo_aa_JTT_G_F.mao -d Phylo_AA_JTT_G_F.txt -o 7_Trees_AA8/
+
+#                                     megacc -a model_phylo_aa_JTT_G_I.mao -d Phylo_AA_JTT_G_I.txt -o 7_Trees_AA9/
+#                                     megacc -a model_phylo_aa_JTT_I.mao -d Phylo_AA_JTT_I.txt -o 7_Trees_AA10/
+#                                     megacc -a model_phylo_aa_LG.mao -d Phylo_AA_LG.txt -o 7_Trees_AA11/
+
+#                                     megacc -a model_phylo_aa_LG_G.mao -d Phylo_AA_LG_G.txt -o 7_Trees_AA12/
+
+#                                     megacc -a model_phylo_aa_LG_G_F.mao -d Phylo_AA_LG_G_F.txt -o 7_Trees_AA13/
+#                                     megacc -a model_phylo_aa_LG_G_I.mao -d Phylo_AA_LG_G_I.txt -o 7_Trees_AA14/
+#                                     megacc -a model_phylo_aa_LG_I.mao -d Phylo_AA_LG_I.txt -o 7_Trees_AA15/
+#                                     megacc -a model_phylo_aa_mtREV.mao -d Phylo_AA_mtREV24.txt -o 7_Trees_AA16/
+#                                     megacc -a model_phylo_aa_mtREV_G_I.mao -d Phylo_AA_mtREV24_G_I.txt -o 7_Trees_AA17/
+#                                     megacc -a model_phylo_aa_rtREV_G.mao -d Phylo_AA_rtREV_G.txt -o 7_Trees_AA18/
+#                                     megacc -a model_phylo_aa_WAG.mao -d Phylo_AA_WAG.txt -o 7_Trees_AA19/
+#                                     megacc -a model_phylo_aa_WAG_G.mao -d Phylo_AA_WAG_G.txt -o 7_Trees_AA20/
+#                                     megacc -a model_phylo_aa_WAG_G_F.mao -d Phylo_AA_WAG_G_F.txt -o 7_Trees_AA21/
+#                                     megacc -a model_phylo_aa_WAG_G_I.mao -d Phylo_AA_WAG_G_I.txt -o 7_Trees_AA22/
+#                                     megacc -a model_phylo_aa_WAG_I.mao -d Phylo_AA_WAG_I.txt -o 7_Trees_AA23/
