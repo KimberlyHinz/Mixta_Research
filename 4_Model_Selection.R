@@ -1,4 +1,4 @@
-# This is the third R File for this project.
+# This is the fourth R File for this project.
 
 # The following code first creates a .txt file to run MEGA-CC in order to find the best model for distance matrices.
 
@@ -13,7 +13,7 @@ library("msa")
 
 setwd("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396")
 
-# Functions --------------------------------------------------------------------------------------------------------------------------------------
+# Functions ---------------------------------------------------------------------------------------------------------------------------------------------
 mod_sel_txt <- function(project) {
   pathway <- paste("5_Aligned_", project, "/", sep = "")
   
@@ -72,8 +72,8 @@ my_write.fasta <- function(fasta, file_row) {
               open = "w", nbchar = 10000, as.string = TRUE)
 }
 #
-## Nucleotides ===================================================================================================================================
-mod_sel_txt("NT")                                                                     # Creates a .txt with pathways for model selection
+# Nucleotides -------------------------------------------------------------------------------------------------------------------------------------------
+mod_sel_txt("NT")                                                                         # Creates a .txt with pathways for model selection
 
 # Model selection run in command line using: megacc -a model_sel_ml_nucleotide.mao -d model_sel_NT.txt -o 6_Model_NT/
 
@@ -86,7 +86,7 @@ fastaFiles_model <- mutate(fastaFiles_model,
 
 gene_models <- best_model_gene(fastaFiles = fastaFiles_model, pttrn = "-10320.csv", path = "5_Aligned_NT/")
 
-write.csv(gene_models, "8_Results_NT/Phylo_Models_NT.csv", row.names = FALSE)
+write.csv(gene_models, "9_Results_NT/Phylo_Models_NT.csv", row.names = FALSE)
 
 unique_models_txt(gene_models, project = "NT")
 
@@ -126,8 +126,8 @@ for(row in 1:nrow(fastaFiles)) {
 #                                     megacc -a model_phylo_nt_TN93_G.mao -d Phylo_NT_TN93_G.txt -o 7_Trees_NT/
 #                                     megacc -a model_phylo_nt_TN93_G_I.mao -d Phylo_NT_TN93_G_I.txt -o 7_Trees_NT2/
 
-## Amino Acids ===================================================================================================================================
-mod_sel_txt("AA")                                                                     # Creates a .txt with pathways for model selection
+# Amino Acids -------------------------------------------------------------------------------------------------------------------------------------------
+mod_sel_txt("AA")                                                                         # Creates a .txt with pathways for model selection
 
 # Model selection run in command line using: megacc -a model_sel_ml_amino_acid.mao -d model_sel_AA.txt -o 6_Model_AA/
 
@@ -140,7 +140,7 @@ fastaFiles_model <- mutate(fastaFiles_model,
 
 gene_models <- best_model_gene(fastaFiles = fastaFiles_model, pttrn = "-9444.csv", path = "5_Aligned_AA/")
 
-write.csv(gene_models, "8_Results_AA/Phylo_Models_AA.csv", row.names = FALSE)
+write.csv(gene_models, "9_Results_AA/Phylo_Models_AA.csv", row.names = FALSE)
 
 unique_models_txt(gene_models, project = "AA")
 
@@ -175,13 +175,10 @@ for(row in 1:nrow(fastaFiles)) {
 #                                     megacc -a model_phylo_aa_JTT.mao -d Phylo_AA_JTT.txt -o 7_Trees_AA6/
 #                                     megacc -a model_phylo_aa_JTT_G.mao -d Phylo_AA_JTT_G.txt -o 7_Trees_AA7/
 #                                     megacc -a model_phylo_aa_JTT_G_F.mao -d Phylo_AA_JTT_G_F.txt -o 7_Trees_AA8/
-
 #                                     megacc -a model_phylo_aa_JTT_G_I.mao -d Phylo_AA_JTT_G_I.txt -o 7_Trees_AA9/
 #                                     megacc -a model_phylo_aa_JTT_I.mao -d Phylo_AA_JTT_I.txt -o 7_Trees_AA10/
 #                                     megacc -a model_phylo_aa_LG.mao -d Phylo_AA_LG.txt -o 7_Trees_AA11/
-
 #                                     megacc -a model_phylo_aa_LG_G.mao -d Phylo_AA_LG_G.txt -o 7_Trees_AA12/
-
 #                                     megacc -a model_phylo_aa_LG_G_F.mao -d Phylo_AA_LG_G_F.txt -o 7_Trees_AA13/
 #                                     megacc -a model_phylo_aa_LG_G_I.mao -d Phylo_AA_LG_G_I.txt -o 7_Trees_AA14/
 #                                     megacc -a model_phylo_aa_LG_I.mao -d Phylo_AA_LG_I.txt -o 7_Trees_AA15/
