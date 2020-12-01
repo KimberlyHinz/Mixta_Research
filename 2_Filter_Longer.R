@@ -1,4 +1,4 @@
-# This is an optional R File for this project. It preceeds the second R file, 3_Aligning_Genes.R.
+# This is the second, optional, R File for this project. It preceeds the third R file, 3_Aligning_Genes.R.
 
 # The following code looks at the gene files that were excluded because at least one of the sequences in the file did not meet the 90% cutoff. 
 # Any genes where ONLY P. syringae has really long genes (the rest are around the same length) OR if both of the representatives of the species 
