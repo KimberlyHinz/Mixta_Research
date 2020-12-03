@@ -60,13 +60,12 @@ first_four_rel <- function(distances, uniq_genes, mixta_spp) {
                              mixta_spp == "M_gaviniae" ~ "M_calida")
     
     four_rel <- mutate(four_rel,
-                       Mixta_check = First %in% c(mixta_spp, other_mixta),
-                       Closest_Relative = case_when(Mixta) ### HERE FOR ROW 433 Have to redo all of this
-                       
-                       
-                       
-                       case_when(Second %in% c(other_mixta, mixta_spp) ~ Third,
-                                 TRUE ~ Second))
+                       Mixta_check = case_when(First == mixta_spp ~ TRUE,
+                                               TRUE ~ FALSE),
+                       Closest_Relative = case_when(First %in% c(mixta_spp, other_mixta) ~
+                                                      case_when(Second %in% c(mixta_spp, other_mixta) ~ Third,
+                                                                TRUE ~ Second),
+                                                    TRUE ~ First))
     
     four <- rbind(four, four_rel)
   }
