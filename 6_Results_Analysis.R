@@ -24,21 +24,42 @@ strain <- data.frame(Species = c("Mixta calida", "Mixta gaviniae", "Pantoea aggl
 # kable(strain, caption = "Table 1. Genomes used in this study.")
 # ```
 
-# Table 2. Models ---------------------------------------------------------------------------------------------------------------------------------------
+# Table 2. Nucleotide Models -----------------------------------------------------------------------------------------------------------------------------
 # ```{r echo = FALSE, message = FALSE, fig.cap=TRUE}
-phylo_models <- read.csv("9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
-PM <- data.frame(table(phylo_models$BM))
+phylo_models_NT <- read.csv("9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
+PM_NT <- data.frame(table(phylo_models_NT$BM))
 
-colnames(PM) <- c("Model", "Number")
+colnames(PM_NT) <- c("Model", "Number")
 
-PM <- mutate(PM,
+PM_NT <- mutate(PM_NT,
              Percent = round((Number / sum(Number)) * 100, digits = 2))
 # 
 # library("knitr")
-# kable(PM, caption = "Table 2. The number of genes that required each phylogenetic tree model according to model testing and the lowest BIC.")
+# kable(PM_NT, caption = "Table 2. The number of genes that required each phylogenetic tree model according to model testing and the lowest BIC for 
+# nucleotide sequences.")
 # ```
 
-# Table 3. First Relative Nucleotides -------------------------------------------------------------------------------------------------------------------
+# Table 3. Amino Acid Models ----------------------------------------------------------------------------------------------------------------------------
+# ```{r echo = FALSE, message = FALSE, fig.cap=TRUE}
+phylo_models_AA <- read.csv("9_Results_AA/Phylo_Models_AA.csv", stringsAsFactors = FALSE)
+PM_AA <- data.frame(table(phylo_models_AA$BM))
+
+colnames(PM_AA) <- c("Model", "Number")
+
+PM_AA <- mutate(PM_AA,
+                Percent = round((Number / sum(Number)) * 100, digits = 2))
+# 
+# library("knitr")
+# kable(PM_AA, caption = "Table 3. The number of genes that required each phylogenetic tree model according to model testing and the lowest BIC for
+# amino acid sequences.")
+# ```
+
+
+
+
+
+
+# Table 4. First Relative Nucleotides -------------------------------------------------------------------------------------------------------------------
 # ```{r echo = FALSE, message = FALSE, fig.cap=TRUE}
 calida_four <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE)
 
@@ -63,10 +84,10 @@ rel_num_perc <- FR_NT_cal %>%
 
 # 
 # library("knitr")
-# kable(rel_num_perc, caption = "Table 3. The closest relative to the Mixta sequences for both species in the nucleotide analysis.")
+# kable(rel_num_perc, caption = "Table 4. The closest relative to the Mixta sequences for both species in the nucleotide analysis.")
 # ```
 
-# Table 4. First Relative Amino Acids -------------------------------------------------------------------------------------------------------------------
+# Table 5. First Relative Amino Acids -------------------------------------------------------------------------------------------------------------------
 # ```{r echo = FALSE, message = FALSE, fig.cap=TRUE}
 calida_four <- read.csv("9_Results_AA/four_relatives_calida_AA.csv", stringsAsFactors = FALSE)
 
@@ -91,7 +112,7 @@ rel_num_perc <- FR_NT_cal %>%
 
 # 
 # library("knitr")
-# kable(rel_num_perc, caption = "Table 4. The closest relative to the Mixta sequences for both species in the amino acid analysis.")
+# kable(rel_num_perc, caption = "Table 5. The closest relative to the Mixta sequences for both species in the amino acid analysis.")
 # ```
 
 # Figure 1. First Relative Circular Plot for Nucleotides and M. calida ----------------------------------------------------------------------------------
