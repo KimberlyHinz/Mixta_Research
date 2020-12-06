@@ -28,32 +28,77 @@ Nevertheless, despite efforts to find a suitable method for identifying the spec
 
 There are two possible causes behind contentious results in phylogenetic analyses. One is the use of different methods, including the use of a different phylogenetic tree model from another study despite both studies conducting maximum likelihood trees and the same sequence type. Additionally, there is no common phylogenetic analysis model between nucleotide and amino acid sequences; therefore, evolutionary history is estimated differently. The other reason may be horizontal gene transfer (HGT) events within the *Erwiniaceae* or from a non-closely-related species. HGT events occur frequently within bacteria and often the genes provide the bacteria the ability to adapt to new environments and/or survive selective pressures.
 
-The objective of this paper was to determine the cause behind the contentious phylogenetic results for the *Mixta* species. To accomplish this, homologous genes were extracted from ten complete or partial genomes - two for each of *Mixta*, *Pantoea*, *Erwinia*, and *Tatumella*, and two outgroups - that were retrieved from public databases. Model testing was done for each gene in the dataset and phylogenetic trees were computed using the recommended model. Distance matrices were exported from the phylogenetic trees and these were used to determine which species were most closely related to *Mixta* for each gene. Nucleotide and amino acid identity analyses were also conducted for each gene in order to compare 
-
-The objective of my honours thesis was to determine the cause behind the contentious phylogenetic results for *Mixta* species. To accomplish this, ten complete or partial genomes – two each for *Mixta*, *Pantoea*, *Erwinia*, *Tatumella*, and outgroup – were retrieved from public databases, annotated, and homologous genes were extracted. Genes were used to make individual phylogenetic trees, and the trees were examined for inconsistent evolutionary histories.
+The objective of this paper was to determine the cause behind the contentious phylogenetic results for the *Mixta* species. To accomplish this, homologous genes were extracted from ten complete or partial genomes - two for each of *Mixta*, *Pantoea*, *Erwinia*, and *Tatumella*, and two outgroups - that were retrieved from public databases. In this study, both the nucleotide and amino acid sequences for the same genes were separately analyzed. Model testing was done for each gene in the dataset and phylogenetic trees were computed using the recommended model. Distance matrices were exported from the phylogenetic trees and these were used to determine which species were most closely related to *Mixta* for each gene. Nucleotide and amino acid identity analyses were also conducted for each gene in order to compare the results between evolutionary history and sequence similarity. Phylogenetic trees were then done with either one gene or multiple genes to confirm results.
 
 # Materials and Methods
 ## Genomes and Gene Sets
-Publicly available full genomes were retrieved from NCBI comprising of ten type strains from *Mixta*, Pantoae, *Erwinia*, *Tatumella*, Citrobacter, and Enterobacter (Table 1). The genomes were annotated with Prokka v1.14.1 61 using default parameters and homologous genes were extracted using GET_HOMOLOGUES software package 62 with the bidirectional best-hit search algorithm using default parameters. GET_HOMOLOGUES extracted 1284 genes that were common between the ten species.
-Within R 63, a filtering function was created to pass forward fasta files with ten, non-truncated sequences. The minimum gene length to pass through the filter was 90% of the length of the longest sequence in that file. This filter ensured that files containing split, missing, or paralogous genes were not included in the analysis. As a result, 1035 files of the 1284 passed this filtering stage.
+Publicly available full genomes were retrieved from NCBI comprising of ten type strains from *Mixta*, *Pantoea*, *Erwinia*, *Tatumella*, *Enterobacter*, and *Pseudomonas* (Table 1). *Enterobacter cloacae* is in the same order of *Enterobacterales* as *Mixta*, *Pantoea*, *Erwinia*, and *Tatumella* whereas *Pseudomonas syringiae* is in the same class of *Gammaproteobacteria*. The genomes were annotated with Prokka v1.14.1 [@Seemann2014] using default parameters and homologous genes were extracted using GET_HOMOLOGUES software package [@Contreras-Moreira2013] with the bidirectional best-hit search algorithm using default parameters. GET_HOMOLOGUES extracted 954 homologous genes between the ten species.
+
+```{r echo = FALSE, message = FALSE, fig.cap=TRUE}
+strain <- data.frame(Species = c("Mixta calida", "Mixta gaviniae", "Pantoea agglomerans", "Pantoea septica", "Erwinia amylovora",
+                                 "Erwinia tasmaniensis", "Tatumella ptyseos", "Tatumella saanichensis", 
+                                 "Enterobacter cloacae subsp cloacae", "Pseudomonas syringae pv syringae"),
+                     Strain = c("DSM_22759", "DSM_22758", "NBRC_102470", "LMG_5345", "CFBP_1232", "ET1/99", "NCTC_11468",
+                                "NML_06-3099", "ATCC_13047", "ICMP_3023"),
+                     `GenBank Accession No.` = c("GCA_002953215.1", "GCA_002953195.1", "GCA_001598475.1", "GCA_002095575.1", "GCA_000367625.2",
+                                                 "GCA_000026185.1", "GCA_900478715.1", "GCA_000439375.1", "GCA_000025565.1", "GCA_001401075.1"),
+                     Level = c("complete genome", "complete genome", "contigs", "contigs", "contigs", "complete genome", "complete genome", 
+                               "contigs", "complete genome", "scaffold"))
+
+library("knitr")
+kable(strain, caption = "Table 1. Genomes used in this study.")
+```
+
+In `R` [@RCore2019], two filter functions were written to pass through gene files of the nucleotide sequences. Since both nucleotide and amino acid sequences were analyzed, the filters were only applied to the nucleotide sequences. A list of the passed nucleotide gene files was used to isolate the corresponding amino acid gene files to be used in later analyses.
+
+The first filter passed through gene files that contained ten, single copy sequences. A minimum relative length was set where all sequences in a gene file had to be at least 90% the length of the longest sequence in the same file. For example, if the longest sequence in a file is 1000 bp, then the rest of the sequences had to be at least 900 bp. Of 954 genes, 38 genes were excluded for having at least extra sequence and an additional 175 genes were excluded because at least one sequence did not meet the length requirements.
+
+However, there may be an evolutionary reason why at least one of the sequences did not meet the length requirements. The second filter took the 175 gene files that were denied by the first filter one at a time and split the sequences into two groups; the first group contained the gene sequences that were over the 90% length cutoff and the second contained the rest that were shorter than the cutoff length. The first requirement for this filter was that all sequences in the file were longer than 80% of the length of the longest genes in the file. The second requirement was that both representative of a genus were in the same group, either above or below the 90% cutoff. The two outgroup species were not required to be in the same group since they are not from the same genus. An additional 58 genes were added to the working dataset, resulting in 799 genes. A list of the 799 gene names was used to grab the corresponding amino acid files.
 
 ## Gene Alignment
-Gene alignments were done in R with a few software packages. The fasta files were read in using the readDNAStringSet() function 64 (package: Biostrings). The alignments were made using the ClustalW algorithm with the msaClustalW() 65 (package: msa). The number of maximum iterations was set to 100 and the other parameters were kept at default settings 65. Alignments were then converted into a readable format using msaConvert 65 (package: msa) and then written as fasta files using write.fasta() 66 (package: seqinr).
+Gene alignments were in `R` using a ClustalW algorithm. The gene fasta files were read into `R` using the `readDNAStringSet()` function (package: Biostrings) [@Pages2020]. Alignments were done using the `msaClustalW()` function (package: msa) [@Bodenhofer2015] using default parameters and setting maximum number of iterations to 100. The aligned functions were then converted into a readble format using `msaConvert()` (package: msa)[@Bodenhofer2015] and written into a new fasta file using the `write.fasta()` function (package: seqinr) [@Charif2007]
 
 ## Distance Matrices
-Prior to computing distance matrices, model testing was done for each of the 1035 gene files through MEGA-CC 67 by calling a text file containing the file pathways and a MAO file detailing the analysis preferences. These results were exported as comma-separated values (CSV) and read into R. The best model was chosen based on the lowest Bayesian Information Criterion (BIC) and if it was available for distance matrices in MEGAX 68. General Time Reversible (GTR) models and Hasegawa-Kishino-Yano (HKY) models were not available for distance matrices and so these models were not considered during model testing. Furthermore, the rates among sites option invariant sites (+I) was also not available for distance matrices and were subsequently ignored.
+After alignments, model testing was done for each gene through `MEGA-CC` [@Kumar2012] for both nucleotide and amino acid sequences. In a command line terminal, `MEGA-CC` is called along with a text file listing the file pathways to all 799 genes and a MAO file detailling the analysis preferences. Default paramaters were used for model testing. This resulted in a comma-separated values (CSV) file for each gene. These CSV files were read into `R` and the model for phylogenetic analysis was extracted based on lowest Bayesian Information Criterion (BIC). A list of the unique models and the number of genes that required each model are given in Table 2 for nucleotide sequences and in Table 3 for amino acid sequences.
 
-The gene files were separated into groups according to the suggested model and text files were created with their file pathways. These text files were called in turn along with a corresponding MAO file through MEGA-CC to compute the distance matrices for each gene. Variance was estimated with 500 bootstraps, transitions and transversions were allowed, and gaps and missing data were treated with pairwise deletion.
+```{r echo = FALSE, message = FALSE, fig.cap=TRUE}
+library("tidyverse")
 
-The genetic distances and standard errors relative to M. calida and M. gaviniae were extracted to create plots in R, categorize the closest relatives, run generalized additive models to determine potential non-linear relationships between parameters and genetic distances, and identify genes for further analysis using phylogenetic trees. The ML phylogenetic trees were created using MEGAX and with a model suggested through model testing.
+phylo_models_NT <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
+PM_NT <- data.frame(table(phylo_models_NT$BM))
+
+colnames(PM_NT) <- c("Model", "Number")
+
+PM_NT <- mutate(PM_NT,
+             Percent = round((Number / sum(Number)) * 100, digits = 2))
+
+library("knitr")
+kable(PM_NT, caption = "Table 2. The number of genes that required each phylogenetic tree model according to model testing and the lowest BIC for nucleotide sequences.")
+```
+
+```{r echo = FALSE, message = FALSE, fig.cap=TRUE}
+
+phylo_models_AA <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_AA/Phylo_Models_AA.csv", stringsAsFactors = FALSE)
+PM_AA <- data.frame(table(phylo_models_AA$BM))
+
+colnames(PM_AA) <- c("Model", "Number")
+
+PM_AA <- mutate(PM_AA,
+                Percent = round((Number / sum(Number)) * 100, digits = 2))
+
+library("knitr")
+kable(PM_AA, caption = "Table 3. The number of genes that required each phylogenetic tree model according to model testing and the lowest BIC for amino acid sequences.")
+```
+
+For each unique model, a text file was written listing the gene file pathways of each gene that required that model. In a command line terminal, `MEGA-CC` [@Kumar2012] was called with a text file listing gene file pathways for a certain model and the corresponding MAO file. This was done for each unique model. These MAO files specified the use of a maximum likelihood statistical method, 500 bootstrap replications, the model, and rate patterns to create a phylogenetic tree for each gene. If a model required a Gamma distribution, the number of discrete Gamma categories was set to 5, which is default.
+
+Distance matrices were extracted from each of the phylogenetic trees and saved as Excel files. These files were read into `R` and the genetic distances between both of the *Mixta* species and all of the sequences were extracted for further analysis in `R`. Tables were created in `R Markdown` using the `kable()` function (package: knitr) [@Xie2020] and figures were created using the `ggplot()` function (package: ggplot2) [@Wickham2016].
 
 # Results and Discussion
 
 # Conclusion
 
-```{=openxml}
-<w:p><w:r><w:br w:type="page"/></w:r></w:p>
-```
+\newpage
 # Literature Cited
 <div id="refs"></div>
 
