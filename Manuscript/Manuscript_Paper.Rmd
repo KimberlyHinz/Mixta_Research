@@ -34,7 +34,7 @@ The objective of this paper was to determine the cause behind the contentious ph
 ## Genomes and Gene Sets
 Publicly available full genomes were retrieved from NCBI comprising of ten type strains from *Mixta*, *Pantoea*, *Erwinia*, *Tatumella*, *Enterobacter*, and *Pseudomonas* (Table 1). *Enterobacter cloacae* is in the same order of *Enterobacterales* as *Mixta*, *Pantoea*, *Erwinia*, and *Tatumella* whereas *Pseudomonas syringiae* is in the same class of *Gammaproteobacteria*. The genomes were annotated with Prokka v1.14.1 [@Seemann2014] using default parameters and homologous genes were extracted using GET_HOMOLOGUES software package [@Contreras-Moreira2013] with the bidirectional best-hit search algorithm using default parameters. GET_HOMOLOGUES extracted 954 homologous genes between the ten species.
 
-```{r echo = FALSE, message = FALSE, fig.cap=TRUE}
+```{r Table1, echo = FALSE, message = FALSE, warning=FALSE, fig.cap=TRUE}
 strain <- data.frame(Species = c("Mixta calida", "Mixta gaviniae", "Pantoea agglomerans", "Pantoea septica", "Erwinia amylovora",
                                  "Erwinia tasmaniensis", "Tatumella ptyseos", "Tatumella saanichensis", 
                                  "Enterobacter cloacae subsp cloacae", "Pseudomonas syringae pv syringae"),
@@ -56,35 +56,41 @@ The first filter passed through gene files that contained ten, single copy seque
 However, there may be an evolutionary reason why at least one of the sequences did not meet the length requirements. The second filter took the 175 gene files that were denied by the first filter one at a time and split the sequences into two groups; the first group contained the gene sequences that were over the 90% length cutoff and the second contained the rest that were shorter than the cutoff length. The first requirement for this filter was that all sequences in the file were longer than 80% of the length of the longest genes in the file. The second requirement was that both representative of a genus were in the same group, either above or below the 90% cutoff. The two outgroup species were not required to be in the same group since they are not from the same genus. An additional 58 genes were added to the working dataset, resulting in 799 genes. A list of the 799 gene names was used to grab the corresponding amino acid files.
 
 ## Gene Alignment
-Gene alignments were in `R` using a ClustalW algorithm. The gene fasta files were read into `R` using the `readDNAStringSet()` function (package: Biostrings) [@Pages2020]. Alignments were done using the `msaClustalW()` function (package: msa) [@Bodenhofer2015] using default parameters and setting maximum number of iterations to 100. The aligned functions were then converted into a readble format using `msaConvert()` (package: msa)[@Bodenhofer2015] and written into a new fasta file using the `write.fasta()` function (package: seqinr) [@Charif2007]
+Gene alignments were in `R` using a ClustalW algorithm. The gene fasta files were read into `R` using the `readDNAStringSet()` function (package: Biostrings) [@Pages2020]. Alignments were done using the `msaClustalW()` function (package: msa) [@Bodenhofer2015] using default parameters and setting maximum number of iterations to 100. The aligned functions were then converted into a readable format using `msaConvert()` (package: msa)[@Bodenhofer2015] and written into a new fasta file using the `write.fasta()` function (package: seqinr) [@Charif2007]
 
 ## Distance Matrices
-After alignments, model testing was done for each gene through `MEGA-CC` [@Kumar2012] for both nucleotide and amino acid sequences. In a command line terminal, `MEGA-CC` is called along with a text file listing the file pathways to all 799 genes and a MAO file detailling the analysis preferences. Default paramaters were used for model testing. This resulted in a comma-separated values (CSV) file for each gene. These CSV files were read into `R` and the model for phylogenetic analysis was extracted based on lowest Bayesian Information Criterion (BIC). A list of the unique models and the number of genes that required each model are given in Table 2 for nucleotide sequences and in Table 3 for amino acid sequences.
+After alignments, model testing was done for each gene through `MEGA-CC` [@Kumar2012] for both nucleotide and amino acid sequences. In a command line terminal, `MEGA-CC` is called along with a text file listing the file pathways to all 799 genes and a MAO file detailing the analysis preferences. Default parameters were used for model testing. This resulted in a comma-separated values (CSV) file for each gene. These CSV files were read into `R` and the model for phylogenetic analysis was extracted based on lowest Bayesian Information Criterion (BIC). A list of the unique models and the number of genes that required each model are given in Table 2 for nucleotide sequences and in Table 3 for amino acid sequences.
 
-```{r echo = FALSE, message = FALSE, fig.cap=TRUE}
+```{r Table2, echo = FALSE, message = FALSE, warning=FALSE, fig.cap=TRUE}
 library("tidyverse")
 
 phylo_models_NT <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
 PM_NT <- data.frame(table(phylo_models_NT$BM))
 
-colnames(PM_NT) <- c("Model", "Number")
+colnames(PM_NT) <- c("Model", "#")
 
 PM_NT <- mutate(PM_NT,
-             Percent = round((Number / sum(Number)) * 100, digits = 2))
+                `%` = round((`#` / sum(`#`)) * 100, digits = 2))
+
+PM_NT <- cbind(PM_NT[1:4, ], PM_NT[5:8, ], PM_NT[9:12, ])
 
 library("knitr")
 kable(PM_NT, caption = "Table 2. The number of genes that required each phylogenetic tree model according to model testing and the lowest BIC for nucleotide sequences.")
 ```
 
-```{r echo = FALSE, message = FALSE, fig.cap=TRUE}
+```{r Table3, echo = FALSE, message = FALSE, warning=FALSE, fig.cap=TRUE}
 
 phylo_models_AA <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_AA/Phylo_Models_AA.csv", stringsAsFactors = FALSE)
 PM_AA <- data.frame(table(phylo_models_AA$BM))
 
-colnames(PM_AA) <- c("Model", "Number")
+colnames(PM_AA) <- c("Model", "#")
 
 PM_AA <- mutate(PM_AA,
-                Percent = round((Number / sum(Number)) * 100, digits = 2))
+                `%` = round((`#` / sum(`#`)) * 100, digits = 2))
+
+PM_AA <- rbind(PM_AA, c("--", "--", "--"))
+
+PM_AA <- cbind(PM_AA[1:8, ], PM_AA[9:16, ], PM_AA[17:24, ])
 
 library("knitr")
 kable(PM_AA, caption = "Table 3. The number of genes that required each phylogenetic tree model according to model testing and the lowest BIC for amino acid sequences.")
@@ -95,7 +101,260 @@ For each unique model, a text file was written listing the gene file pathways of
 Distance matrices were extracted from each of the phylogenetic trees and saved as Excel files. These files were read into `R` and the genetic distances between both of the *Mixta* species and all of the sequences were extracted for further analysis in `R`. Tables were created in `R Markdown` using the `kable()` function (package: knitr) [@Xie2020] and figures were created using the `ggplot()` function (package: ggplot2) [@Wickham2016].
 
 # Results and Discussion
+After the two filters, 799 of of 954 homologous genes remained. The genes included those that encoded rRNA sequences, enzymes, transporters, and housekeeping genes and were scattered across the *M. calida* and *M. gaviniae* genomes.
 
+## Closest Relative Based on Genetic Distance
+Genetic distance gives a numeric estimate of evolutionary change between species. The species that has the shortest genetic distance to a species of interest is considered to be closest relative. For the following analysis, model testing was done first to estimate the best model for each gene. Next, individual phylogenetic gene trees were created and it was from these that distance matrices were exported. *P. septica* was the closest relative to 66.3% and 66.5% of the *M. calida* and *M. gaviniae* genes, respectively, for the nucleotide sequences (Figure 1). In comparison, only 42.7% and 42.8% of *M. calida* and *M. gaviniae* genes, respectively, are closely related to *P. septica* for the amino acid sequences (Figure 1), but this is still the majority. These results suggest that *P. septica* is the closest relative to *Mixta* followed by *P. agglomerans*. For the amino acid sequences, instead of the *Mixta* genes being more closely related to *P. septica*, they are more closely related to the other species in this study (Figure 1). For example, the percentage of genes related to *P. agglomerans* increased from 13.9% for both of the *Mixta* species to 22.3 and 22.4% to *M. calida* and *M. gaviniae*, respectively. This may be due to a loss of phylogenetic signal when using amino acid sequences as a result of codon degeneracy and having a third of available sites.
+
+```{r Figure1, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 1. The percentage of genes (out of 799) that were most closely related to any of the eight non-*Mixta* species using genetic distances. The species with the shortest genetic distance from both of the *Mixta* species is considered to be the closest relative. Blue bars are the nucleotide sequences of the genes with light blue bars representing the percentage of *M. calida* genes and dark blue bars representing *M. gaviniae*. Green bars are the corresponding amino acid sequences with light green representing *M. calida* genes and dark blue bars representing *M. gaviniae*. Approximately 66% of *M. calida* and *M. gaviniae* genes were most closely related to *P. septica* when using nucleotide sequences in comparison to only 43% when using amino acid sequences.", fig.width=6.5}
+library("tidyverse")
+library("ggplot2")
+library("RColorBrewer")
+library("extrafont")
+theme_set(theme_classic())
+
+count_relatives <- function(data) {
+  num_rel <- c(sum(data$Closest_Relative == "P_septica"), sum(data$Closest_Relative == "P_agglomerans"), 
+               sum(data$Closest_Relative == "E_tasmaniensis"), sum(data$Closest_Relative == "E_amylovora"),
+               sum(data$Closest_Relative == "T_ptyseos"), sum(data$Closest_Relative == "T_saanichensis"),
+               sum(data$Closest_Relative == "E_cloacae"), sum(data$Closest_Relative == "P_syringae"))
+}
+
+datasets <- data.frame(project = c("NT", "NT", "AA", "AA"),
+                       dataset = c("calida_NT", "gaviniae_NT", "calida_AA", "gaviniae_AA"))
+
+number_relatives <- data.frame(matrix(ncol = 4, nrow = 0))
+
+for(row in 1:nrow(datasets)) {
+  four_rel <- read.csv(paste("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_", 
+                             datasets$project[row], "/four_relatives_",
+                             datasets$dataset[row], ".csv", sep = ""), 
+                       stringsAsFactors = FALSE)
+  
+  num_rel <- data.frame(Species = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
+                                    "E. cloacae", "P. syringae"),
+                        Number = count_relatives(four_rel))
+  
+  num_rel <- mutate(num_rel,
+                    Species = factor(Species, levels = Species, ordered = TRUE),
+                    Percent = round((Number / sum(Number)) * 100, digits = 1),
+                    Type = datasets$dataset[row])
+  
+  number_relatives <- rbind(number_relatives, num_rel)
+}; rm(four_rel, num_rel, row)
+
+number_relatives <- mutate(number_relatives,
+                           Type = factor(Type, levels = datasets$dataset, ordered = TRUE))
+
+# The plot:
+ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c(expression(paste("NT and ", italic("M. calida"), sep = "")), 
+                               expression(paste("NT and ", italic("M. gaviniae"), sep = "")), 
+                               expression(paste("AA and ", italic("M. calida"), sep = "")), 
+                               expression(paste("AA and ", italic("M. gaviniae"), sep = "")))) +
+  labs(y = "Percent of Genes", 
+       fill = expression(paste("Sequence type and ", italic("Mixta"), " species", sep = ""))) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates and italicizes x axis labels
+        legend.position = c(0.95, 0.95),                                                  # Moves legend inside the plot and in the top-right corner
+        legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates
+        legend.text.align = 0,                                                            # Aligns legend text to the left
+        legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+```
+
+Unexpectedly, the number of *Mixta* genes that are more closely related increased from 2.9% to 6.0% when using the amino acid sequences instead of the nucleotide sequences (Figure 1). This, along with the other differences in relatedness for *Mixta* genes between nucleotide and amino acid sequences, suggests that the sequence type used in the analysis will give different results, even when using the same genes.
+
+If genetic distance infers the same closest relative for a *Mixta* gene for both nucleotide and amino acid analyses, then these results may be more reliable. Thus, for genes where the closest relative is an *Erwinia*, *Tatumella*, or *Enterobacter* species both nucletodie and amino acid analyses, they may have resulted from a horizontal gene transfer (HGT) event rather than vertical evolution from a *Pantoea* species. No *Mixta* genes were found to be closely related to *P. syringiae* for either the nucleotide or amino acid sequences (Figure 1). This confirms that *P. syringiae* is a suitable outgroup for this analysis and suggests that any HGT events may be restricted to the order *Enterobacterales*.
+
+## Best Model vs. Best Available Model
+In MEGAX [@Kumar2018], the user is restricted to what models can be used when estimating genetic distance; however, the user is not restricted when estimating phylogentic trees. Model testing in MEGAX tests all of the models that are available for phylogenetic tree analysis. Therefore, the recommended model based on lowest BIC value may not be available for genetic distance analysis. GTR (General Time Reversible) and HKY (Hasegawa-Kishino-Yano) models, as well as the invariant sites (+I) parameter, are not available for genetic distance analysis. In order to determine if the limited options would affect the percentage of each species being the closest relative to the *Mixta* genes, genetic distances were estimated for each gene for the nucleotide sequences in MEGA-CC. The model testing results were filtered to remove the models that are not available for genetic distances in MEGAX and then distance matrices were estimated for each gene using the best available model based on lowest BIC value. As a result, only four of twelve models were available with more than 87% of the genes now using either the Tamura-Nei with a Gamma parameter (TN93_G) or the Tamura 3-parameter with a Gamma parameter (T92_G) (Table 4).
+
+```{r Table4, echo = FALSE, message = FALSE, warning=FALSE, fig.cap=TRUE}
+DM_models_NT <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_NT/DM_Models_NT.csv", stringsAsFactors = FALSE)
+phylo_models_NT <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
+
+models <- data.frame(Model = c("GTR_G", "GTR_G_I", "HKY_G", "HKY_G_I", "K2", "K2_G", "K2_G_I", "K2_I", "T92_G", "T92_G_I", "TN93_G", "TN93_G_I")) %>%
+  mutate(required = c(sum(phylo_models_NT$BM == "GTR_G"), sum(phylo_models_NT$BM == "GTR_G_I"), sum(phylo_models_NT$BM == "HKY_G"),
+                      sum(phylo_models_NT$BM == "HKY_G_I"), sum(phylo_models_NT$BM == "K2"), sum(phylo_models_NT$BM == "K2_G"),
+                      sum(phylo_models_NT$BM == "K2_G_I"), sum(phylo_models_NT$BM == "K2_I"), sum(phylo_models_NT$BM == "T92_G"),
+                      sum(phylo_models_NT$BM == "T92_G_I"), sum(phylo_models_NT$BM == "TN93_G"), sum(phylo_models_NT$BM == "TN93_G_I")),
+         available = c(sum(DM_models_NT$Code == "GTR_G"), sum(DM_models_NT$Code == "GTR_G_I"), sum(DM_models_NT$Code == "HKY_G"),
+                       sum(DM_models_NT$Code == "HKY_G_I"), sum(DM_models_NT$Code == "K2"), sum(DM_models_NT$Code == "K2_G"),
+                       sum(DM_models_NT$Code == "K2_G_I"), sum(DM_models_NT$Code == "K2_I"), sum(DM_models_NT$Code == "T92_G"),
+                       sum(DM_models_NT$Code == "T92_G_I"), sum(DM_models_NT$Code == "TN93_G"), sum(DM_models_NT$Code == "TN93_G_I"))) %>%
+  na_if(0)
+
+colnames(models) <- c("Model", "# of genes requiring each model", "# of genes requiring each available model")
+
+library("knitr")
+kable(models, caption = "Table 4. The number of genes requiring each model when using phylogentic tree analysis vs genetic distance analysis in MEGAX for nucleotide sequences.")
+```
+
+
+
+One benefit to using MEGAX is that genetic distance can be exported from phylogenetic trees. The disadvantage, however, is that this has to be done manually by opening the tree in MEGAX and exporting the distance matrix as either an Excel or CSV file.
+
+```{r Figure2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2. The percentage of genes (out of 799) that were most closely related to any of the eight non-*Mixta* species when using the recommended model from model testing vs the restricted model options available for genetic distance analysis in MEGAX for nucleotide sequences. The species with the shortest genetic distance from both of the *Mixta* species is considered to be the closest relative. Evolutionary patterns may vary by gene; therefore, it is appropriate to conduct model testing and use the model that explains the most variation. Nevertheless, this model may not be available in some software programs or analysis methods within a software program. Blue bars represent the percentage of genes that have each species as the closest relative to *Mixta* species when using the recommended model. Green bars represent the percentage of genes that have each species as the closest relative to *Mixta* species when using the best available model for genetic distance estimation in MEGA-CC.", fig.width=6.5}
+
+GD_first_relative <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/O8_Results_Ten_NT/Four_Relatives_Ext_Ten_NT.csv", stringsAsFactors = FALSE) 
+
+GD_calida <- subset(GD_first_relative, select = c(gene:cal_four)) %>%
+  pivot_wider(names_from = order, values_from = cal_four) %>%
+  mutate(First_check = substring(First_check, first = 1, last = 12),
+         Second = substring(Second, first = 1, last = 12),
+         Third = substring(Third, first = 1, last = 12),
+         Four = substring(Four, first = 1, last = 12),
+         Closest_Relative = case_when(First_check %in% c("Mixta_calida", "Mixta_gavini") ~
+                                                      case_when(Second %in% c("Mixta_calida", "Mixta_gavini") ~ Third,
+                                                                TRUE ~ Second),
+                                                    TRUE ~ First_check))
+
+GD_gaviniae <- subset(GD_first_relative, select = c(gene, order, gav_four)) %>%
+  pivot_wider(names_from = order, values_from = gav_four) %>%
+  mutate(First_check = substring(First_check, first = 1, last = 12),
+         Second = substring(Second, first = 1, last = 12),
+         Third = substring(Third, first = 1, last = 12),
+         Four = substring(Four, first = 1, last = 12),
+         Closest_Relative = case_when(First_check %in% c("Mixta_calida", "Mixta_gavini") ~
+                                                      case_when(Second %in% c("Mixta_calida", "Mixta_gavini") ~ Third,
+                                                                TRUE ~ Second),
+                                                    TRUE ~ First_check))
+
+PD_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE)
+PD_gaviniae <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_NT/four_relatives_gaviniae_NT.csv", stringsAsFactors = FALSE)
+
+unique(GD_calida$gene == GD_gaviniae$gene)
+unique(GD_calida$gene == PD_calida$Gene)
+unique(GD_calida$gene == PD_calida$Gene)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# The plot:
+ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c(expression(paste("NT and ", italic("M. calida"), sep = "")), 
+                               expression(paste("NT and ", italic("M. gaviniae"), sep = "")), 
+                               expression(paste("AA and ", italic("M. calida"), sep = "")), 
+                               expression(paste("AA and ", italic("M. gaviniae"), sep = "")))) +
+  labs(y = "Percent of Genes", 
+       fill = expression(paste("Sequence type and ", italic("Mixta"), " species", sep = ""))) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates and italicizes x axis labels
+        legend.position = c(0.95, 0.95),                                                  # Moves legend inside the plot and in the top-right corner
+        legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates
+        legend.text.align = 0,                                                            # Aligns legend text to the left
+        legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
+        text = element_text(size = 12,  family = "Times New Roman"))  
+```
+
+
+
+
+
+
+
+
+
+To assess whether there were any positional effects of the genes and spatial patterns of the closest relatives, circular plots were generated using the *Mixta* gene IDs for nucleotide sequences (Figure 2) and amino acid sequences (Figure 3). The gene IDs give the approximate location of each gene relative to the *Mixta* genome. The length and colour of a bar represents the species that was the closest relative to the *Mixta* gene at that position. Since the closest relatives were the same both *Mixta* species except for 1 and 2 for nucleotide and amino acid sequences, respectively, only the results for *M. calida* are shown. The differing gene
+
+
+
+
+Since the closest relatives for all but one gene (ttuB where M. calida is with T. ptyseos and M. gaviniae is with P. septica) for both *Mixta* species for the nucleotide sequences, only *M. calida* is shown
+Amino acids: only two (ttuB where M. calida is with T. saanichensis and M. gaviniae is with P_septica and secY where M. calida is with E. tasmaniensis and M. gaviniae is with P. agglomerans)
+
+
+To assess whether there were any positional effects of the genes, circular plots were generated using gene IDs for M. calida and M. gaviniae and the closest relatives (Figures 1 and 2). The genes showing greatest identity (lowest distance) to P. septica are distributed across the genome for both M. calida and M. gaviniae (Figures 1 and 2), further suggesting Mixta and Pantoea species have a recent common ancestor. If many genes were horizontally transferred in a single event, then large blocks of genes from a single species would be expected. However, the Erwinia lines (green) are fairly even throughout the genome and the outgroup lines (red and orange) are separated with genes in between. This suggests that Mixta underwent many HGT after speciation from Pantoea.
+
+Positional effects of all of the species and range of the distances were also evaluated (Figures 3 and 4). For most genes, the genetic distance for each of the eight species ranged from 0 to 1.5 with only a few greater than 2. The cluster of genes around ID 425 in both M. calida and M. gaviniae have a very small range and so are highly conserved among all of the species. These genes were annotated as being ribosomal genes. Furthermore, Pantoea species (blue dots) are typically the closest relative to Mixta, followed by Erwinia (green). The Tatumella species (purple and pink) and the outgroup species (red and orange) vary as to which are the furthest relative to Mixta.
+
+
+```{r Figure2, echo = FALSE, message = FALSE, warning=FALSE, fig.cap = "Figure 2.", fig.width=6.5}
+FR_nucl_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE)
+
+FR_nucl_calida <- mutate(FR_nucl_calida,
+                         Relative_Number = case_when(Closest_Relative == "P_septica" ~ 3, Closest_Relative == "P_agglomerans" ~ 4,
+                                                     Closest_Relative == "E_tasmaniensis" ~ 5, Closest_Relative == "E_amylovora" ~ 6,
+                                                     Closest_Relative == "T_ptyseos" ~ 7, Closest_Relative == "T_saanichensis" ~ 8,
+                                                     Closest_Relative == "E_cloacae" ~ 9, Closest_Relative == "P_syringiae" ~ 0))
+
+extra_genes_NT <- data.frame(Gene = NA_character_, First = NA_character_, Second = NA_character_, Third = NA_character_, Fourth = NA_character_,
+                          Mixta_check = NA, Closest_Relative = "P_syringiae", Gene_Length = NA_real_, Beg = NA_real_, End = NA_real_, 
+                          ID = as.numeric((max(FR_nucl_calida$ID) + 1):4084), Relative_Number = 0)
+
+FR_nucl_calida <- rbind(FR_nucl_calida, extra_genes_NT)                                   # Combines M_calida with the extra genes
+
+FR_nucl_calida <- mutate(FR_nucl_calida,
+                         Closest_Relative = factor(Closest_Relative, 
+                                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
+                                                              "T_saanichensis", "E_cloacae", "P_syringiae"), ordered = TRUE))
+# Plot
+nucleotides <- ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 5) +
+  coord_polar() +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
+                               "P. syringiae")) +
+  scale_y_continuous(limits = c(0, 10), breaks = c(0, 2, 4, 6, 8, 10)) +
+  labs(fill = "Closest Relative") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman")); nucleotides
+```
+
+```{r Figure3, echo = FALSE, message = FALSE, warning=FALSE, fig.cap = "Figure 3.", fig.width=6.5}
+FR_aa_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_AA/four_relatives_calida_AA.csv", stringsAsFactors = FALSE)
+
+FR_aa_calida <- mutate(FR_aa_calida,
+                       Relative_Number = case_when(Closest_Relative == "P_septica" ~ 3, Closest_Relative == "P_agglomerans" ~ 4,
+                                                   Closest_Relative == "E_tasmaniensis" ~ 5, Closest_Relative == "E_amylovora" ~ 6,
+                                                   Closest_Relative == "T_ptyseos" ~ 7, Closest_Relative == "T_saanichensis" ~ 8,
+                                                   Closest_Relative == "E_cloacae" ~ 9, Closest_Relative == "P_syringiae" ~ 0))
+
+extra_genes_AA <- data.frame(Gene = NA_character_, First = NA_character_, Second = NA_character_, Third = NA_character_, Fourth = NA_character_,
+                             Mixta_check = NA, Closest_Relative = "P_syringiae", Gene_Length = NA_real_, Beg = NA_real_, End = NA_real_, 
+                             ID = as.numeric((max(FR_aa_calida$ID) + 1):4084), Relative_Number = 0)
+
+FR_aa_calida <- rbind(FR_aa_calida, extra_genes_AA)                                   # Combines M_calida with the extra genes
+
+FR_aa_calida <- mutate(FR_aa_calida,
+                       Closest_Relative = factor(Closest_Relative, 
+                                                 levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
+                                                            "T_saanichensis", "E_cloacae", "P_syringiae"), ordered = TRUE))
+
+# Plot
+amino_acids <- ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 5) +
+  coord_polar() +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
+                               "P. syringiae")) +
+  scale_y_continuous(limits = c(0, 10), breaks = c(0, 2, 4, 6, 8, 10)) +
+  labs(fill = "Closest Relative") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman")); amino_acids
+```
 # Conclusion
 
 \newpage
