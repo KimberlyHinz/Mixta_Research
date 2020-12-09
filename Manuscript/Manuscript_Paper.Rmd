@@ -75,6 +75,9 @@ For each unique model, a text file was written listing the gene file pathways of
 
 Distance matrices were extracted from each of the phylogenetic trees and saved as Excel files. These files were read into `R` and the genetic distances between both of the *Mixta* species and all of the sequences were extracted for further analysis in `R`. Tables were created in `R Markdown` using the `kable()` function (package: knitr) [@Xie2020] and figures were created using the `ggplot()` function (package: ggplot2) [@Wickham2016].
 
+## Nucleotide and Amino Acid Identity
+Individual species sequences of genes were aligned to both of the corresponding *Mixta* sequences in turn. Alignments were done in `R` using the same methods as for gene alignment of the whole gene file. The aligned sequences were then split into the individual sites using the `str_split()` function (package: stringr) [@]. Using base `R` code, a function was created to calculate the number of identical sites between the two sequences over the total number of sites to give a percentage of similar identity. Values that equal or are close to 100% are more similar to the *Mixta* sequences.
+
 # Results and Discussion
 After the two filters, 799 of of 954 homologous genes remained. The genes included those that encoded rRNA sequences, enzymes, transporters, and housekeeping genes and were scattered across the *M. calida* and *M. gaviniae* genomes.
 
@@ -150,21 +153,12 @@ When the closest relative results were compared between when using the best mode
 
 Each model estimates genetic distance differently. The best model explains most of the variance between sequences and gives a more accurate estimation of genetic distance. Using a model that does not explain most of the variance between sequences will estimate genetic distance less accurately which may result in related taxa (such as those from the same species) having a longer genetic distance between them than in actuality. This may also result in the opposite for taxa that are not closely related (i.e. *Pantoea* spp. and *E. cloacae*). Even though only two of the nucleotide models and one parameter were unavailable for genetic distance analysis in MEGAX, the results for closest relative to *Mixta* genes was substantially impacted. This was particularly the case between the two *Mixta* as one would expect them to have the same closest relative for most of the homologous genes. Therefore, using the best model is recommended. However, this may not be possible when estimating genetic distance using more than one gene that may require different models. Thus, it must be considered that one or more the genes in the concatenation may have a different evolutionary pattern than the others and results should be investigated further to ensure accuracy.
 
-Even though genetic distance estimation in MEGAX did not offer all of the models and parameters as suggested by model testing, all of the models and parameters were available for phylogentic tree analysis and genetic distance can be exported from these trees. However, this has to be done manually by opening the tree file in MEGAX and exporting the distance matrix as either an Excel or CSV file and is therefore not feasible when hundreds or thousands of genetic distance matrices are needed.
+Even though genetic distance estimation in MEGAX did not offer all of the models and parameters as suggested by model testing, all of the models and parameters were available for phylogenetic tree analysis and genetic distance can be exported from these trees. However, this has to be done manually by opening the tree file in MEGAX and exporting the distance matrix as either an Excel or CSV file and is therefore not feasible when hundreds or thousands of genetic distance matrices are needed.
 
 ### Spatial Patterns of Closest Relatives
 To assess whether there were any positional effects of the genes and spatial patterns of the closest relatives, circular plots were generated using the *Mixta* gene IDs for nucleotide sequences (Figure 3) and amino acid sequences (Figure 4). The gene IDs give the approximate location of each gene relative to the *Mixta* genome. The length and colour of a bar represents the species that was the closest relative to the *Mixta* gene at that position. Since the closest relatives were the same both *Mixta* species except for 1 and 2 genes for nucleotide and amino acid sequences, respectively, only the results for *M. calida* are shown. These genes will be discussed later on.
 
-
-
-
-
-
-
-The genes showing greatest identity (lowest distance) to P. septica are distributed across the genome for both M. calida and M. gaviniae (Figures 1 and 2), further suggesting Mixta and Pantoea species have a recent common ancestor. If many genes were horizontally transferred in a single event, then large blocks of genes from a single species would be expected. However, the Erwinia lines (green) are fairly even throughout the genome and the outgroup lines (red and orange) are separated with genes in between. This suggests that Mixta underwent many HGT after speciation from Pantoea.
-
-Positional effects of all of the species and range of the distances were also evaluated (Figures 3 and 4). For most genes, the genetic distance for each of the eight species ranged from 0 to 1.5 with only a few greater than 2. The cluster of genes around ID 425 in both M. calida and M. gaviniae have a very small range and so are highly conserved among all of the species. These genes were annotated as being ribosomal genes. Furthermore, Pantoea species (blue dots) are typically the closest relative to Mixta, followed by Erwinia (green). The Tatumella species (purple and pink) and the outgroup species (red and orange) vary as to which are the furthest relative to Mixta.
-
+For the nucleotide sequences, there were no discernible patterns in closest relatives to *M. calida* genes with the exception of the seven genes that are most closely related to a *Tatumella* species (pink) which are only in the first half of the *M. calida* genome (Figure 3). Genes that are most closely related to *Pantoea* species (blue) were distributed throughout the genome (Figure 3), which further suggests that *Mixta* and *Pantoea* have a recent ancestor. Unexpectedly, genes that are most closely related to other genera, particularly to *E. cloacae* (orange) are also distributed throughout the genome (Figure 3). 
 
 ```{r Figure3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3.", fig.width=6.5, fig.height=5}
 FR_nucl_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure3_Circular_NT.csv", stringsAsFactors = FALSE) %>%
@@ -188,6 +182,8 @@ ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)
         text = element_text(size = 12,  family = "Times New Roman"))
 ```
 
+Less genes are closely related to *P. septica* when analyzing the amino acid sequences of the *M. calida* genes and more are closely related to *P. agglomerans*, the *Erwinia* species, the *Tatumella* species, and *E. cloacae* (Figure 4). Nevertheless, no obvious patterns arose in closest relatives to the *Mixta* genes (Figure 4). The *Mixta* genes that have changed their allegiance between the nucleotide and amino acid analyses may be a result of redundancy of the genetic code.
+
 ```{r Figure4, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 4.", fig.width=6.5, fig.height=5}
 FR_aa_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure4_Circular_AA.csv", stringsAsFactors = FALSE) %>%
   mutate(Closest_Relative = factor(Closest_Relative, 
@@ -209,6 +205,17 @@ ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) 
         axis.ticks.y = element_blank(),
         text = element_text(size = 12,  family = "Times New Roman"))
 ```
+
+If many genes were horizontally transferred in a single event, then large blocks of genes from a single species would be expected. However, this is not the case for any of species. There are several hypotheses as to why. One is that it is possible that the *Mixta* genome underwent many HGT events after speciation from *Pantoea*; however, further research into the origins of these genes and the frequency of HGT events with *Mixta* and other genera within the *Erwiniaceae* is needed. Another hypothesis is that the gene sequence is so well-conserved that the genetic distance between *Mixta* and more than one of the other species are near identical. Since only one species was extracted for the closest relative to each *Mixta* gene, it is possible that a species was called at random if there was tie between more than one species for having the shortest distance to *Mixta*. For example, if the genetic distance from *M. calida* to both *P. septica* and *E. amylovora* for a single gene was 0.012 and this was the shortest distance for that gene, then both species are tied for closest relative for that gene. However, since only one can be determined as closest relative, then closest relative may have been decided by the computer program based on another characteristic such as alphabetical order. Therefore, quantitative analysis or computing a phylogenetic tree to view the two-dimensional results is needed.
+
+## Nucleotide and Amino Acid Identity
+### Nucleotide Identity
+
+### Amino Acid Identity
+
+## A Comparison Between Evolutionary Change and Site Identity
+
+## Phylogenetic Trees
 
 
 Nucleotides: ttuB where M. calida is with T. ptyseos and M. gaviniae is with P. septica
