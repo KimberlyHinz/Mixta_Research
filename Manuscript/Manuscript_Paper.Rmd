@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "An investigation into the contentious phylogenetic results of the *Mixta* species"
 author: "Kimberly Hinz"
 date: "2020/12/08"
 output:
@@ -21,25 +21,38 @@ theme_set(theme_classic())
 ```
 \newpage
 # Abstract
-*Mixta* is a recently described genus within the bacterial family *Erwiniaceae* that is closely related to *Pantoea*, *Erwinia*, and *Tatumella*. Depending on the genes and method used for phylogenetic analysis, the genus with which *Mixta* shares the most recent ancestor differs. This study aimed to determine the cause behind these contentious results, and identified genes that may have resulted from horizontal gene transfer. Ten complete or partial genomes – two *Mixta* species, six species from other *Erwiniaceae* genera, and two outgroups – were retrieved from NCBI and annotated. Homologous genes were extracted yielding a dataset of 799 genes. The genes were aligned With the ClustalW algorithm and MEGA-CC was used for model testing and computing phylogenetic trees for each gene for both nucleotide and amino acid sequences. Distance matrices were then extracted from these trees. Nucleotide and amino acid identity analyses were also done in `R` programming language. *Pantoea* was the closest relative to the *Mixta* species in most of the analyses; however, results were not consistent across analyses. Some genes were also found to be more similar to other, non-*Pantoea* species. Diligence must be given to the selection of genes for phylogenetic analysis and to the method chosen to prevent xenologous signal from distorting the true relationships. Furthermore, future research should consider that different phylogenetic analyses may give different results.
+*Mixta* is a recently described genus within the bacterial family *Erwiniaceae* that is closely related to *Pantoea*, *Erwinia*, and *Tatumella*. Depending on the genes and method used for phylogenetic analysis, the genus with which *Mixta* shares the most recent ancestor differs. This study aimed to determine the cause behind these contentious results and identified genes that may have resulted from horizontal gene transfer. Ten complete or partial genomes – two *Mixta* species, six species from other *Erwiniaceae* genera, and two outgroups – were retrieved from NCBI and annotated. Homologous genes were extracted yielding a dataset of 799 genes. The genes were aligned with the ClustalW algorithm, and MEGA-CC was used for model testing and computing phylogenetic trees for each gene for both nucleotide and amino acid sequences. Distance matrices were then extracted from these trees. Nucleotide and amino acid identity analyses were also done using the programming language `R`. *Pantoea* was the closest relative to the *Mixta* species in most of the analyses; however, results were not consistent across analyses. Some genes were also found to be more similar to other, non-*Pantoea* species. Diligence must be given to selecting genes for phylogenetic analysis and the method chosen to prevent any xenologous signal from distorting the actual relationships. Furthermore, future research should consider that different phylogenetic analyses may provide different results.
 
 \newpage
 # Introduction
-The bacterial family Erwiniaceae includes diverse Gram-negative [@Winslow1917; @Prakash2015] organisms including the genera *Mixta*, *Pantoea*, *Erwinia*, *Tatumella*, *Buchnera*, *Wigglesworthia*, *Phaseolibacter*, *Kalamiella* (LPSN, http://www.bacterio.net/). Three of these, *Mixta*, *Pantoea*, and *Erwinia*, have been the focus of numerous studies given their relevance to plant and human pathogens. For example, the genus *Erwinia* contains plant pathogens (e.g. E. amylovora) [@HaubenSwings2005; @Lopez2011; @Matsuura2012], epiphytes (e.g. E. tasmaniensis) [@Geider2006; @Mergaert1999], species that may contribute to plant disease [@Buonaurio2015], and others that are insect-associated [@Campillo2015; @Harada1997; @Skrodenyte-Arbaciauskiene2012]. Similarly, *Pantoea*, a genus reported by Gavini et al.[@Gavini1989], includes species that inhabit a variety of environments [@Gavini1989; @Popp2010; @Liu2013], including human and plant pathogens [@Prakash2015; @deBaere2004; @Fullerton2007; @Kratz2003; @Lim2006; @Schmid2003; @vanRostenberghe2006] as well as species associated with plant growth [@Smits2011; @Kim2012], insects [@Palmer2016], and fungi [@Ma2016; @Rong2016]. *Mixta*, originally *Pantoea*, is a novel genus first suggested by Palmer et al. [@Palmer2017] and then later proposed by the same researchers in 2018 [@Palmer2018]. Two species, M. calida and M. gaviniae (previously species of *Pantoea*), were originally found in infant formula and its production environment [@Popp2010]. Fritz et al. [@Fritz2014] demonstrated that some strains of M. calida were linked with post-surgical meningitis in humans. Currently, there are only five *Mixta* species validly published (LPSN, http://www.bacterio.net/).
+The bacterial family Erwiniaceae includes diverse Gram-negative [@Winslow1917; @Prakash2015] organisms, including the genera *Mixta*, *Pantoea*, *Erwinia*, *Tatumella*, *Buchnera*, *Wigglesworthia*, *Phaseolibacter*, *Kalamiella* (LPSN, http://www.bacterio.net/). Numerous studies have focused on three of these genera – *Mixta*, *Pantoea*, and *Erwinia* – given their relevance to plant and human pathogens. For example, the genus *Erwinia* contains plant pathogens (e.g. *E. amylovora*) [@HaubenSwings2005; @Lopez2011; @Matsuura2012], epiphytes (e.g. *E. tasmaniensis*) [@Geider2006; @Mergaert1999], species that may contribute to plant disease [@Buonaurio2015], and others that are insect-associated [@Campillo2015; @Harada1997; @Skrodenyte-Arbaciauskiene2012]. Similarly, *Pantoea*, a genus reported by Gavini et al.[@Gavini1989], includes species that inhabit a variety of environments [@Gavini1989; @Popp2010; @Liu2013], including human and plant pathogens [@Prakash2015; @deBaere2004; @Fullerton2007; @Kratz2003; @Lim2006; @Schmid2003; @vanRostenberghe2006] as well as species associated with plant growth [@Smits2011; @Kim2012], insects [@Palmer2016], and fungi [@Ma2016; @Rong2016]. *Mixta*, originally *Pantoea*, is a novel genus first suggested by Palmer et al. [@Palmer2017] and later proposed by the same researchers in 2018 [@Palmer2018]. *M. calida* and *M. gaviniae* (previously species of *Pantoea*) were initially found in infant formula and its production environment [@Popp2010]. Fritz et al. [@Fritz2014] demonstrated that some strains of *M. calida* were linked with post-surgical meningitis in humans. Currently, there are only five *Mixta* species validly published (LPSN, http://www.bacterio.net/).
 
-Understanding the phylogeny of bacterial species and genes allows researchers to investigate the evolutionary history of the species, their relatedness, and the individual genes that allow the species to survive under various conditions [@Palmer2017; @Bennett2012; @Prasanna2013; @Angus2014; @deMaayer2014; @Fouts2016]. The most common methods in phylogenetic analysis are those including 16S ribosomal RNA (rRNA) sequences [@Konstantinidis2007], multi-locus sequence analysis (MLSA) with several housekeeping genes [@Konstantinidis2007; @Gevers2005; @Glaeser2015], and ribosomal MLSA with 53 structural ribosomal proteins [@Palmer2017; @Bennett2012; @Jolley2012]. However, the phylogenetic trees generated from these methods may not be very robust [@Konstantinidis2007; @Glaeser2015; @Brady2008] because of the lower phylogenetic signal from the highly conserved housekeeping genes [@Konstantinidis2007; @Gevers2005; @Fox1992; @Konstantinidis2005; @Staley2006; @RichterRosselloMora2009]. This is particularly seen within Erwiniaceae wherein most of our understanding of the phylogeny and interrelationships are based on the 16S rRNA genes [@Francino2006; @Hauben1998; @Naum2008; @Sproer1999; @Adeolu2016] because of its ubiquity. However, it has insufficient resolution at the species level [@Glaeser2015] and the genera *Pantoea*, *Erwinia*, *Tatumella*, and *Mixta* are often not monophyletic [@Rezzonico2016]. Another issue that may arise with MLSA is unknowingly including paralogues (i.e. genes originating from an intragenomic duplication event) or xenologues (i.e. genes originating from horizontal gene transfer) [@Palmer2017; @Koonin2005].
+Understanding the phylogeny of bacterial species and genes allows researchers to investigate the species' evolutionary histories, relatedness, and the individual genes that enable the species to survive under various conditions [@Palmer2017; @Bennett2012; @Prasanna2013; @Angus2014; @deMaayer2014; @Fouts2016]. The most common methods in phylogenetic analysis are those that use ubiquitous genes including 16S ribosomal RNA (rRNA) sequences [@Konstantinidis2007], multilocus sequence analysis (MLSA) with several housekeeping genes [@Konstantinidis2007; @Gevers2005; @Glaeser2015], and ribosomal MLSA with 53 structural ribosomal proteins [@Palmer2017; @Bennett2012; @Jolley2012]. However, the phylogenetic trees generated from these methods may not be robust [@Konstantinidis2007; @Glaeser2015; @Brady2008] because of the lower phylogenetic signal from the highly conserved genes [@Konstantinidis2007; @Gevers2005; @Fox1992; @Konstantinidis2005; @Staley2006; @RichterRosselloMora2009]. This issue is particularly the case with *Erwiniaceae* because much of our understanding is based on the 16S rRNA and other housekeeping genes [@Francino2006; @Hauben1998; @Naum2008; @Sproer1999; @Adeolu2016]. However, such analyses have insufficient resolution at the species level [@Glaeser2015], and the genera *Pantoea*, *Erwinia*, *Tatumella*, and *Mixta* are often not monophyletic [@Rezzonico2016]. Another issue is the unintentional inclusion of paralogues (originating from an intragenomic duplication event) or xenologues (arising from horizontal gene transfer) in MLSA gene analyses [@Palmer2017; @Koonin2005].
 
-The DNA topoisomerase (gyrase) subunit (gyrB), DNA-directed RNA polymerase subunit (rpoB), ATP synthase subunit (atpD), and initiation translation factor (infB) have been shown to be more reliable than 16S rRNA gene sequences for determining intra- and intergeneric relationships [@Hedegaard1999; @Dauga2002; @Mollet1997; @Paradis2005] and a robust method for the Erwiniaceae family [@Brady2010]. The genera within Erwiniaceae are monophyletic when concatenated partial gyrB, rpoB, atpD, and infB gene sequences are used [@Brady2008; @Brady2009; @Moretti2011].
+The DNA gyrase subunit (gyrB), DNA-directed RNA polymerase subunit (rpoB), ATP synthase subunit (atpD), and initiation translation factor (infB) are more reliable than 16S rRNA gene sequences for determining intra- and intergeneric relationships [@Hedegaard1999; @Dauga2002; @Mollet1997; @Paradis2005] and a robust method for the Erwiniaceae family [@Brady2010]. The genera within Erwiniaceae are monophyletic when the analysis uses concatenated partial gyrB, rpoB, atpD, and infB gene sequences [@Brady2008; @Brady2009; @Moretti2011].
 
-Nevertheless, despite efforts to find a suitable method for identifying the species tree for Erwiniaceae genera, *Mixta*’s position with relation to *Pantoea*, *Erwinia*, and *Tatumella* vastly differs between studies [@Prakash2015; @Palmer2017; @Palmer2018; @Adeolu2016; @Brady2011; @Rezzonico2016; @Brady2012; @Gueule2015]. Not only do different gene combinations provide different results, but different algorithms and models for alignments and phylogenetic trees also contribute to the contentious results [@Naum2008; @Octavia2014]. For example, Prakash et al. [@Prakash2015], Palmer et al. [@Palmer2017], Rezzonico et al. [@Rezzonico2016], and Gueule et al. [@Gueule2015] all used gyrB, rpoB, atpD, and infB nucleotide gene sequences in their phylogenetic analyses. Prakash et al. conducted a neighbour-joining statistical method while the others used a maximum-likelihood (ML) method. Three of the studies – Rezzonico et al., Prakash et al., and Gueule et al. – placed the *Mixta* species within the *Pantoea* genera whereas the analysis in Palmer et al. placed *Mixta* outside of the other three genera. Palmer et al. [@Palmer2018], Rezzonico et al. [@Rezzonico2016], and Brady et al. [@Brady2012] also ran analyses with the four MLSA genes as amino acid sequences. These three studies show contentious results as Rezzonico et al. found that *Mixta* is related closest with *Tatumella*, Palmer et al. found that *Mixta* is related closest with *Pantoea*, and Brady et al. found *Mixta* within the *Pantoea* genus. In a separate study conducted by Palmer et al. @Palmer2017, two ML trees were computed, one with 1039 core amino acid sequence and the other with 52 ribosomal MLSA nucleotide genes. Both ML trees contained species from *Mixta*, *Pantoea*, *Erwinia*, and *Tatumella*; however, the analysis with the core genes placed *Pantoea* and *Tatumella* as sister taxa followed by two *Mixta* species whereas the analysis with ribosomal MLSA genes placed *Pantoea* and *Tatumella* as sister taxa followed by *Erwinia* and then by the *Mixta* species. 
+Nevertheless, despite efforts to find a suitable method for identifying the species tree for Erwiniaceae genera, *Mixta*’s position relative to *Pantoea*, *Erwinia*, and *Tatumella* vastly differs between studies [@Prakash2015; @Palmer2017; @Palmer2018; @Adeolu2016; @Brady2011; @Rezzonico2016; @Brady2012; @Gueule2015]. Not only do different gene combinations provide different results, but different algorithms and models for alignments and phylogenetic trees also contribute to the contentious results [@Naum2008; @Octavia2014]. For example, Prakash et al. [@Prakash2015], Palmer et al. [@Palmer2017], Rezzonico et al. [@Rezzonico2016], and Gueule et al. [@Gueule2015] all used gyrB, rpoB, atpD, and infB nucleotide gene sequences in their phylogenetic analyses. Prakash et al. conducted a neighbour-joining statistical method while the others used a maximum-likelihood (ML) method. Three of the studies – Rezzonico et al., Prakash et al., and Gueule et al. – placed the *Mixta* species within the *Pantoea* genera. In contrast. the analysis in Palmer et al. identified *Mixta* outside of the other three genera. Palmer et al. [@Palmer2018], Rezzonico et al. [@Rezzonico2016], and Brady et al. [@Brady2012] also ran analyses with the four MLSA genes as amino acid sequences. 
 
-There are two possible causes behind contentious results in phylogenetic analyses. One is the use of different methods, including the use of a different phylogenetic tree model from another study despite both studies conducting maximum likelihood trees and the same sequence type. Additionally, there is no common phylogenetic analysis model between nucleotide and amino acid sequences; therefore, evolutionary history is estimated differently. The other reason may be horizontal gene transfer (HGT) events within the *Erwiniaceae* or from a non-closely-related species. HGT events occur frequently within bacteria and often the genes provide the bacteria the ability to adapt to new environments and/or survive selective pressures.
+These three studies showed contentious results as *Mixta* was said to be related closest with *Tatumella* by Rezzonico et al., with *Pantoea* by Palmer et al., and within the *Pantoea* clade by 
 
-The objective of this paper was to determine the cause behind the contentious phylogenetic results for the *Mixta* species. To accomplish this, homologous genes were extracted from ten complete or partial genomes - two for each of *Mixta*, *Pantoea*, *Erwinia*, and *Tatumella*, and two outgroups - that were retrieved from public databases. In this study, both the nucleotide and amino acid sequences for the same genes were separately analyzed. Model testing was done for each gene in the dataset and phylogenetic trees were computed using the recommended model. Distance matrices were exported from the phylogenetic trees and these were used to determine which species were most closely related to *Mixta* for each gene. Nucleotide and amino acid identity analyses were also conducted for each gene in order to compare the results between evolutionary history and sequence similarity. Phylogenetic trees were then done with either one gene or multiple genes to confirm results.
+
+These three studies showed contentious results as
+
+
+These three studies show contentious results as Rezzonico et al. found that *Mixta* is related closest with *Tatumella*, Palmer et al. found that *Mixta* is related closest with *Pantoea*, and Brady et al. found *Mixta* within the *Pantoea* genus. 
+
+
+
+
+In a separate study conducted by Palmer et al. @Palmer2017, two ML trees were computed, one with 1039 core amino acid sequence and the other with 52 ribosomal MLSA nucleotide genes. Both ML trees contained species from *Mixta*, *Pantoea*, *Erwinia*, and *Tatumella*; however, the analysis with the core genes placed *Pantoea* and *Tatumella* as sister taxa followed by two *Mixta* species whereas the analysis with ribosomal MLSA genes placed *Pantoea* and *Tatumella* as sister taxa followed by *Erwinia* and then by the *Mixta* species. 
+
+There are two possible causes behind contentious results in phylogenetic analyses. One is the use of different methods, including the use of a different phylogenetic tree model from another study despite both studies conducting maximum likelihood trees and the same sequence type. Additionally, there is no common phylogenetic analysis model between nucleotide and amino acid sequences; therefore, evolutionary history is estimated differently. The other reason may be horizontal gene transfer (HGT) events within the *Erwiniaceae* or from a non-closely-related species. HGT events frequently occur within bacteria, and often the genes provide the bacteria with the ability to adapt to new environments and/or survive selective pressures.
+
+The objective of this paper was to determine the cause behind the contentious phylogenetic results for the *Mixta* species. Homologous genes were extracted from ten complete or partial genomes - two for each of *Mixta*, *Pantoea*, *Erwinia*, and *Tatumella*, and two outgroups - that were retrieved from public databases. In this study, both the nucleotide and amino acid sequences for the same genes were separately analyzed. Model testing was done for each gene in the dataset, and phylogenetic trees were computed using the recommended model. Distance matrices were exported from the phylogenetic trees, and these were used to determine which species were most closely related to *Mixta* for each gene. Nucleotide and amino acid identity analyses were also conducted for each gene in order to compare the results between evolutionary history and sequence similarity. Phylogenetic trees were then done with either one gene or multiple genes to confirm results.
 
 # Materials and Methods
 ## Genomes and Gene Sets
-Publicly available full genomes were retrieved from NCBI comprising of ten type strains from *Mixta*, *Pantoea*, *Erwinia*, *Tatumella*, *Enterobacter*, and *Pseudomonas* (Table 1). *Enterobacter cloacae* is in the same order of *Enterobacterales* as *Mixta*, *Pantoea*, *Erwinia*, and *Tatumella* whereas *Pseudomonas syringiae* is in the same class of *Gammaproteobacteria*. The genomes were annotated with Prokka v1.14.1 [@Seemann2014] using default parameters and homologous genes were extracted using GET_HOMOLOGUES software package [@Contreras-Moreira2013] with the bidirectional best-hit search algorithm using default parameters. GET_HOMOLOGUES extracted 954 homologous genes between the ten species.
+Publicly available full genomes were retrieved from NCBI comprising of ten type strains from *Mixta*, *Pantoea*, *Erwinia*, *Tatumella*, *Enterobacter*, and *Pseudomonas* (Table 1). *Enterobacter cloacae* is in the same order of *Enterobacterales* as *Mixta*, *Pantoea*, *Erwinia*, and *Tatumella* whereas *Pseudomonas syringae* is in the same class of *Gammaproteobacteria*. The genomes were annotated with Prokka v1.14.1 [@Seemann2014] using default parameters, and homologous genes were extracted using GET_HOMOLOGUES software package [@Contreras-Moreira2013] with the bidirectional best-hit search algorithm using default parameters. GET_HOMOLOGUES extracted 954 homologous genes between the ten species.
 
 ```{r Table1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
 strain <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table1_Genomes.csv", stringsAsFactors = FALSE)
@@ -82,7 +95,7 @@ Individual species sequences of genes were aligned to both of the corresponding 
 After the two filters, 799 of of 954 homologous genes remained. The genes included those that encoded rRNA sequences, enzymes, transporters, and housekeeping genes and were scattered across the *M. calida* and *M. gaviniae* genomes.
 
 ## Genetic Distance
-### Closest Relative
+### Closest Relative from Genetic Distances
 Genetic distance gives a numeric estimate of evolutionary change between species. The species that has the shortest genetic distance to a species of interest is considered to be closest relative. For the following analysis, model testing was done first to estimate the best model for each gene. Next, individual phylogenetic gene trees were created and it was from these that distance matrices were exported. *P. septica* was the closest relative to 66.3% and 66.5% of the *M. calida* and *M. gaviniae* genes, respectively, for the nucleotide sequences (Figure 1). In comparison, only 42.7% and 42.8% of *M. calida* and *M. gaviniae* genes, respectively, are closely related to *P. septica* for the amino acid sequences (Figure 1), but this is still the majority. These results suggest that *P. septica* is the closest relative to *Mixta* followed by *P. agglomerans*. For the amino acid sequences, instead of the *Mixta* genes being more closely related to *P. septica*, they are more closely related to the other species in this study (Figure 1). For example, the percentage of genes related to *P. agglomerans* increased from 13.9% for both of the *Mixta* species to 22.3 and 22.4% to *M. calida* and *M. gaviniae*, respectively. This may be due to a loss of phylogenetic signal when using amino acid sequences as a result of codon degeneracy and having a third of available sites.
 
 ```{r Figure1, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 1. The percentage of genes (out of 799) that were most closely related to any of the eight non-*Mixta* species using genetic distances. The species with the shortest genetic distance from both of the *Mixta* species is considered to be the closest relative. Blue bars are the nucleotide sequences of the genes with light blue bars representing the percentage of *M. calida* genes and dark blue bars representing *M. gaviniae*. Green bars are the corresponding amino acid sequences with light green representing *M. calida* genes and dark blue bars representing *M. gaviniae*. Approximately 66% of *M. calida* and *M. gaviniae* genes were most closely related to *P. septica* when using nucleotide sequences in comparison to only 43% when using amino acid sequences.", fig.width=6.5}
@@ -112,7 +125,7 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
 
 Unexpectedly, the number of *Mixta* genes that are more closely related increased from 2.9% to 6.0% when using the amino acid sequences instead of the nucleotide sequences (Figure 1). This, along with the other differences in relatedness for *Mixta* genes between nucleotide and amino acid sequences, suggests that the sequence type used in the analysis will give different results, even when using the same genes.
 
-If genetic distance infers the same closest relative for a *Mixta* gene for both nucleotide and amino acid analyses, then these results may be more reliable. Thus, for genes where the closest relative is an *Erwinia*, *Tatumella*, or *Enterobacter* species both nucleotide and amino acid analyses, they may have resulted from a horizontal gene transfer (HGT) event rather than vertical evolution from a *Pantoea* species. No *Mixta* genes were found to be closely related to *P. syringiae* for either the nucleotide or amino acid sequences (Figure 1). This confirms that *P. syringiae* is a suitable outgroup for this analysis and suggests that any HGT events may be restricted to the order *Enterobacterales*.
+If genetic distance infers the same closest relative for a *Mixta* gene for both nucleotide and amino acid analyses, then these results may be more reliable. Thus, for genes where the closest relative is an *Erwinia*, *Tatumella*, or *Enterobacter* species both nucleotide and amino acid analyses, they may have resulted from a horizontal gene transfer (HGT) event rather than vertical evolution from a *Pantoea* species. No *Mixta* genes were found to be closely related to *P. syringae* for either the nucleotide or amino acid sequences (Figure 1). This confirms that *P. syringae* is a suitable outgroup for this analysis and suggests that any HGT events may be restricted to the order *Enterobacterales*.
 
 ### Best Model vs. Best Available Model
 In MEGAX [@Kumar2018], the user is restricted to what models can be used when estimating genetic distance; however, the user is not restricted when estimating phylogenetic trees. Model testing in MEGAX tests all of the models that are available for phylogenetic tree analysis. Therefore, the recommended model based on lowest BIC value may not be available for genetic distance analysis. GTR (General Time Reversible) and HKY (Hasegawa-Kishino-Yano) models, as well as the invariant sites (+I) parameter, are not available for genetic distance analysis. In order to determine if the limited options would affect the percentage of each species being the closest relative to the *Mixta* genes, genetic distances were estimated for each gene for the nucleotide sequences in MEGA-CC. The model testing results were filtered to remove the models that are not available for genetic distances in MEGAX and then distance matrices were estimated for each gene using the best available model based on lowest BIC value. As a result, only four of twelve models were available with more than 87% of the genes now using either the Tamura 3-parameter with a Gamma parameter (T92_G) or the Tamura-Nei with a Gamma parameter (TN93_G) (Table 4). This is in comparison to the original 58% of genes that required these models when not restricted by availability. Additionally, the best model was not available for approximately 43% of the genes (242 genes). The mean BIC difference between the best model and the best available model was 2.65 with a range of 0 to 122.6 where 0 means that the best available model is the same as the best model. When ignoring cases where the best available model was also the best recommended model, the mean BIC difference was 13.8 with a range of 0.1 to 122.6. These difference may result in a less accurate estimation of genetic distance between species.
@@ -160,18 +173,18 @@ To assess whether there were any positional effects of the genes and spatial pat
 
 For the nucleotide sequences, there were no discernible patterns in closest relatives to *M. calida* genes with the exception of the seven genes that are most closely related to a *Tatumella* species (pink) which are only in the first half of the *M. calida* genome (Figure 3). Genes that are most closely related to *Pantoea* species (blue) were distributed throughout the genome (Figure 3), which further suggests that *Mixta* and *Pantoea* have a recent ancestor. Unexpectedly, genes that are most closely related to other genera, particularly to *E. cloacae* (orange) are also distributed throughout the genome (Figure 3). 
 
-```{r Figure3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3.", fig.width=6.5, fig.height=5}
+```{r Figure3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3. Closest relatives to *M. calida* genes for nucleotide sequences around the *M. calida* genome. Length and colour of the bars represent the different species to which the gene is most closely related according to genetic distance. The *M. calida* genome has 4084 genes. No distinct patterns emerged; however, genes that are most closely related to *P. septca* are the most common and occur throughout the entire genome. Therefore, *P. septica* and *Mixta* are likely to have a common recent ancestor.", fig.width=6.5, fig.height=5}
 FR_nucl_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure3_Circular_NT.csv", stringsAsFactors = FALSE) %>%
   mutate(Closest_Relative = factor(Closest_Relative, 
                                    levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
-                                              "T_saanichensis", "E_cloacae", "P_syringiae"), ordered = TRUE))
+                                              "T_saanichensis", "E_cloacae", "P_syringae"), ordered = TRUE))
 
 ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
   geom_bar(stat = "identity", position = position_dodge(), width = 15) +
   coord_polar() +
   scale_fill_brewer(palette = "Paired", 
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
-                               "P. syringiae")) +
+                               "P. syringae")) +
   scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
   labs(fill = "Closest Relative") +
   theme_bw() +
@@ -184,18 +197,18 @@ ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)
 
 Less genes are closely related to *P. septica* when analyzing the amino acid sequences of the *M. calida* genes and more are closely related to *P. agglomerans*, the *Erwinia* species, the *Tatumella* species, and *E. cloacae* (Figure 4). Nevertheless, no obvious patterns arose in closest relatives to the *Mixta* genes (Figure 4). The *Mixta* genes that have changed their allegiance between the nucleotide and amino acid analyses may be a result of redundancy of the genetic code.
 
-```{r Figure4, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 4.", fig.width=6.5, fig.height=5}
+```{r Figure4, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 4. Closest relatives to *M. calida* genes for amino acid sequences around the *M. calida* genome. Length and colour of the bars represent the different species to which the gene is most closely related according to genetic distance. The *M. calida* genome has 4084 genes. No distinct patterns emerged; however, genes that are most closely related to *P. septca* are the most common and occur throughout the entire genome. Therefore, *P. septica* and *Mixta* are likely to have a common recent ancestor.", fig.width=6.5, fig.height=5}
 FR_aa_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure4_Circular_AA.csv", stringsAsFactors = FALSE) %>%
   mutate(Closest_Relative = factor(Closest_Relative, 
                                    levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
-                                              "T_saanichensis", "E_cloacae", "P_syringiae"), ordered = TRUE))
+                                              "T_saanichensis", "E_cloacae", "P_syringae"), ordered = TRUE))
 
 ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
   geom_bar(stat = "identity", position = position_dodge(), width = 15) +
   coord_polar() +
   scale_fill_brewer(palette = "Paired", 
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
-                               "P. syringiae")) +
+                               "P. syringae")) +
   scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
   labs(fill = "Closest Relative") +
   theme_bw() +
@@ -209,19 +222,153 @@ ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) 
 If many genes were horizontally transferred in a single event, then large blocks of genes from a single species would be expected. However, this is not the case for any of species. There are several hypotheses as to why. One is that it is possible that the *Mixta* genome underwent many HGT events after speciation from *Pantoea*; however, further research into the origins of these genes and the frequency of HGT events with *Mixta* and other genera within the *Erwiniaceae* is needed. Another hypothesis is that the gene sequence is so well-conserved that the genetic distance between *Mixta* and more than one of the other species are near identical. Since only one species was extracted for the closest relative to each *Mixta* gene, it is possible that a species was called at random if there was tie between more than one species for having the shortest distance to *Mixta*. For example, if the genetic distance from *M. calida* to both *P. septica* and *E. amylovora* for a single gene was 0.012 and this was the shortest distance for that gene, then both species are tied for closest relative for that gene. However, since only one can be determined as closest relative, then closest relative may have been decided by the computer program based on another characteristic such as alphabetical order. Therefore, quantitative analysis or computing a phylogenetic tree to view the two-dimensional results is needed.
 
 ## Nucleotide and Amino Acid Identity
-### Nucleotide Identity
+### Most Similar Taxa from Site Identity
+Site identity is here defined as the amount of similarity between two sequences. If two sequences have a site identity of 100%, then they are identical. If site identity is 99%, then there is up to a few bases or amino acids that are different between the two sequences depending on the length of the sequences. Within each gene file, the ten sequences were aligned to both *M. calida* and *M. gaviniae* in turn and the site identity was calculated. Site identity was divided by the length of aligned genes to give a percent identity that could be compared across the genes and between the nucleotide and amino acid sequences. From these values, the closest non-*Mixta* relative was extracted for each gene.
 
-### Amino Acid Identity
+The majority of the *Mixta* sequences were most identical with *P. septica* for nucleotide sequences (Figure 5) with 80.6 and 79.3% of *M. calida* and *M. gaviniae* sequences, respectively. This is an increase of approximately 15% from the genetic distance results for the closest relative (Figure 1). The rest of the genes are most similar to *P. agglomerans*, followed by the *Erwinia* species, *E. cloacae*, and then the *Tatumella* species. Since mutations that do not disrupt the bacterium's ability to thrive and reproduce do not occur frequently and yet may occur at constant rate, then these results suggest that *P. septica* has the most recent common ancestor with the *Mixta* species.
 
-## A Comparison Between Evolutionary Change and Site Identity
+```{r Figure5, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 5. The percentage of genes (out of 799) that were most closely related to any of the eight non-*Mixta* species using percent site identities. The species with the highest percent identity to each of the *Mixta* species is considered to be most similar taxon for a single gene. Blue bars are the results for the nucleotide sequences where the light blue bars represent *M. calida* sequences and the dark blue bars represent *M. gaviniae* sequences. Green bars are the results for the amino acid sequences where the light green bars represent *M. calida* sequences and the dark green bars represent *M. gaviniae* sequences.", fig.width=6.5}
+number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure5_FirstRelativeMixtaNTAAIdentity.csv", 
+                             stringsAsFactors = FALSE) %>%
+  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
+                                              "E. cloacae", "P. syringae"), ordered = TRUE),
+         Type = factor(Type, levels = c("calida_NT", "gaviniae_NT", "calida_AA", "gaviniae_AA"), ordered = TRUE))
+
+
+ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c(expression(paste("NT and ", italic("M. calida"), sep = "")), 
+                               expression(paste("NT and ", italic("M. gaviniae"), sep = "")), 
+                               expression(paste("AA and ", italic("M. calida"), sep = "")), 
+                               expression(paste("AA and ", italic("M. gaviniae"), sep = "")))) +
+  labs(y = "Percent of Genes", 
+       fill = expression(paste("Sequence type and ", italic("Mixta"), " species", sep = ""))) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates and italicizes x axis labels
+        legend.position = c(0.95, 0.95),                                                  # Moves legend inside the plot and in the top-right corner
+        legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates
+        legend.text.align = 0,                                                            # Aligns legend text to the left
+        legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
+        text = element_text(size = 12,  family = "Times New Roman"))
+```
+
+In contrast, only 47.8 and 47.6% of *M. calida* and *M. gaviniae* sequences were most similar to *P. septica* for the amino acid sequences (Figure 5). Instead, the genes are most similar to either *P. agglomerans* or one of the two *Erwinia* species (Figure 5). Additionally, 3.1 and 2.5% more genes were most similar to the *E. cloacae* sequences for *M. calida* and *M. gaviniae*, respectively (Figure 5). In the identity analyses, amino acids that are functionally equivalent were not considered. This may explain the large differences between the nucleotide and amino acid identities for which species was most similar to the *Mixta* sequences. Additionally, at every site for a nucleotide sequence, each base has a 1:3 ratio of being identical to the base at the corresponding location of the other sequence whereas there is only a 1:19 ratio of an amino acid being identical to the amino acid at the same position of the other sequence. Thus, it is far more likely for a nucleotide at a random position to be identical the nucleotide at the same position of the other sequence. This may lead to problems when only amino acid sequences are considered, especially if functional equivalence is not considered.
+
+Although the numbers of genes that are most similar to *P. septica* are similar between the two *Mixta* species for both nucleotide and amino acid sequences (Figure 5), there were many genes in which the same species was the not the most similar taxa to both *Mixta* species. There were 86 genes for the nucleotide sequences and 147 genes for the amino acid sequences. However, of the 86 genes for nucleotide sequences, it was the case for 52% that one of the *Mixta* sequences was most similar to one representative of a genus and the other *Mixta* sequences was most similar to the other species of the same genus. This was also the case for 62% of the 147 amino acid genes.
+
+Furthermore, percent identity analyses give only how similar are two sequences. They do not use evolutionary models or penalize transitions and transversions in nucleotide sequences. However, because mutations that do not disrupt any vital processes are rare, percent identity analyses may lend support to relatedness between two taxa.
+
+### Spatial Patterns of Most Similar Taxa
+Similar to what was done with the closest relatives in the genetic distance analysis, spatial patterns of the most similar taxa to the *M. calida* sequences based on site identity were investigated for the nucleotide sequences (Figure 6) and the amino acid sequences (Figure 7). Once again, no discernible patterns arose when spatial position on the *M. calida* genome are considered when either the nucleotide or amino acid sequences are analyzed (Figure 6 and 7). However, majority of the nucleotide genes that were most similar to the two *Tatumella* species and to *E. amylovora* occur in the first half of the genome (Figure 6).
+
+```{r Figure6, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 6. The most similar taxa to *M. calida* genes for nucleotide sequences around the *M. calida* genome. The most similar taxa is defined to be that which sequence is most identical to the *M. calida* sequence. Length and colour of the bars represent the different species to which the gene is most similar.", fig.width=6.5, fig.height=5}
+FI_calida_NT <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6_CircularIdentities_NT.csv", 
+                         stringsAsFactors = FALSE) %>%
+  mutate(Closest_Relative = factor(Closest_Relative, 
+                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
+                                              "T_saanichensis", "E_cloacae", "P_syringiae"), ordered = TRUE))
+
+ggplot(FI_calida_NT, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 15) +
+  coord_polar() +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
+                               "P. syringae")) +
+  scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
+  labs(fill = "Most Similar Taxa") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman"))
+```
+
+```{r Figure7, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 7. The most similar taxa to *M. calida* genes for amino acid sequences around the *M. calida* genome. The most similar taxa is defined to be that which sequence is most identical to the *M. calida* sequence. Length and colour of the bars represent the different species to which the gene is most similar.", fig.width=6.5, fig.height=5}
+FI_calida_AA <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure7_CircularIdentities_AA.csv", 
+                         stringsAsFactors = FALSE) %>%
+  mutate(Closest_Relative = factor(Closest_Relative, 
+                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
+                                              "T_saanichensis", "E_cloacae", "P_syringiae"), ordered = TRUE))
+
+ggplot(FI_calida_AA, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 15) +
+  coord_polar() +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
+                               "P. syringae")) +
+  scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
+  labs(fill = "Most Similar Taxa") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman"))
+```
+
+While no distinct patterns emerged, genes that are most similar to *P. septica* predominates the whole of the *M. calida* genome (Figures 6 and 7). This suggests that *Mixta* and *P. septica* may be related as their sequences are similar and few mutations have occurred after they diverged.
+
+## A Comparison Between Evolutionary Change and Site Identity (Keep?)
+### *Mixta calida*
+Since all four of the analyses gave contentious results, it was necessary to compare the results for the first relative from genetic distance and the most similar taxa from site identity for both the nucleotide and amino acid sequences. For approximately 39% of the *M. calida* genes, all four analyses gave the same species. Of these genes, 255 agreed with *P. septica*, 22 with *P. agglomerans*, 17 with *E. tasmaniensis*, 8 with *E. amylovora*, 1 with *T. saanichensis*, and 6 with *E. cloacae*. Additionally, the four analyses gave the same genus approximately 63% of the genes where in 454 agreed with *Pantoea* followed by *Erwinia* with 44, and *Tatumella* with 3. Thus, because all four of the analyses agreed on a single species or genus, these results are more likely to be correct.
+
+The two analyses conducted with nucleotide sequences agreed on a species 78% of the time whereas the two analyses conducted with amino acid sequences agreed only 70% of the time. It is not unexpected that the two nucleotide analyses would agree on taxa more often than the amino acid analyses since there are more sites in nucleotide sequences and no degeneracy in the code.
+
+```{r Figure8, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 8. Sample for first 100 genes.", fig.width=6.5, fig.height=3}
+all_results_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/FigureN_AllResultsCalida.csv", 
+                               stringsAsFactors = TRUE) %>%
+  pivot_longer(cols = c(Rel_NT:Ide_AA), names_to = "Analysis", values_to = "Closest_Similar") %>%
+  mutate(Closest_Similar = factor(Closest_Similar, 
+                                  levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", "T_saanichensis", 
+                                             "E_cloacae", "P_syringiae"), 
+                                  ordered = TRUE),
+         Analysis = factor(Analysis, levels = c("Ide_AA", "Rel_AA", "Ide_NT", "Rel_NT"), ordered = TRUE),
+         Gene_Name = reorder(Gene_Name, ID))
+
+ggplot(all_results_calida[1:400, ], aes(x = Gene_Name, y = Analysis, fill = Closest_Similar)) +
+  geom_tile() +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
+                               "P. syringae")) +
+  scale_y_discrete(labels = c("AA Identity", "AA Closest", "NT Identity", "NT Closest")) +
+  labs(fill = "Closest Relative or \n Most Similar Taxa") +
+  theme(legend.text = element_text(face = "italic"),
+        # legend.position = "bottom",
+        text = element_text(size = 12,  family = "Times New Roman"),
+        axis.text.x = element_text(angle = 45, hjust = 1))               # Rotates x axis labels
+
+stats_on_all <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/FigureO_AllStatsCalida.csv", stringsAsFactors = FALSE)
+
+# table(stats_on_all$Same_Species)
+# table(stats_on_all$Same_Genus)
+# table(stats_on_all$NT_Same)
+# table(stats_on_all$AA_Same)
+# table(stats_on_all$Rel_Same)
+# table(stats_on_all$Ide_Same)
+```
+Visual comparison of the results from the four analyses does not reveal any patterns (Figure 8). The four analyses are plotted on y axis where NT Closest is the closest relative according to genetic distance for nucleotide sequences  (Figure 8), NT Identity is the most similar taxa according to percent identity of nucleotide sequences, AA Closest is the closest relative according to genetic distance for amino acid sequences, and AA Identity is the most similar taxa according to percent identity of amino acid sequences (Figure 8). The first 100 genes according to *M. calida* gene ID are plotted on the x axis and the colour of the block represents the species that is the closest relative or most similar taxa to that gene for that analysis (Figure 8).
 
 ## Phylogenetic Trees
+### Single Gene Trees
+From the genetic distance analyses, only one gene separated *M. calida* and *M. gaviniae* for the nucleotide sequence and two genes for the amino acid sequence. The one gene for the nucleotide sequences was ttuB. According to genetic distance, *M. calida* was more closely related to *T. ptyseos* and *M. gaviniae* was more closely related to *P. septica* rather than to each other. A phylogenetic tree of this gene confirms that *M. calida* is more closely related to the *Tatumella* species where *M. gaviniae* to *Pantoea* and *Erwinia* (Figure 9A). The gene ttuB also had the two *Mixta* species separated for the amino acid sequences and the resulting tree shows the same results (Figure 9B).
 
+```{r Figure9, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 9. Maximum likelihood gene trees for ttuB for nucleotide (A) and amino acid sequences (B).", fig.width=3.25}
+knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure9_ttuB_NT.png")
+knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure9_ttuB_AA.png")
+```
 
-Nucleotides: ttuB where M. calida is with T. ptyseos and M. gaviniae is with P. septica
-Amino acids: ttuB where M. calida is with T. saanichensis and M. gaviniae is with P. septica 
-             secY where M. calida is with E. tasmaniensis and M. gaviniae is with P. agglomerans
+The second gene that had the two *Mixta* species separated for the amino acid sequences was secY. From the nucleotide sequences, all of the taxa except for *P. syringae* are very closely related and bifurcations cannot be determined from the radial tree (Figure 10A). The same is the case for the amino acid sequences (Figure 10B). Condensed tree at 70% cutoff was created to show the relationships for both the nucleotide sequences (Figure 10C) and the amino acid sequences (Figure 10D). In the nucleotide tree, the two *Mixta* species are paired together, yet they are placed in a group with the two outgroups and the *Erwinia* species (Figure 10C). A condensed tree for the amino acid sequences showed that birfucations between most of the species were not supported above the 70% cutoff. These gene trees suggest that the differences between the *Enterobacterales* are not great enough to accurately infer the *Mixta* relative.
+
+```{r Figure10, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 10. Maximum likelihood gene trees for secY for nucleotide (A) and amino acid sequences (B). Since bifucations could not be seen in radial trees, condensed trees were computed with a 70% cutoff for both the nucleotide sequnces (C) and amino acid sequences (D).", fig.width=3.25}
+knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10_secY_NT.png")
+knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10_secY_AA.png")
+knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10b_secY_NT70.png")
+knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10b_secY_AA70.png")
+```
+
 # Conclusion
+Since the analyses provided different results for many of the genes, a single analysis may not be enough to conclude that a species is related to another.
 
 \newpage
 # Literature Cited
