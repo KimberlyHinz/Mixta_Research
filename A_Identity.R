@@ -1,4 +1,4 @@
-# This is the first R File for this part of the project: nucleotide identity percentage.
+# This is the first R File for this part of the project: nucleotide and amino acid identity percentage.
 
 # The following code reads in the fasta files and aligns each species' sequence to a Mixta species for each gene. Then it counts the number of 
 # nucleotides that are the same and in the same position (nucleotide identity). The higher the number of identical nucleotides, the more similar that 
