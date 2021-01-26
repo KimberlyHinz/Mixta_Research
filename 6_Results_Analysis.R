@@ -21,6 +21,8 @@ count_relatives <- function(data) {
                sum(data$Closest_Relative %in% c("E_cloacae", "Enterobacter")), sum(data$Closest_Relative %in% c("P_syringae", "Pseudomonas_")))
 }
 
+Spp <- c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", "T_saanichensis", 
+         "E_cloacae", "P_syringae")
 #
 # Table 1. Genomes --------------------------------------------------------------------------------------------------------------------------------------
 strain <- data.frame(Species = c("Mixta calida", "Mixta gaviniae", "Pantoea agglomerans", "Pantoea septica", "Erwinia amylovora",
@@ -45,12 +47,12 @@ kable(strain, caption = "Table 1. Genomes used in this study.")
 phylo_models_NT <- read.csv("9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
 PM_NT <- data.frame(table(phylo_models_NT$BM))
 
-colnames(PM_NT) <- c("Model", "#")
+colnames(PM_NT) <- c("Model", "Number")
 
 PM_NT <- mutate(PM_NT,
-                `%` = round((`#` / sum(`#`)) * 100, digits = 2))
+                Percentage = round((Number / sum(Number)) * 100, digits = 2))
 
-PM_NT <- cbind(PM_NT[1:4, ], PM_NT[5:8, ], PM_NT[9:12, ])
+# PM_NT <- cbind(PM_NT[1:4, ], PM_NT[5:8, ], PM_NT[9:12, ])
 
 write.csv(PM_NT, "10_Tables_and_Figures/Table2_PmodelsNT.csv", row.names = FALSE)
 
@@ -65,14 +67,14 @@ kable(PM_NT, caption = "Table 2. The number of genes that required each phylogen
 phylo_models_AA <- read.csv("9_Results_AA/Phylo_Models_AA.csv", stringsAsFactors = FALSE)
 PM_AA <- data.frame(table(phylo_models_AA$BM))
 
-colnames(PM_AA) <- c("Model", "#")
+colnames(PM_AA) <- c("Model", "Number")
 
 PM_AA <- mutate(PM_AA,
-                `%` = round((`#` / sum(`#`)) * 100, digits = 2))
+                Percentage = round((Number / sum(Number)) * 100, digits = 2))
 
-PM_AA <- rbind(PM_AA, c("--", "--", "--"))
-
-PM_AA <- cbind(PM_AA[1:8, ], PM_AA[9:16, ], PM_AA[17:24, ])
+# PM_AA <- rbind(PM_AA, c("--", "--", "--"))
+# 
+# PM_AA <- cbind(PM_AA[1:8, ], PM_AA[9:16, ], PM_AA[17:24, ])
 
 write.csv(PM_AA, "10_Tables_and_Figures/Table3_PmodelsAA.csv", row.names = FALSE)
 
@@ -156,9 +158,19 @@ models <- data.frame(Model = c("GTR_G", "GTR_G_I", "HKY_G", "HKY_G_I", "K2", "K2
                        sum(DM_models_NT$Code == "T92_G_I"), sum(DM_models_NT$Code == "TN93_G"), sum(DM_models_NT$Code == "TN93_G_I"))) %>%
   na_if(0)
 
-colnames(models) <- c("Model", "# of genes requiring each model", "# of genes requiring each available model")
+colnames(models) <- c("Model", "model", "available_model")
 
 write.csv(models, "10_Tables_and_Figures/Table4_GenDistModelsNT.csv", row.names = FALSE)
+
+#
+test_model <- data.frame(cbind(DM_models_NT$Gene, DM_models_NT$Code, phylo_models_NT$Gene, phylo_models_NT$BM))
+colnames(test_model) <- c("DM_Gene", "DM_Model", "P_Gene", "P_Model")
+
+test_model <- mutate(test_model,
+                   gene_test = DM_Gene == P_Gene,
+                   model_test = DM_Model == P_Model)
+
+table(test_model$model_test)
 
 # ```{r Table4, echo = FALSE, message = FALSE, warning=FALSE, fig.cap=TRUE}
 models <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table4_GenDistModelsNT.csv", stringsAsFactors = FALSE)
@@ -200,6 +212,37 @@ rm(GD_first_relative)
 
 PD_calida <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE)
 PD_gaviniae <- read.csv("9_Results_NT/four_relatives_gaviniae_NT.csv", stringsAsFactors = FALSE)
+
+#
+test_cal <- data.frame(cbind(GD_calida$gene, GD_calida$Closest_Relative, PD_calida$Gene, PD_calida$Closest_Relative))
+colnames(test_cal) <- c("GD_Gene", "GD_CR", "PD_Gene", "PD_CR")
+test_cal <- mutate(test_cal,
+                   gene_test = GD_Gene == PD_Gene,
+                   GD_CR2 = case_when(GD_CR == "Pantoea_sept" ~ "P_septica",
+                                      GD_CR == "Erwinia_tasm" ~ "E_tasmaniensis",
+                                      GD_CR == "Pantoea_aggl" ~ "P_agglomerans",
+                                      GD_CR == "Erwinia_amyl" ~ "E_amylovora",
+                                      GD_CR == "Tatumella_sa" ~ "T_saanichensis",
+                                      GD_CR == "Tatumella_pt" ~ "T_ptyseos",
+                                      GD_CR == "Enterobacter" ~ "E_cloacae"), 
+                   CR_test = GD_CR2 == PD_CR)
+
+table(test_cal$CR_test)
+
+test_gav <- data.frame(cbind(GD_gaviniae$gene, GD_gaviniae$Closest_Relative, PD_gaviniae$Gene, PD_gaviniae$Closest_Relative))
+colnames(test_gav) <- c("GD_Gene", "GD_CR", "PD_Gene", "PD_CR")
+test_gav <- mutate(test_gav,
+                   gene_test = GD_Gene == PD_Gene,
+                   GD_CR2 = case_when(GD_CR == "Pantoea_sept" ~ "P_septica",
+                                      GD_CR == "Erwinia_tasm" ~ "E_tasmaniensis",
+                                      GD_CR == "Pantoea_aggl" ~ "P_agglomerans",
+                                      GD_CR == "Erwinia_amyl" ~ "E_amylovora",
+                                      GD_CR == "Tatumella_sa" ~ "T_saanichensis",
+                                      GD_CR == "Tatumella_pt" ~ "T_ptyseos",
+                                      GD_CR == "Enterobacter" ~ "E_cloacae"), 
+                   CR_test = GD_CR2 == PD_CR)
+
+table(test_gav$CR_test)
 
 # Gather it all together
 number_relatives <- rbind(data.frame(Species = Spp,
