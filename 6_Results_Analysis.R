@@ -592,6 +592,7 @@ for(row in 1:nrow(uniq_genes)) {
   
   stats_on_all <- rbind(stats_on_all, stats)
 }
+rm(one, stats, uniq_genes, row, Spp)
 
 write.csv(stats_on_all, "10_Tables_and_Figures/FigureO_AllStatsCalida.csv", row.names = FALSE)
 

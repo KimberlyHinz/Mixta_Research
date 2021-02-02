@@ -1,10 +1,9 @@
 ---
 title: "An investigation into the contentious phylogenetic results of the *Mixta* species"
-author: "Kimberly Hinz"
-date: "2020/12/08"
+author: "Kimberly N. Hinz, John Stavrinides*"
 output:
   word_document:
-    reference_docx: Styles1.docx
+    reference_docx: Style_RMarkdown.docx
     fig_caption: true
     # toc: true
     # toc_depth: 5
@@ -19,6 +18,27 @@ library("RColorBrewer")
 library("extrafont")
 theme_set(theme_classic())
 ```
+
+Department of Biology
+University of Regina
+3737 Wascana Parkway
+Regina, Saskatchewan, Canada
+S4S0A2
+
+
+**Correspondence:*
+John Stavrinides
+Department of Biology
+University of Regina
+3737 Wascana Parkway
+Regina, Saskatchewan
+S4S0A2
+Ph: (306) 337-8478
+Email: john.stavrinides@uregina.ca
+
+
+*Keywords*: 
+
 \newpage
 # Abstract
 *Mixta* is a recently described genus within the bacterial family *Erwiniaceae* and is closely related to *Pantoea*, *Erwinia*, and *Tatumella*. Depending on the genes and method used for phylogenetic analysis, the genus with which *Mixta* shares the most recent ancestor differs. This study aimed to determine the cause behind these contentious results and identified genes that may have resulted from horizontal gene transfer. Ten complete or partial genomes – two *Mixta* species, six species from other *Erwiniaceae* genera, and two outgroups – were retrieved from NCBI and annotated. Homologous genes were extracted yielding a dataset of 799 genes. The genes were aligned with the ClustalW algorithm, and `MEGA-CC` was used for model testing and computing phylogenetic trees for each gene for both nucleotide and amino acid sequences. Distance matrices were then extracted from these trees. Nucleotide and amino acid identity analyses were also done using the programming language `R`. *Pantoea* was the closest relative to the *Mixta* species in most analyses; however, results were not consistent. Some genes were also found to be more similar to other, non-*Pantoea* species. Diligence must be given to selecting genes for phylogenetic analysis and the method chosen to prevent any xenologous signal from distorting the actual relationships. Furthermore, future research should consider that different phylogenetic analyses may provide different results.
@@ -86,21 +106,21 @@ After the two filters, 799 of 954 homologous genes remained. The genes included 
 Genetic distance gives a numeric estimate of evolutionary change between species. The species that has the shortest genetic distance to a species of interest is considered the closest relative. For the following analysis, model testing was done first to estimate the best model for each gene. Next, individual phylogenetic gene trees were created, and it was from these that distance matrices were extracted. *P. septica* was the closest relative to 66.3% and 66.5% of the *M. calida* and *M. gaviniae* genes, respectively, for the nucleotide sequences (Figure 1). In comparison, only 42.7% and 42.8% of *M. calida* and *M. gaviniae* genes, respectively, are closely related to *P. septica* for the amino acid sequences (Figure 1), but this is still the majority. These results suggest that *P. septica* is the closest relative to *Mixta*, followed by *P. agglomerans*. In contrast, the *Mixta* genes are more closely related to the other species in the study than *P. septica* in the amino acid analysis (Figure 1). For instance, the percentage of genes related to *P. agglomerans* increased by 8.4 and 8.5% for *M. calida* and *M. gaviniae*, respectively (Figure 1). This difference may be due to a loss of phylogenetic signal when using amino acid sequences caused by codon degeneracy and having a third of available sites.
 
 ```{r Figure1, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 1. The percentage of genes (out of 799) that were most closely related to any of the eight non-*Mixta* species using genetic distances. The species with the shortest genetic distance from both of the *Mixta* species is considered the closest relative. Blue bars are the nucleotide sequences of the genes with light blue bars representing the percentage of *M. calida* genes and dark blue bars representing *M. gaviniae*. Green bars are the corresponding amino acid sequences with light green representing *M. calida* genes and dark blue bars representing *M. gaviniae*. Approximately 66% of *M. calida* and *M. gaviniae* genes were most closely related to *P. septica* when using nucleotide sequences compared to only 43% when using amino acid sequences.", fig.width=6.5}
-number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure1_FirstRelativeMixtaNTAA.csv", 
+number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure1_FirstRelativeMixtaNTAA.csv",
                              stringsAsFactors = FALSE) %>%
-  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
+  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis",
                                               "E. cloacae", "P. syringae"), ordered = TRUE),
          Type = factor(Type, levels = c("calida_NT", "gaviniae_NT", "calida_AA", "gaviniae_AA"), ordered = TRUE))
 
 
 ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  scale_fill_brewer(palette = "Paired", 
-                    labels = c(expression(paste("NT and ", italic("M. calida"), sep = "")), 
-                               expression(paste("NT and ", italic("M. gaviniae"), sep = "")), 
-                               expression(paste("AA and ", italic("M. calida"), sep = "")), 
+  scale_fill_brewer(palette = "Paired",
+                    labels = c(expression(paste("NT and ", italic("M. calida"), sep = "")),
+                               expression(paste("NT and ", italic("M. gaviniae"), sep = "")),
+                               expression(paste("AA and ", italic("M. calida"), sep = "")),
                                expression(paste("AA and ", italic("M. gaviniae"), sep = "")))) +
-  labs(y = "Percent of Genes", 
+  labs(y = "Percent of Genes",
        fill = expression(paste("Sequence type and ", italic("Mixta"), " species", sep = ""))) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates and italicizes x axis labels
         legend.position = c(0.95, 0.95),                                                  # Moves legend inside the plot and in the top-right corner
@@ -128,20 +148,20 @@ kable(models, caption = "Table 4. The number of genes requiring each model when 
 The closest relatives to both *Mixta* species were extracted from the distance matrices. *P. septica* was estimated to be the closest relative to 12.6 and 14.4% more genes for *M. calida* and *M. gaviniae*, respectively, when the best available models were used (Figure 2). The next most considerable difference was for genes calculated to be most closely related to *P. agglomerans* (Figure 2). Approximately 5.5 and 7.1% fewer genes were most closely related to *P. agglomerans* when the best available model was used (Figure 2). Additionally, there was more disparity in the closest relatives between *M. calida* and *M. gaviniae* when only the best available model was used (Figure 2). When the best model was used, the two *Mixta* typically had the same closest relative for each gene; however, this was not the case when model options were limited to those available. Due to differences in evolutionary change estimation between models and the addition or exclusion of additional parameters, genetic distances may be inaccurately calculated when the best model is not used. Such results may even suggest that sibling taxa are not as closely related as initially hypothesized.
 
 ```{r Figure2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2. The percentage of genes (out of 799) that were most closely related to any of the eight non-*Mixta* species when using the recommended (best) model from model testing vs the restricted model (best available) options available for genetic distance analysis in MEGAX for nucleotide sequences. The species with the shortest genetic distance from both of the *Mixta* species is considered the closest relative. Evolutionary patterns may vary by gene; therefore, it is appropriate to conduct model testing and use the model that explains the most variation. Nevertheless, this model may not be available in software programs or analysis methods within a software program. Pink bars represent the percentage of *Mixta* genes most closely related to non-*Mixta* species when using the recommended model. Orange bars represent the percentage of *Mixta* genes most closely related to non-*Mixta* species when using the best available genetic distance model analysis in MEGAX. GTR and HKY models and invariant sites parameter were not available for this analysis. The lighter shades represent *M. calida*, and the darker shades represent *M. gaviniae*.", fig.width=6.5}
-number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure2_FirstRelativeBestvsAvailableModelNT.csv", 
+number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure2_FirstRelativeBestvsAvailableModelNT.csv",
                              stringsAsFactors = FALSE) %>%
-  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
+  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis",
                                               "E. cloacae", "P. syringae"), ordered = TRUE),
          Type = factor(Type, levels = c("PD_calida", "PD_gaviniae", "GD_calida", "GD_gaviniae"), ordered = TRUE))
 
 ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
   geom_bar(stat = "identity", position = position_dodge()) +
   scale_fill_manual(values = c("#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00"),
-                    labels = c(expression(paste("Best Model and ", italic("M. calida"), sep = "")), 
-                               expression(paste("Best Model and ", italic("M. gaviniae"), sep = "")), 
-                               expression(paste("Best Available Model and ", italic("M. calida"), sep = "")), 
+                    labels = c(expression(paste("Best Model and ", italic("M. calida"), sep = "")),
+                               expression(paste("Best Model and ", italic("M. gaviniae"), sep = "")),
+                               expression(paste("Best Available Model and ", italic("M. calida"), sep = "")),
                                expression(paste("Best Available Model and ", italic("M. gaviniae"), sep = "")))) +
-  labs(y = "Percent of Genes", 
+  labs(y = "Percent of Genes",
        fill = expression(paste("Model and ", italic("Mixta"), " species", sep = ""))) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates and italicizes x axis labels
         legend.position = c(0.95, 0.95),                                                  # Moves legend inside the plot and in the top-right corner
@@ -162,14 +182,14 @@ Circular plots were generated using the *Mixta* gene IDs for nucleotide (Figure 
 
 ```{r Figure3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3. Closest relatives to *M. calida* genes for nucleotide sequences around the *M. calida* genome. Length and colour of the bars represent the different species to which the gene is most closely related according to genetic distance. The *M. calida* genome has 4084 genes. No distinct patterns emerged; however, genes most closely related to *P. septica* are the most common and occur throughout the genome. Therefore, *P. septica* and *Mixta* are likely to have a recent common ancestor.", fig.width=6.5, fig.height=5}
 FR_nucl_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure3_Circular_NT.csv", stringsAsFactors = FALSE) %>%
-  mutate(Closest_Relative = factor(Closest_Relative, 
-                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
+  mutate(Closest_Relative = factor(Closest_Relative,
+                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos",
                                               "T_saanichensis", "E_cloacae", "P_syringae"), ordered = TRUE))
 
 ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
   geom_bar(stat = "identity", position = position_dodge(), width = 15) +
   coord_polar() +
-  scale_fill_brewer(palette = "Paired", 
+  scale_fill_brewer(palette = "Paired",
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
                                "P. syringae"),
                     na.value = "#ff7f00") +
@@ -183,20 +203,20 @@ ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)
         text = element_text(size = 12,  family = "Times New Roman"))
 ```
 
-For the nucleotide sequences, there were no discernible patterns in closest relatives to *M. calida* genes except for the seven genes most closely related to a *Tatumella* species (pinks) which are only in the first half of the *M. calida* genome (Figure 3). Genes that are most closely related to *Pantoea* species (blue) were distributed throughout the genome (Figure 3), which further suggests that *Mixta* and *Pantoea* have a recent ancestor. Unexpectedly, genes closely related to other genera, particularly to *E. cloacae* (orange) are also distributed throughout the genome (Figure 3). 
+For the nucleotide sequences, there were no discernible patterns in closest relatives to *M. calida* genes except for the seven genes most closely related to a *Tatumella* species (pinks) which are only in the first half of the *M. calida* genome (Figure 3). Genes that are most closely related to *Pantoea* species (blue) were distributed throughout the genome (Figure 3), which further suggests that *Mixta* and *Pantoea* have a recent ancestor. Unexpectedly, genes closely related to other genera, particularly to *E. cloacae* (orange) are also distributed throughout the genome (Figure 3).
 
 Fewer genes were closely related to *P. septica* when analyzing the amino acid sequences (Figure 4). Instead, more genes were closely related to *P. agglomerans*, the *Erwinia* species, the *Tatumella* species, and *E. cloacae* (Figure 4). Nevertheless, no apparent patterns arose in the closest relatives to the *Mixta* genes (Figure 4). The *Mixta* genes that have changed their allegiance between the nucleotide and amino acid analyses may result from the genetic code's redundancy.
 
 ```{r Figure4, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 4. Closest relatives to *M. calida* genes for amino acid sequences around the *M. calida* genome. Length and colour of the bars represent the different species to which the gene is most closely related according to genetic distance. The *M. calida* genome has 4084 genes. No distinct patterns emerged; however, genes most closely related to *P. septica* are the most common and occur throughout the genome. Therefore, *P. septica* and *Mixta* are likely to have a recent common ancestor.", fig.width=6.5, fig.height=5}
 FR_aa_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure4_Circular_AA.csv", stringsAsFactors = FALSE) %>%
-  mutate(Closest_Relative = factor(Closest_Relative, 
-                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
+  mutate(Closest_Relative = factor(Closest_Relative,
+                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos",
                                               "T_saanichensis", "E_cloacae", "P_syringae"), ordered = TRUE))
 
 ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
   geom_bar(stat = "identity", position = position_dodge(), width = 15) +
   coord_polar() +
-  scale_fill_brewer(palette = "Paired", 
+  scale_fill_brewer(palette = "Paired",
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
                                "P. syringae"),
                     na.value = "#ff7f00") +
@@ -219,21 +239,21 @@ Site identity is here defined as the amount of similarity between two sequences.
 The majority of the *Mixta* sequences were similar to *P. septica* for nucleotide sequences (Figure 5) with 80.6 and 79.3% of *M. calida* and *M. gaviniae* sequences, respectively. These results are approximately 15% more genes than in the genetic distance analysis. The rest of the genes are most similar to *P. agglomerans*, followed by the *Erwinia* species, *E. cloacae*, and then the *Tatumella* species. Viable mutations that do not disrupt the ability to survive and reproduce are rare and occur at a constant rate. Thus, these results suggest that *P. septica* and the *Mixta* species share a recent common ancestor.
 
 ```{r Figure5, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 5. The percentage of genes (out of 799) that were most closely related to any of the eight non-*Mixta* species using percent site identities. The species with the highest percent identity to each of the *Mixta* species is considered the most similar taxon for a single gene. Blue bars represent the nucleotide sequences' results; the light blue bars represent *M. calida* sequences, and the dark blue bars represent *M. gaviniae* sequences. Green bars represent the amino acid sequences' results; the light green bars represent *M. calida* sequences, and the dark green bars represent *M. gaviniae* sequences.", fig.width=6.5}
-number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure5_FirstRelativeMixtaNTAAIdentity.csv", 
+number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure5_FirstRelativeMixtaNTAAIdentity.csv",
                              stringsAsFactors = FALSE) %>%
-  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
+  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis",
                                               "E. cloacae", "P. syringae"), ordered = TRUE),
          Type = factor(Type, levels = c("calida_NT", "gaviniae_NT", "calida_AA", "gaviniae_AA"), ordered = TRUE))
 
 
 ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  scale_fill_brewer(palette = "Paired", 
-                    labels = c(expression(paste("NT and ", italic("M. calida"), sep = "")), 
-                               expression(paste("NT and ", italic("M. gaviniae"), sep = "")), 
-                               expression(paste("AA and ", italic("M. calida"), sep = "")), 
+  scale_fill_brewer(palette = "Paired",
+                    labels = c(expression(paste("NT and ", italic("M. calida"), sep = "")),
+                               expression(paste("NT and ", italic("M. gaviniae"), sep = "")),
+                               expression(paste("AA and ", italic("M. calida"), sep = "")),
                                expression(paste("AA and ", italic("M. gaviniae"), sep = "")))) +
-  labs(y = "Percent of Genes", 
+  labs(y = "Percent of Genes",
        fill = expression(paste("Sequence type and ", italic("Mixta"), " species", sep = ""))) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates and italicizes x axis labels
         legend.position = c(0.95, 0.95),                                                  # Moves legend inside the plot and in the top-right corner
@@ -249,24 +269,20 @@ The two *Mixta* species have a comparable number of genes that are most similar 
 
 Percent identity analyses provide only the similarity of two sequences. They do not estimate evolutionary history nor penalize changes in the sequences. However, since members of a genus should be genetically similar, the percent identity analyses lend support to two taxa's relatedness.
 
-Furthermore, percent identity analyses give only how similar are two sequences. They do not use evolutionary models or penalize transitions and transversions in nucleotide sequences. However, because mutations that do not disrupt any vital processes are rare, percent identity analyses may lend support to relatedness between two taxa.
-
 ### Spatial Patterns of Most Similar Taxa
-**HERE!!**
+Similar to the genetic distance analysis, spatial patterns in percent identity in the *M. calida* sequences were investigated in the nucleotide (Figure 6) and amino acid sequences (Figure 7). While no discernible patterns were seen in either figure, most genes most similar to the *Tatumella* species occur in the first half of the genome (Figures 6 and 7). Additionally, the majority of the genes most similar to *E. amylovora* also occur in the first half of the genome for the nucleotide sequences (Figure 6). The rest of the taxa occur uniformly throughout the *M. calida* genome for both nucleotide and amino acid sequences (Figures 6 and 7).
 
-Similar to what was done with the closest relatives in the genetic distance analysis, spatial patterns of the most similar taxa to the *M. calida* sequences based on site identity were investigated for the nucleotide sequences (Figure 6) and the amino acid sequences (Figure 7). Once again, no discernible patterns arose when spatial position on the *M. calida* genome are considered when either the nucleotide or amino acid sequences are analyzed (Figure 6 and 7). However, majority of the nucleotide genes that were most similar to the two *Tatumella* species and to *E. amylovora* occur in the first half of the genome (Figure 6).
-
-```{r Figure6, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 6. The most similar taxa to *M. calida* genes for nucleotide sequences around the *M. calida* genome. The most similar taxa is defined to be that which sequence is most identical to the *M. calida* sequence. Length and colour of the bars represent the different species to which the gene is most similar.", fig.width=6.5, fig.height=5}
-FI_calida_NT <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6_CircularIdentities_NT.csv", 
+```{r Figure6, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 6. The most similar taxa to *M. calida* genes for nucleotide sequences around its genome. The most similar taxon is that which sequence is most identical to the *M. calida* sequence. Length and colour of the bars represent the different species to which the gene is most similar.", fig.width=6.5, fig.height=5}
+FI_calida_NT <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6_CircularIdentities_NT.csv",
                          stringsAsFactors = FALSE) %>%
-  mutate(Closest_Relative = factor(Closest_Relative, 
-                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
+  mutate(Closest_Relative = factor(Closest_Relative,
+                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos",
                                               "T_saanichensis", "E_cloacae", "P_syringiae"), ordered = TRUE))
 
 ggplot(FI_calida_NT, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
   geom_bar(stat = "identity", position = position_dodge(), width = 15) +
   coord_polar() +
-  scale_fill_brewer(palette = "Paired", 
+  scale_fill_brewer(palette = "Paired",
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
                                "P. syringae")) +
   scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
@@ -279,17 +295,17 @@ ggplot(FI_calida_NT, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) 
         text = element_text(size = 12,  family = "Times New Roman"))
 ```
 
-```{r Figure7, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 7. The most similar taxa to *M. calida* genes for amino acid sequences around the *M. calida* genome. The most similar taxa is defined to be that which sequence is most identical to the *M. calida* sequence. Length and colour of the bars represent the different species to which the gene is most similar.", fig.width=6.5, fig.height=5}
-FI_calida_AA <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure7_CircularIdentities_AA.csv", 
+```{r Figure7, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 7. The most similar taxa to *M. calida* genes for amino acid sequences around its genome. The most similar taxon is that which sequence is most identical to the *M. calida* sequence. Length and colour of the bars represent the different species to which the gene is most similar.", fig.width=6.5, fig.height=5}
+FI_calida_AA <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure7_CircularIdentities_AA.csv",
                          stringsAsFactors = FALSE) %>%
-  mutate(Closest_Relative = factor(Closest_Relative, 
-                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
+  mutate(Closest_Relative = factor(Closest_Relative,
+                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos",
                                               "T_saanichensis", "E_cloacae", "P_syringiae"), ordered = TRUE))
 
 ggplot(FI_calida_AA, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
   geom_bar(stat = "identity", position = position_dodge(), width = 15) +
   coord_polar() +
-  scale_fill_brewer(palette = "Paired", 
+  scale_fill_brewer(palette = "Paired",
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
                                "P. syringae")) +
   scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
@@ -302,28 +318,66 @@ ggplot(FI_calida_AA, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) 
         text = element_text(size = 12,  family = "Times New Roman"))
 ```
 
-While no distinct patterns emerged, genes that are most similar to *P. septica* predominates the whole of the *M. calida* genome (Figures 6 and 7). This suggests that *Mixta* and *P. septica* may be related as their sequences are similar and few mutations have occurred after they diverged.
+While no distinct patterns emerged, genes most similar to *P. septica* predominate the *M. calida* genome (Figures 6 and 7). This suggests that *Mixta* and *P. septica* may be related as their sequences are similar and few mutations have occurred after they diverged.
 
 ## A Comparison Between Evolutionary Change and Site Identity (Keep?)
-### *Mixta calida*
-Since all four of the analyses gave contentious results, it was necessary to compare the results for the first relative from genetic distance and the most similar taxa from site identity for both the nucleotide and amino acid sequences. For approximately 39% of the *M. calida* genes, all four analyses gave the same species. Of these genes, 255 agreed with *P. septica*, 22 with *P. agglomerans*, 17 with *E. tasmaniensis*, 8 with *E. amylovora*, 1 with *T. saanichensis*, and 6 with *E. cloacae*. Additionally, the four analyses gave the same genus approximately 63% of the genes where in 454 agreed with *Pantoea* followed by *Erwinia* with 44, and *Tatumella* with 3. Thus, because all four of the analyses agreed on a single species or genus, these results are more likely to be correct.
+### *M. calida*
+Since all four analyses gave contentious results, it was necessary to compare the first relative results from the genetic distance and the most similar taxa from site identity for both the nucleotide and amino acid sequences (Table 5).
+
+**HERE!!**
+
+
+For approximately 38.7% of the *M. calida* genes, all four analyses gave the same species. Of these genes, 255 agreed with *P. septica*, 22 with *P. agglomerans*, 17 with *E. tasmaniensis*, 8 with *E. amylovora*, 1 with *T. saanichensis*, and 6 with *E. cloacae*. Additionally, the four analyses gave the same genus approximately 63% of the genes where in 454 agreed with *Pantoea* followed by *Erwinia* with 44, and *Tatumella* with 3. Thus, because all four of the analyses agreed on a single species or genus, these results are more likely to be correct.
+
+```{r Table5, echo = FALSE, message = FALSE, warning=FALSE, fig.cap=TRUE}
+stats_on_all <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/FigureO_AllStatsCalida.csv", stringsAsFactors = FALSE)
+
+same_spp <- data.frame(table(stats_on_all$Same_Species))
+same_spp <- same_spp[which(same_spp$Var1 != "Nope"), ]
+
+same_spp <- rbind(same_spp, data.frame(Var1 = "T_ptyseos", Freq = 0))
+
+colnames(same_spp) <- c("Species", "Number of Genes")
+
+same_spp <- mutate(same_spp,
+                   Species = case_when(Species == "E_amylovora" ~ "E. amylovora",
+                                       Species == "E_tasmaniensis" ~ "E. tasmaniensis",
+                                       Species == "P_agglomerans" ~ "P. agglomerans",
+                                       Species == "P_septica" ~ "P. septica",
+                                       Species == "T_ptyseos" ~ "T. ptyseos",
+                                       Species == "T_saanichensis" ~ "T. saanichensis",
+                                       Species == "E_cloacae" ~ "E. cloacae")) %>%
+  mutate(Species = factor(Species, levels = c("P. agglomerans", "P. septica", "E. amylovora", "E. tasmaniensis",
+                                              "T. ptyseos", "T. saanichensis", "E. cloacae"), ordered = TRUE))
+
+
+same_spp <- arrange(same_spp, Species)
+
+kable(same_spp, caption = "Table 5. The number of genes that had each species as the closest or most similar relative for all four analyses.")
+
+# table(stats_on_all$Same_Genus)
+# table(stats_on_all$NT_Same)
+# table(stats_on_all$AA_Same)
+# table(stats_on_all$Rel_Same)
+# table(stats_on_all$Ide_Same)
+```
 
 The two analyses conducted with nucleotide sequences agreed on a species 78% of the time whereas the two analyses conducted with amino acid sequences agreed only 70% of the time. It is not unexpected that the two nucleotide analyses would agree on taxa more often than the amino acid analyses since there are more sites in nucleotide sequences and no degeneracy in the code.
 
 ```{r Figure8, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 8. Sample for first 100 genes.", fig.width=6.5, fig.height=3}
-all_results_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/FigureN_AllResultsCalida.csv", 
+all_results_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/FigureN_AllResultsCalida.csv",
                                stringsAsFactors = TRUE) %>%
   pivot_longer(cols = c(Rel_NT:Ide_AA), names_to = "Analysis", values_to = "Closest_Similar") %>%
-  mutate(Closest_Similar = factor(Closest_Similar, 
-                                  levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", "T_saanichensis", 
-                                             "E_cloacae", "P_syringiae"), 
+  mutate(Closest_Similar = factor(Closest_Similar,
+                                  levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", "T_saanichensis",
+                                             "E_cloacae", "P_syringiae"),
                                   ordered = TRUE),
          Analysis = factor(Analysis, levels = c("Ide_AA", "Rel_AA", "Ide_NT", "Rel_NT"), ordered = TRUE),
          Gene_Name = reorder(Gene_Name, ID))
 
 ggplot(all_results_calida[1:400, ], aes(x = Gene_Name, y = Analysis, fill = Closest_Similar)) +
   geom_tile() +
-  scale_fill_brewer(palette = "Paired", 
+  scale_fill_brewer(palette = "Paired",
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
                                "P. syringae")) +
   scale_y_discrete(labels = c("AA Identity", "AA Closest", "NT Identity", "NT Closest")) +
@@ -368,6 +422,3 @@ Since the analyses provided different results for many of the genes, a single an
 \newpage
 # Literature Cited
 <div id="refs"></div>
-
-\newpage
-# Appendix
