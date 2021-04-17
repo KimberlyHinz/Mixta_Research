@@ -30,7 +30,7 @@ strain <- data.frame(Species = c("Mixta calida", "Mixta gaviniae", "Pantoea aggl
                                  "Enterobacter cloacae subsp cloacae", "Pseudomonas syringae pv syringae"),
                      Strain = c("DSM_22759", "DSM_22758", "NBRC_102470", "LMG_5345", "CFBP_1232", "ET1/99", "NCTC_11468",
                                 "NML_06-3099", "ATCC_13047", "ICMP_3023"),
-                     `GenBank Accession No.` = c("GCA_002953215.1", "GCA_002953195.1", "GCA_001598475.1", "GCA_002095575.1", "GCA_000367625.2",
+                     GenBank = c("GCA_002953215.1", "GCA_002953195.1", "GCA_001598475.1", "GCA_002095575.1", "GCA_000367625.2",
                                                  "GCA_000026185.1", "GCA_900478715.1", "GCA_000439375.1", "GCA_000025565.1", "GCA_001401075.1"),
                      Level = c("complete genome", "complete genome", "contigs", "contigs", "contigs", "complete genome", "complete genome", 
                                "contigs", "complete genome", "scaffold"))
@@ -84,7 +84,59 @@ PM_AA <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Fi
 kable(PM_AA, caption = "Table 3. The number of genes that required each phylogenetic tree model according to model testing and the lowest BIC for amino 
       acid sequences.")
 # ```
-# Figure 1. First Relatives Percentage ------------------------------------------------------------------------------------------------------------------
+# Figure 1. Nucleotide Models in MEGAX Genetic Distance --------------------------------------------------------------------------------------------------
+DM_models_NT <- read.csv("9_Results_NT/DM_Models_NT.csv", stringsAsFactors = FALSE)
+phylo_models_NT <- read.csv("9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
+
+models <- data.frame(Model = c("GTR_G", "GTR_G_I", "HKY_G", "HKY_G_I", "K2", "K2_G", "K2_G_I", "K2_I", "T92_G", "T92_G_I", "TN93_G", "TN93_G_I")) %>%
+  mutate(Best = c(sum(phylo_models_NT$BM == "GTR_G"), sum(phylo_models_NT$BM == "GTR_G_I"), sum(phylo_models_NT$BM == "HKY_G"),
+                      sum(phylo_models_NT$BM == "HKY_G_I"), sum(phylo_models_NT$BM == "K2"), sum(phylo_models_NT$BM == "K2_G"),
+                      sum(phylo_models_NT$BM == "K2_G_I"), sum(phylo_models_NT$BM == "K2_I"), sum(phylo_models_NT$BM == "T92_G"),
+                      sum(phylo_models_NT$BM == "T92_G_I"), sum(phylo_models_NT$BM == "TN93_G"), sum(phylo_models_NT$BM == "TN93_G_I")),
+         Avail = c(sum(DM_models_NT$Code == "GTR_G"), sum(DM_models_NT$Code == "GTR_G_I"), sum(DM_models_NT$Code == "HKY_G"),
+                       sum(DM_models_NT$Code == "HKY_G_I"), sum(DM_models_NT$Code == "K2"), sum(DM_models_NT$Code == "K2_G"),
+                       sum(DM_models_NT$Code == "K2_G_I"), sum(DM_models_NT$Code == "K2_I"), sum(DM_models_NT$Code == "T92_G"),
+                       sum(DM_models_NT$Code == "T92_G_I"), sum(DM_models_NT$Code == "TN93_G"), sum(DM_models_NT$Code == "TN93_G_I")))
+
+models[is.na(models)] <- 0
+
+models <- pivot_longer(models, cols = c(Best, Avail), names_to = "Bst_Avlb", values_to = "Number"); test
+
+models <- mutate(models,
+                 Percent = round((Number / (sum(Number) / 2)) * 100, digits = 1))
+
+models$Model <- gsub("_", "+", models$Model)
+
+write.csv(models, "10_Tables_and_Figures/Figure1_BestvAvailableModels.csv", row.names = FALSE)
+
+#
+test_model <- data.frame(cbind(DM_models_NT$Gene, DM_models_NT$Code, phylo_models_NT$Gene, phylo_models_NT$BM))
+colnames(test_model) <- c("DM_Gene", "DM_Model", "P_Gene", "P_Model")
+
+test_model <- mutate(test_model,
+                   gene_test = DM_Gene == P_Gene,
+                   model_test = DM_Model == P_Model)
+
+table(test_model$model_test)
+
+# ```{r Figure1, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 1. The percent of genes requiring each model when using the recommended model for phylogenetic tree analysis (red) and when using the best available model for genetic distance anaylis (blue). Models are for nucleotide sequences.", fig.width=6.5}
+models <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure1_BestvAvailableModels.csv", stringsAsFactors = FALSE)
+
+ggplot(data = models, aes(x = Model, y = Percent, fill = Bst_Avlb)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_brewer(palette = "Set1",
+                    labels = c("Phylogenetic", "Genetic Distance")) +
+  labs(y = "Percent of Genes \n Requiring Each Model",
+       fill = "Analysis") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),                                # Rotates x axis labels
+        legend.position = c(0.3, 0.95),                                                   # Moves legend inside the plot and in the top-left corner
+        legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates
+        legend.text.align = 0,                                                            # Aligns legend text to the left
+        legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
+        text = element_text(size = 12,  family = "Times New Roman"))
+# ```
+
+# Figure 2. First Relatives Percentage ------------------------------------------------------------------------------------------------------------------
 datasets <- data.frame(project = c("NT", "NT", "AA", "AA"),
                        dataset = c("calida_NT", "gaviniae_NT", "calida_AA", "gaviniae_AA"))
 
@@ -141,42 +193,6 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
         legend.text.align = 0,                                                            # Aligns legend text to the left
         legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
         text = element_text(size = 12,  family = "Times New Roman"))
-# ```
-
-# Table 4. Nucleotide Models in MEGAX Genetic Distance --------------------------------------------------------------------------------------------------
-DM_models_NT <- read.csv("9_Results_NT/DM_Models_NT.csv", stringsAsFactors = FALSE)
-phylo_models_NT <- read.csv("9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
-
-models <- data.frame(Model = c("GTR_G", "GTR_G_I", "HKY_G", "HKY_G_I", "K2", "K2_G", "K2_G_I", "K2_I", "T92_G", "T92_G_I", "TN93_G", "TN93_G_I")) %>%
-  mutate(required = c(sum(phylo_models_NT$BM == "GTR_G"), sum(phylo_models_NT$BM == "GTR_G_I"), sum(phylo_models_NT$BM == "HKY_G"),
-                      sum(phylo_models_NT$BM == "HKY_G_I"), sum(phylo_models_NT$BM == "K2"), sum(phylo_models_NT$BM == "K2_G"),
-                      sum(phylo_models_NT$BM == "K2_G_I"), sum(phylo_models_NT$BM == "K2_I"), sum(phylo_models_NT$BM == "T92_G"),
-                      sum(phylo_models_NT$BM == "T92_G_I"), sum(phylo_models_NT$BM == "TN93_G"), sum(phylo_models_NT$BM == "TN93_G_I")),
-         available = c(sum(DM_models_NT$Code == "GTR_G"), sum(DM_models_NT$Code == "GTR_G_I"), sum(DM_models_NT$Code == "HKY_G"),
-                       sum(DM_models_NT$Code == "HKY_G_I"), sum(DM_models_NT$Code == "K2"), sum(DM_models_NT$Code == "K2_G"),
-                       sum(DM_models_NT$Code == "K2_G_I"), sum(DM_models_NT$Code == "K2_I"), sum(DM_models_NT$Code == "T92_G"),
-                       sum(DM_models_NT$Code == "T92_G_I"), sum(DM_models_NT$Code == "TN93_G"), sum(DM_models_NT$Code == "TN93_G_I"))) %>%
-  na_if(0)
-
-colnames(models) <- c("Model", "model", "available_model")
-
-write.csv(models, "10_Tables_and_Figures/Table4_GenDistModelsNT.csv", row.names = FALSE)
-
-#
-test_model <- data.frame(cbind(DM_models_NT$Gene, DM_models_NT$Code, phylo_models_NT$Gene, phylo_models_NT$BM))
-colnames(test_model) <- c("DM_Gene", "DM_Model", "P_Gene", "P_Model")
-
-test_model <- mutate(test_model,
-                   gene_test = DM_Gene == P_Gene,
-                   model_test = DM_Model == P_Model)
-
-table(test_model$model_test)
-
-# ```{r Table4, echo = FALSE, message = FALSE, warning=FALSE, fig.cap=TRUE}
-models <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table4_GenDistModelsNT.csv", stringsAsFactors = FALSE)
-
-kable(models, caption = "Table 4. The number of genes requiring each model when using phylogentic tree analysis vs genetic distance analysis in MEGAX 
-      for nucleotide sequences.")
 # ```
 
 # Figure 2. First Relative Best vs Available Model ------------------------------------------------------------------------------------------------------
