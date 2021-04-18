@@ -82,6 +82,41 @@ Email: john.stavrinides@uregina.ca
 <!-- Each of the non-*Mixta* sequences were aligned to one of the corresponding *Mixta* sequences in turn. Alignments were performed in R as described above, and the aligned sequences were then split into the individual sites using the `str_split()` function (package: stringr) [@Wickham2019]. A function was created using base `R` code to calculate the number of identical sites between each sequence and the *Mixta* homologs. Values that equal or are close to 100% are more identical to the *Mixta* sequences. -->
 
 # Results
+```{r Table2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
+PM_NT <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/O10_Tables_and_Figures/Table2_PmodelsNT.csv", stringsAsFactors = FALSE)
+
+kable(PM_NT, caption = "Table 2. According to model testing and the lowest BIC for nucleotide sequences, the number of genes required each phylogenetic tree model.")
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Old Results
 Twelve and twenty-three unique models were used for nucleotide (Table 2) and amino acid sequences (Table 3) were needed to create phylogenetic gene trees.
 
 ```{r Table2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
