@@ -32,8 +32,7 @@ strain <- data.frame(Species = c("Mixta calida", "Mixta gaviniae", "Pantoea aggl
                                 "NML_06-3099", "ATCC_13047", "ICMP_3023"),
                      GenBank = c("GCA_002953215.1", "GCA_002953195.1", "GCA_001598475.1", "GCA_002095575.1", "GCA_000367625.2",
                                                  "GCA_000026185.1", "GCA_900478715.1", "GCA_000439375.1", "GCA_000025565.1", "GCA_001401075.1"),
-                     Level = c("complete genome", "complete genome", "contigs", "contigs", "contigs", "complete genome", "complete genome", 
-                               "contigs", "complete genome", "scaffold"))
+                     Level = c("Complete", "Complete", "Contigs", "Contigs", "Contigs", "Complete", "Complete", "Contigs", "Complete", "Scaffold"))
 
 write.csv(strain, "10_Tables_and_Figures/Table1_Genomes.csv", row.names = FALSE)
 
@@ -42,6 +41,39 @@ strain <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_F
 
 kable(strain, caption = "Table 1. Genomes used in this study.")
 # ```
+
+# Table 2. Best vs Available Models ----------------------------------------------------------------------------------------------------------------------
+DM_models_NT <- read.csv("9_Results_NT/DM_Models_NT.csv", stringsAsFactors = FALSE)
+phylo_models_NT <- read.csv("9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
+
+models <- data.frame(Model = c("GTR_G", "GTR_G_I", "HKY_G", "HKY_G_I", "K2", "K2_G", "K2_G_I", "K2_I", "T92_G", "T92_G_I", "TN93_G", "TN93_G_I")) %>%
+  mutate(Best = c(sum(phylo_models_NT$BM == "GTR_G"), sum(phylo_models_NT$BM == "GTR_G_I"), sum(phylo_models_NT$BM == "HKY_G"),
+                  sum(phylo_models_NT$BM == "HKY_G_I"), sum(phylo_models_NT$BM == "K2"), sum(phylo_models_NT$BM == "K2_G"),
+                  sum(phylo_models_NT$BM == "K2_G_I"), sum(phylo_models_NT$BM == "K2_I"), sum(phylo_models_NT$BM == "T92_G"),
+                  sum(phylo_models_NT$BM == "T92_G_I"), sum(phylo_models_NT$BM == "TN93_G"), sum(phylo_models_NT$BM == "TN93_G_I")),
+         Avail = c(sum(DM_models_NT$Code == "GTR_G"), sum(DM_models_NT$Code == "GTR_G_I"), sum(DM_models_NT$Code == "HKY_G"),
+                   sum(DM_models_NT$Code == "HKY_G_I"), sum(DM_models_NT$Code == "K2"), sum(DM_models_NT$Code == "K2_G"),
+                   sum(DM_models_NT$Code == "K2_G_I"), sum(DM_models_NT$Code == "K2_I"), sum(DM_models_NT$Code == "T92_G"),
+                   sum(DM_models_NT$Code == "T92_G_I"), sum(DM_models_NT$Code == "TN93_G"), sum(DM_models_NT$Code == "TN93_G_I")))
+
+models[models == 0] <- NA
+
+models$Model <- gsub("_", "+", models$Model)
+
+write.csv(models, "10_Tables_and_Figures/Table2_BestAvailableModels.csv", row.names = FALSE)
+
+
+
+kable(models)
+
+
+
+
+
+
+
+
+
 
 # Table 2. Nucleotide Models ----------------------------------------------------------------------------------------------------------------------------
 phylo_models_NT <- read.csv("9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
@@ -85,20 +117,9 @@ kable(PM_AA, caption = "Table 3. The number of genes that required each phylogen
       acid sequences.")
 # ```
 # Figure 1. Nucleotide Models in MEGAX Genetic Distance --------------------------------------------------------------------------------------------------
-DM_models_NT <- read.csv("9_Results_NT/DM_Models_NT.csv", stringsAsFactors = FALSE)
-phylo_models_NT <- read.csv("9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
 
-models <- data.frame(Model = c("GTR_G", "GTR_G_I", "HKY_G", "HKY_G_I", "K2", "K2_G", "K2_G_I", "K2_I", "T92_G", "T92_G_I", "TN93_G", "TN93_G_I")) %>%
-  mutate(Best = c(sum(phylo_models_NT$BM == "GTR_G"), sum(phylo_models_NT$BM == "GTR_G_I"), sum(phylo_models_NT$BM == "HKY_G"),
-                      sum(phylo_models_NT$BM == "HKY_G_I"), sum(phylo_models_NT$BM == "K2"), sum(phylo_models_NT$BM == "K2_G"),
-                      sum(phylo_models_NT$BM == "K2_G_I"), sum(phylo_models_NT$BM == "K2_I"), sum(phylo_models_NT$BM == "T92_G"),
-                      sum(phylo_models_NT$BM == "T92_G_I"), sum(phylo_models_NT$BM == "TN93_G"), sum(phylo_models_NT$BM == "TN93_G_I")),
-         Avail = c(sum(DM_models_NT$Code == "GTR_G"), sum(DM_models_NT$Code == "GTR_G_I"), sum(DM_models_NT$Code == "HKY_G"),
-                       sum(DM_models_NT$Code == "HKY_G_I"), sum(DM_models_NT$Code == "K2"), sum(DM_models_NT$Code == "K2_G"),
-                       sum(DM_models_NT$Code == "K2_G_I"), sum(DM_models_NT$Code == "K2_I"), sum(DM_models_NT$Code == "T92_G"),
-                       sum(DM_models_NT$Code == "T92_G_I"), sum(DM_models_NT$Code == "TN93_G"), sum(DM_models_NT$Code == "TN93_G_I")))
 
-models[is.na(models)] <- 0
+
 
 models <- pivot_longer(models, cols = c(Best, Avail), names_to = "Bst_Avlb", values_to = "Number"); test
 
