@@ -82,6 +82,13 @@ Email: john.stavrinides@uregina.ca
 <!-- Each of the non-*Mixta* sequences were aligned to one of the corresponding *Mixta* sequences in turn. Alignments were performed in R as described above, and the aligned sequences were then split into the individual sites using the `str_split()` function (package: stringr) [@Wickham2019]. A function was created using base `R` code to calculate the number of identical sites between each sequence and the *Mixta* homologs. Values that equal or are close to 100% are more identical to the *Mixta* sequences. -->
 
 # Results
+After the two filters, 799 of 954 homologous genes remained. The genes included those encoding rRNA sequences, enzymes, transporters, and housekeeping genes and were scattered across the M. calida and M. gaviniae genomes.
+
+## Best Model vs Best Available Model
+In MEGAX [@Kumar2018], the user can either calculate genetic distance or estimate a phylogenetic tree. However, although model testing assesses all possible models available in the software, all models are not available for genetic distance analysis. The GTR (General Time Reversible) and HKY (Hasegawa-Kishino-Yano) models and the +I (invariant sites) parameter are available only for phylogenetic tree analysis. 
+
+The genetic distances for the nucleotide sequences (NTS) were estimated using both the recommended (RM) and best available models (BAM) for distance analysis to determine if different results would arise when using a model that does not explain most of the genetic variance. The RM is the model with the lowest Bayesian Information Criterion (BIC) among the available options. First, phylogenetic gene trees were computed using the recommended model from model testing. The software suggested twelve unique models for this method (Table 2). Genetic distance matrices were then extracted from the trees. Second, distance matrices were calculated directly using the BAM for calculating pairwise distances. Only four models were recommended for genetic distance analysis (Table 2). Of the 799 NTS, 242 genes required a different model between the two analyses, and the mean BIC difference between the two models was 13.8 (range: 0.1, 122.6). 
+
 ```{r Table2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
 models <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table2_BestAvailableModels.csv", stringsAsFactors = FALSE)
 
@@ -91,7 +98,9 @@ kable(models,
       caption = "Table 2. The number of genes that required each model according to the best model with the lowest BIC and the best available model for genetic distance analysis.")
 ```
 
-```{r Figure1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 1. The percentage of genes (n = 799) that were most closely related to any of the eight non-*Mixta* species when using the recommended model from model testing versus the best available) model for genetic distance analysis in MEGAX. The sequences were nucleotide sequences. The species with the shortest genetic distance from the *Mixta* species is considered to be the closest relative. The pink and orange bars represent the percentage of *Mixta* genes that are most closely related to any of the non-*Mixta* species when using the recommended model and the best available model, respectively. The lighter shades represent *M. calida* and the darker shades represent *M. gavinaie*.", fig.width=6.5}
+The closest relatives to both of the *Mixta* species were extracted from RM and BAM distance matrices. When the RM was used. *P. septica* was the closest relative to 66.3 and 66.5% of the *M. calida* and *M. gaviniae* sequences, respectively (Figure 1). These percentages increase by 12.6 and 14.4% for the *M. calida* and *M. gaviniae* sequences, respectively, when the BAM was used (Figure 1). Instead of *P. septica* when the RM is used, more genes are more closely related to *P. agglomerans*, *E. tasmaniensis*, *E. amylovora*, *T. saanichensis*, and *E. cloacae* (Figure 1). Additionally, there was more disparity between *M. calida* and *M. gaviniae* when the BAM was used (Figure 1).
+
+```{r Figure1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 1. The percentage of genes (n = 799) that were most closely related to any of the eight non-*Mixta* species when using the recommended model from model testing versus the best available) model for genetic distance analysis in MEGAX. The sequences were nucleotide sequences. The species with the shortest genetic distance from the *Mixta* species is considered to be the closest relative. The pink and orange bars represent the percentage of *Mixta* genes that were most closely related to any of the non-*Mixta* species when using the recommended model and the best available model, respectively. The lighter shades represent *M. calida* and the darker shades represent *M. gavinaie*.", fig.width=6.5}
 number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure1_FirstRelativeBestvsAvailableModelNT.csv", 
                              stringsAsFactors = FALSE) %>%
   mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
@@ -115,9 +124,35 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
         text = element_text(size = 12,  family = "Times New Roman"))
 ```
 
+The RM and BAM were different for approximately 30.3% (n = 242) of the genes. Of these 242 genes, 20.2% (n = 49) were said to have different closest relatives between the two analyses. However, when the RM and BAM were the same (n = 557), 19.9% (n = 111) had different closest relatives.
+
+## Closest Relative from Genetic Distance
+Genetic distance gives a numerical estimate of evolutionary change between species, and the taxa with which a species of interest has the shortest distance is regarded as the closest relative. Since the phylogenetic trees were calculated using the RM, the distance matrices exported from the trees were kept for future analyses. *P. septica* was consistently the closest relative for most of the *Mixta* sequences (Figure 2). However, the number of genes most closely related *P. septica* decreased from 66.3 and 66.5% (*M. calida* and *M. gaviniae*, respectively) with the NTS by 23.7% with the amino acid sequences (AAS; Figure 2). Instead, the *Mixta* AAS were most closely related to the other taxa within the dataset except for *P. syringae* (Figure 2). Interestingly, the number of genes most closely related to *E. cloacae* increased between the NTS and the AAS from 2.9% by 3.1% (Figure 2).
+
+```{r Figure2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2. The percentage of genes (n = 799) that were most closely related to any of the eight non-*Mixta* species using the recommended models and genetic distances. The species with the shortest genetic distance from the *Mixta* species is considered to be the closest relative. The percentage of *Mixta* genes that were most closely related to any of the non-*Mixta* species are represented by the blue and green bars for the nucleotide and amino acid sequences, respectively. The lighter shades represent *M. calida* and the darker shades represent *M. gavinaie*.", fig.width=6.5}
+number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure2_FirstRelativeNTAA.csv", 
+                             stringsAsFactors = FALSE) %>%
+  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
+                                              "E. cloacae", "P. syringae"), ordered = TRUE),
+         Type = factor(Type, levels = c("calida_NT", "gaviniae_NT", "calida_AA", "gaviniae_AA"), ordered = TRUE))
 
 
-
+ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c(expression(paste("NT and ", italic("M. calida"), sep = "")), 
+                               expression(paste("NT and ", italic("M. gaviniae"), sep = "")), 
+                               expression(paste("AA and ", italic("M. calida"), sep = "")), 
+                               expression(paste("AA and ", italic("M. gaviniae"), sep = "")))) +
+  labs(y = "Percent of Genes", 
+       fill = expression(paste("Sequence type and ", italic("Mixta"), " species", sep = ""))) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates and italicizes x axis labels
+        legend.position = c(0.95, 0.95),                                                  # Moves legend inside the plot and in the top-right corner
+        legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates
+        legend.text.align = 0,                                                            # Aligns legend text to the left
+        legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
+        text = element_text(size = 12,  family = "Times New Roman"))
+```
 
 
 
@@ -152,22 +187,22 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
 <!-- kable(PM_AA, caption = "Table 3. According to model testing and the lowest BIC for amino acid sequences, the number of genes required each phylogenetic tree model.") -->
 <!-- ``` -->
 
-<!-- ```{r Figure1, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 1. The percent of genes (n = 799) requiring each model when using the recommended model for phylogenetic tree analysis (green) and when using the best available model for genetic distance analysis (orange). Models are for nucleotide sequences.", fig.width=6.5} -->
-<!-- models <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure1_BestvAvailableModels.csv", stringsAsFactors = FALSE) -->
+```{r Figure1, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 1. The percent of genes (n = 799) requiring each model when using the recommended model for phylogenetic tree analysis (green) and when using the best available model for genetic distance analysis (orange). Models are for nucleotide sequences.", fig.width=6.5}
+models <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure1_BestvAvailableModels.csv", stringsAsFactors = FALSE)
 
-<!-- ggplot(data = models, aes(x = Model, y = Percent, fill = Bst_Avlb)) + -->
-<!--   geom_bar(stat = "identity", position = position_dodge()) + -->
-<!--   scale_fill_brewer(palette = "Dark2", -->
-<!--                     labels = c("Phylogenetic", "Genetic Distance")) + -->
-<!--   labs(y = "Percent of Genes \n Requiring Each Model", -->
-<!--        fill = "Analysis") + -->
-<!--   theme(axis.text.x = element_text(angle = 45, hjust = 1),                                # Rotates x axis labels -->
-<!--         legend.position = c(0.3, 0.95),                                                   # Moves legend inside the plot and in the top-left corner -->
-<!--         legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates -->
-<!--         legend.text.align = 0,                                                            # Aligns legend text to the left -->
-<!--         legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend -->
-<!--         text = element_text(size = 12,  family = "Times New Roman")) -->
-<!-- ``` -->
+ggplot(data = models, aes(x = Model, y = Percent, fill = Bst_Avlb)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_brewer(palette = "Dark2",
+                    labels = c("Phylogenetic", "Genetic Distance")) +
+  labs(y = "Percent of Genes \n Requiring Each Model",
+       fill = "Analysis") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),                                # Rotates x axis labels
+        legend.position = c(0.3, 0.95),                                                   # Moves legend inside the plot and in the top-left corner
+        legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates
+        legend.text.align = 0,                                                            # Aligns legend text to the left
+        legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
+        text = element_text(size = 12,  family = "Times New Roman"))
+```
 
 <!-- ```{r Figure2, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 2. The percentage of genes (n = 799) most closely related to any of the eight non-*Mixta* species. Closest relative was inferred using shortest genetic distance. Blue bars represent the nucleotide sequences and green bars represent the amino acid sequences. The lighter of each colour represents *M. calida* and the darker *M. gaviniae*.", fig.width=6.5} -->
 <!-- number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure2_FirstRelativeNTAA.csv", -->
