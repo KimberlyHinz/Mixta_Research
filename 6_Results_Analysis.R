@@ -71,7 +71,17 @@ kable(models,
       genetic distance analysis.")
 # ```
 
-# Figure 1. First Relative: Best vs Available Model -------------------------------------------------------------------------------------------------------
+models <- data.frame(Gene = DM_models_NT$Gene,
+                     DM = DM_models_NT$Code, 
+                     PM = phylo_models_NT$BM)                                       # To check if the models are the same
+
+models$Same_Model <- models$DM == models$PM
+
+table(models$Same_Model)
+# FALSE  TRUE 
+# 242    557 
+
+# Figure 1. Closest Relative: Best vs Available Model -----------------------------------------------------------------------------------------------------
 GD_first_relative <- read.csv("O8_Results_Ten_NT/Four_Relatives_Ext_Ten_NT.csv", 
                               stringsAsFactors = FALSE)                             # Read in the closest relative results from Genetic Distances
 
@@ -192,16 +202,79 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
         text = element_text(size = 12,  family = "Times New Roman"))
 # ```
 
+difCR_cal <- cbind(models, test_cal)                                                # Did differences in models change CR?
+unique(difCR_cal$Gene == difCR_cal$PD_Gene)                                         # Checks that gene order is the same
+
+dif_models <- subset(difCR_cal, Same_Model == FALSE)                                # When recommended and best available models were different
+table(dif_models$CR_test)                                                           # Number of genes that had the same CR despite different models
+# FALSE  TRUE 
+# 49     193 
+
+same_models <- subset(difCR_cal, Same_Model == TRUE)                                # When recommended and best available models were the same
+table(same_models$CR_test)                                                          # Number of genes that had the same CR with same models
+# FALSE  TRUE 
+# 111    446 
+
+# Figure 2. Closest Relative: NTS and AAS -----------------------------------------------------------------------------------------------------------------
+datasets <- data.frame(project = c("NT", "NT", "AA", "AA"),
+                       dataset = c("calida_NT", "gaviniae_NT", "calida_AA", 
+                                   "gaviniae_AA"))                                  # The four different datasets: two Mixta and NTS/AAS
+
+number_relatives <- data.frame(matrix(ncol = 4, nrow = 0))                          # Initialize the combined dataset
+
+for(row in 1:nrow(datasets)) {
+  four_rel <- read.csv(paste("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_", 
+                             datasets$project[row], "/four_relatives_",
+                             datasets$dataset[row], ".csv", sep = ""), 
+                       stringsAsFactors = FALSE)                                    # Read in each dataset in turn
+  
+  num_rel <- data.frame(Species = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
+                                    "E. cloacae", "P. syringae"),
+                        Number = count_relatives(four_rel))                         # Counts the occurence of each CR
+  
+  num_rel <- mutate(num_rel,
+                    Species = factor(Species, levels = Species, ordered = TRUE),    # Gives an order to the species
+                    Percent = round((Number / sum(Number)) * 100, digits = 1),      # Rounds to prettier numbers
+                    Type = datasets$dataset[row])                                   # Which dataset
+  
+  number_relatives <- rbind(number_relatives, num_rel)                              # Combine everything
+}; rm(four_rel, num_rel, row)
+
+number_relatives <- mutate(number_relatives,
+                           Type = factor(Type, levels = datasets$dataset, 
+                                         ordered = TRUE))                           # Gives an order to the datasets
+
+write.csv(number_relatives, "10_Tables_and_Figures/Figure2_FirstRelativeNTAA.csv", row.names = FALSE)
+
+# ```{r Figure2, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 2. The percentage of genes (n = 799) that were most closely related to 
+# any of the eight non-*Mixta* species using genetic distances. The species with the shortest genetic distance from both of the *Mixta* species is 
+# considered to be the closest relative. Blue bars are the nucleotide sequences of the genes with light blue bars representing the percentage of *M. 
+# calida* genes and dark blue bars representing *M. gaviniae*. Green bars are the corresponding amino acid sequences with light green representing *M. 
+# calida* genes and dark blue bars representing *M. gaviniae*. Approximately 66% of *M. calida* and *M. gaviniae* genes were most closely related to *P. 
+# septica* when using nucleotide sequences in comparison to only 43% when using amino acid sequences.", fig.width=6.5}
+number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure2_FirstRelativeNTAA.csv", 
+                             stringsAsFactors = FALSE) %>%
+  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
+                                              "E. cloacae", "P. syringae"), ordered = TRUE),
+         Type = factor(Type, levels = c("calida_NT", "gaviniae_NT", "calida_AA", "gaviniae_AA"), ordered = TRUE))
 
 
-
-
-
-
-
-
-
-
+ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c(expression(paste("NT and ", italic("M. calida"), sep = "")), 
+                               expression(paste("NT and ", italic("M. gaviniae"), sep = "")), 
+                               expression(paste("AA and ", italic("M. calida"), sep = "")), 
+                               expression(paste("AA and ", italic("M. gaviniae"), sep = "")))) +
+  labs(y = "Percent of Genes", 
+       fill = expression(paste("Sequence type and ", italic("Mixta"), " species", sep = ""))) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates and italicizes x axis labels
+        legend.position = c(0.95, 0.95),                                                  # Moves legend inside the plot and in the top-right corner
+        legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates
+        legend.text.align = 0,                                                            # Aligns legend text to the left
+        legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
+        text = element_text(size = 12,  family = "Times New Roman"))
+# ```
 
 
 
@@ -276,7 +349,7 @@ test_model <- mutate(test_model,
 table(test_model$model_test)
 
 # ```{r Figure1, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 1. The percent of genes requiring each model when using the recommended model for phylogenetic tree analysis (red) and when using the best available model for genetic distance anaylis (blue). Models are for nucleotide sequences.", fig.width=6.5}
-models <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure1_BestvAvailableModels.csv", stringsAsFactors = FALSE)
+models <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/O10_Tables_and_Figures/Figure1_BestvAvailableModels.csv", stringsAsFactors = FALSE)
 
 ggplot(data = models, aes(x = Model, y = Percent, fill = Bst_Avlb)) +
   geom_bar(stat = "identity", position = position_dodge()) +
@@ -292,64 +365,7 @@ ggplot(data = models, aes(x = Model, y = Percent, fill = Bst_Avlb)) +
         text = element_text(size = 12,  family = "Times New Roman"))
 # ```
 
-# Figure 2. First Relatives Percentage ------------------------------------------------------------------------------------------------------------------
-datasets <- data.frame(project = c("NT", "NT", "AA", "AA"),
-                       dataset = c("calida_NT", "gaviniae_NT", "calida_AA", "gaviniae_AA"))
 
-number_relatives <- data.frame(matrix(ncol = 4, nrow = 0))
-
-for(row in 1:nrow(datasets)) {
-  four_rel <- read.csv(paste("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/9_Results_", 
-                             datasets$project[row], "/four_relatives_",
-                             datasets$dataset[row], ".csv", sep = ""), 
-                       stringsAsFactors = FALSE)
-  
-  num_rel <- data.frame(Species = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
-                                    "E. cloacae", "P. syringae"),
-                        Number = count_relatives(four_rel))
-  
-  num_rel <- mutate(num_rel,
-                    Species = factor(Species, levels = Species, ordered = TRUE),
-                    Percent = round((Number / sum(Number)) * 100, digits = 1),
-                    Type = datasets$dataset[row])
-  
-  number_relatives <- rbind(number_relatives, num_rel)
-}; rm(four_rel, num_rel, row)
-
-number_relatives <- mutate(number_relatives,
-                           Type = factor(Type, levels = datasets$dataset, ordered = TRUE))
-
-write.csv(number_relatives, "10_Tables_and_Figures/Figure1_FirstRelativeMixtaNTAA.csv", row.names = FALSE)
-
-# ```{r Figure1, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 1. The percentage of genes (out of 799) that were most closely related to 
-# any of the eight non-*Mixta* species using genetic distances. The species with the shortest genetic distance from both of the *Mixta* species is 
-# considered to be the closest relative. Blue bars are the nucleotide sequences of the genes with light blue bars representing the percentage of *M. 
-# calida* genes and dark blue bars representing *M. gaviniae*. Green bars are the corresponding amino acid sequences with light green representing *M. 
-# calida* genes and dark blue bars representing *M. gaviniae*. Approximately 66% of *M. calida* and *M. gaviniae* genes were most closely related to *P. 
-# septica* when using nucleotide sequences in comparison to only 43% when using amino acid sequences.", fig.width=6.5}
-number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure1_FirstRelativeMixtaNTAA.csv", 
-                             stringsAsFactors = FALSE) %>%
-  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
-                                              "E. cloacae", "P. syringae"), ordered = TRUE),
-         Type = factor(Type, levels = c("calida_NT", "gaviniae_NT", "calida_AA", "gaviniae_AA"), ordered = TRUE))
-
-
-ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  scale_fill_brewer(palette = "Paired", 
-                    labels = c(expression(paste("NT and ", italic("M. calida"), sep = "")), 
-                               expression(paste("NT and ", italic("M. gaviniae"), sep = "")), 
-                               expression(paste("AA and ", italic("M. calida"), sep = "")), 
-                               expression(paste("AA and ", italic("M. gaviniae"), sep = "")))) +
-  labs(y = "Percent of Genes", 
-       fill = expression(paste("Sequence type and ", italic("Mixta"), " species", sep = ""))) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates and italicizes x axis labels
-        legend.position = c(0.95, 0.95),                                                  # Moves legend inside the plot and in the top-right corner
-        legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates
-        legend.text.align = 0,                                                            # Aligns legend text to the left
-        legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
-        text = element_text(size = 12,  family = "Times New Roman"))
-# ```
 
 
 ### Adding Gene Info ####################################################################################################################################
