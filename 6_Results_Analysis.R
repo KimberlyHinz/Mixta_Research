@@ -2,6 +2,7 @@
 
 # The following code analyzes the results from the distance matrices and creates the tables and figures for the paper.
 
+library("knitr")
 library("tidyverse")
 library("msa")
 library("ggplot2")
@@ -13,7 +14,7 @@ theme_set(theme_classic())
 
 setwd("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396")
 #
-### Functions and Frequently used Variables #############################################################################################################
+### Common Functions/Variables ############################################################################################################################
 count_relatives <- function(data) {
   num_rel <- c(sum(data$Closest_Relative %in% c("P_septica", "Pantoea_sept")), sum(data$Closest_Relative %in% c("P_agglomerans", "Pantoea_aggl")), 
                sum(data$Closest_Relative %in% c("E_tasmaniensis", "Erwinia_tasm")), sum(data$Closest_Relative %in% c("E_amylovora", "Erwinia_amyl")),
@@ -24,7 +25,7 @@ count_relatives <- function(data) {
 Spp <- c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", "T_saanichensis", 
          "E_cloacae", "P_syringae")
 #
-# Table 1. Genomes --------------------------------------------------------------------------------------------------------------------------------------
+# Table 1. Genomes ----------------------------------------------------------------------------------------------------------------------------------------
 strain <- data.frame(Species = c("Mixta calida", "Mixta gaviniae", "Pantoea agglomerans", "Pantoea septica", "Erwinia amylovora",
                                  "Erwinia tasmaniensis", "Tatumella ptyseos", "Tatumella saanichensis", 
                                  "Enterobacter cloacae subsp cloacae", "Pseudomonas syringae pv syringae"),
@@ -42,7 +43,7 @@ strain <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_F
 kable(strain, caption = "Table 1. Genomes used in this study.")
 # ```
 
-# Table 2. Best vs Available Models ----------------------------------------------------------------------------------------------------------------------
+# Table 2. Best vs Available Models -----------------------------------------------------------------------------------------------------------------------
 DM_models_NT <- read.csv("9_Results_NT/DM_Models_NT.csv", stringsAsFactors = FALSE)
 phylo_models_NT <- read.csv("9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
 
@@ -62,9 +63,143 @@ models$Model <- gsub("_", "+", models$Model)
 
 write.csv(models, "10_Tables_and_Figures/Table2_BestAvailableModels.csv", row.names = FALSE)
 
+# ```{r Table2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
+models <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table2_BestAvailableModels.csv", stringsAsFactors = FALSE)
+
+kable(models, 
+      caption = "Table 2. The number of genes that required each model according to the model with the lowest BIC and the best available model for 
+      genetic distance analysis.")
+# ```
+
+# Figure 1. First Relative: Best vs Available Model -------------------------------------------------------------------------------------------------------
+GD_first_relative <- read.csv("O8_Results_Ten_NT/Four_Relatives_Ext_Ten_NT.csv", 
+                              stringsAsFactors = FALSE)                             # Read in the closest relative results from Genetic Distances
+
+GD_calida <- subset(GD_first_relative, select = c(gene:cal_four)) %>%               # Subset for M. calida
+  pivot_wider(names_from = order, values_from = cal_four) %>%                       # Widen dataset to show all four closest relatives for each gene
+  mutate(First_check = substring(First_check, first = 1, last = 12),                # Changes species' names to only the first 12 letters
+         Second = substring(Second, first = 1, last = 12),
+         Third = substring(Third, first = 1, last = 12),
+         Four = substring(Four, first = 1, last = 12),
+         Closest_Relative = case_when(First_check %in% c("Mixta_calida", "Mixta_gavini") ~ 
+                                        case_when(Second %in% c("Mixta_calida", "Mixta_gavini") ~ 
+                                                    Third,                          # If the first two are Mixta, then third is closest non-Mixta relative
+                                                  TRUE ~ Second),                   # If first is Mixta and second isn't, take second
+                                      TRUE ~ First_check))                          # If first is not Mixta, take second
+
+GD_calida[] <- lapply(GD_calida, gsub, pattern = "-", replacement = "")             # Removes any dashes
+
+GD_gaviniae <- subset(GD_first_relative, select = c(gene, order, gav_four)) %>%
+  pivot_wider(names_from = order, values_from = gav_four) %>%
+  mutate(First_check = substring(First_check, first = 1, last = 12),
+         Second = substring(Second, first = 1, last = 12),
+         Third = substring(Third, first = 1, last = 12),
+         Four = substring(Four, first = 1, last = 12),
+         Closest_Relative = case_when(First_check %in% c("Mixta_calida", "Mixta_gavini") ~
+                                        case_when(Second %in% c("Mixta_calida", "Mixta_gavini") ~ 
+                                                    Third,
+                                                  TRUE ~ Second),
+                                      TRUE ~ First_check))
+
+GD_gaviniae[] <- lapply(GD_gaviniae, gsub, pattern = "-", replacement = "")
+
+rm(GD_first_relative)
+
+PD_calida <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", 
+                      stringsAsFactors = FALSE)                                     # Read in the CR results from Phylogenetic Trees --> Distance
+PD_gaviniae <- read.csv("9_Results_NT/four_relatives_gaviniae_NT.csv", stringsAsFactors = FALSE)
+
+#
+test_cal <- data.frame(cbind(GD_calida$gene, GD_calida$Closest_Relative, 
+                             PD_calida$Gene, PD_calida$Closest_Relative))           # Collect all of the M. calida results
+colnames(test_cal) <- c("GD_Gene", "GD_CR", "PD_Gene", "PD_CR")                     # Change the column names
+test_cal <- mutate(test_cal,
+                   gene_test = GD_Gene == PD_Gene,                                  # Checks that the gene order is all the same
+                   GD_CR2 = case_when(GD_CR == "Pantoea_sept" ~ "P_septica",        # Changes the Genetic Distance taxa to match Phylogenetic Distance taxa
+                                      GD_CR == "Erwinia_tasm" ~ "E_tasmaniensis",
+                                      GD_CR == "Pantoea_aggl" ~ "P_agglomerans",
+                                      GD_CR == "Erwinia_amyl" ~ "E_amylovora",
+                                      GD_CR == "Tatumella_sa" ~ "T_saanichensis",
+                                      GD_CR == "Tatumella_pt" ~ "T_ptyseos",
+                                      GD_CR == "Enterobacter" ~ "E_cloacae"), 
+                   CR_test = GD_CR2 == PD_CR)                                       # Checks that the first relative is the same between analyses
+
+table(test_cal$CR_test)                                                             # Number of genes that have the same closest relative between analyses
+# FALSE  TRUE 
+# 160    639 
+
+test_gav <- data.frame(cbind(GD_gaviniae$gene, GD_gaviniae$Closest_Relative, PD_gaviniae$Gene, PD_gaviniae$Closest_Relative))
+colnames(test_gav) <- c("GD_Gene", "GD_CR", "PD_Gene", "PD_CR")
+test_gav <- mutate(test_gav,
+                   gene_test = GD_Gene == PD_Gene,
+                   GD_CR2 = case_when(GD_CR == "Pantoea_sept" ~ "P_septica",
+                                      GD_CR == "Erwinia_tasm" ~ "E_tasmaniensis",
+                                      GD_CR == "Pantoea_aggl" ~ "P_agglomerans",
+                                      GD_CR == "Erwinia_amyl" ~ "E_amylovora",
+                                      GD_CR == "Tatumella_sa" ~ "T_saanichensis",
+                                      GD_CR == "Tatumella_pt" ~ "T_ptyseos",
+                                      GD_CR == "Enterobacter" ~ "E_cloacae"), 
+                   CR_test = GD_CR2 == PD_CR)
+
+table(test_gav$CR_test)
+# FALSE  TRUE 
+# 178     621 
+
+# Gather it all together
+number_relatives <- rbind(data.frame(Species = Spp,                                 # Counts the number of genes belonging to each taxa for analysis
+                                     Number = count_relatives(GD_calida),           # Collects all four analyses into one (two each calida and gaviniae)
+                                     Type = "GD_calida"),                           # Spp and count_relatives() are under Common Functions/Variables
+                          data.frame(Species = Spp,
+                                     Number = count_relatives(GD_gaviniae),
+                                     Type = "GD_gaviniae"),
+                          data.frame(Species = Spp,
+                                     Number = count_relatives(PD_calida),
+                                     Type = "PD_calida"),
+                          data.frame(Species = Spp,
+                                     Number = count_relatives(PD_gaviniae),
+                                     Type = "PD_gaviniae")) %>%
+  mutate(Percent = (Number /  (sum(number_relatives$Number) / 4) * 100))
+number_relatives$Species <- gsub("_", ". ", number_relatives$Species)
+
+write.csv(number_relatives, "10_Tables_and_Figures/Figure1_FirstRelativeBestvsAvailableModelNT.csv", row.names = FALSE)
+
+# ```{r Figure2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2. The percentage of genes (n = 799) that were most closely related to any 
+# of the eight non-*Mixta* species when using the recommended model from model testing versus the best available) model for genetic distance analysis in 
+# MEGAX. The sequences were nucleotide sequences. The species with the shortest genetic distance from the *Mixta* species is considered to be the closest 
+# relative. The pink and orange bars represent the percentage of *Mixta* genes that are most closely related to any of the non-*Mixta* species when using 
+# the recommended model and the best available model, respectively. The lighter shades represent *M. calida* and the darker shades represent 
+# *M. gavinaie*.", fig.width=6.5}
+number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure1_FirstRelativeBestvsAvailableModelNT.csv", 
+                             stringsAsFactors = FALSE) %>%
+  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
+                                              "E. cloacae", "P. syringae"), ordered = TRUE),
+         Type = factor(Type, levels = c("PD_calida", "PD_gaviniae", "GD_calida", "GD_gaviniae"), ordered = TRUE))
+
+ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_manual(values = c("#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00"),
+                    labels = c(expression(paste("Recommended Model and ", italic("M. calida"), sep = "")), 
+                               expression(paste("Recommended Model and ", italic("M. gaviniae"), sep = "")), 
+                               expression(paste("Best Available Model and ", italic("M. calida"), sep = "")), 
+                               expression(paste("Best Available Model and ", italic("M. gaviniae"), sep = "")))) +
+  labs(y = "Percent of Genes", 
+       fill = expression(paste("Model and ", italic("Mixta"), " species", sep = ""))) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates and italicizes x axis labels
+        legend.position = c(0.95, 0.95),                                                  # Moves legend inside the plot and in the top-right corner
+        legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates
+        legend.text.align = 0,                                                            # Aligns legend text to the left
+        legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
+        text = element_text(size = 12,  family = "Times New Roman"))
+# ```
 
 
-kable(models)
+
+
+
+
+
+
+
 
 
 
@@ -216,119 +351,7 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
         text = element_text(size = 12,  family = "Times New Roman"))
 # ```
 
-# Figure 2. First Relative Best vs Available Model ------------------------------------------------------------------------------------------------------
-GD_first_relative <- read.csv("O8_Results_Ten_NT/Four_Relatives_Ext_Ten_NT.csv", stringsAsFactors = FALSE) 
 
-GD_calida <- subset(GD_first_relative, select = c(gene:cal_four)) %>%
-  pivot_wider(names_from = order, values_from = cal_four) %>%
-  mutate(First_check = substring(First_check, first = 1, last = 12),
-         Second = substring(Second, first = 1, last = 12),
-         Third = substring(Third, first = 1, last = 12),
-         Four = substring(Four, first = 1, last = 12),
-         Closest_Relative = case_when(First_check %in% c("Mixta_calida", "Mixta_gavini") ~
-                                        case_when(Second %in% c("Mixta_calida", "Mixta_gavini") ~ Third,
-                                                  TRUE ~ Second),
-                                      TRUE ~ First_check))
-
-GD_calida[] <- lapply(GD_calida, gsub, pattern = "-", replacement = "")
-
-GD_gaviniae <- subset(GD_first_relative, select = c(gene, order, gav_four)) %>%
-  pivot_wider(names_from = order, values_from = gav_four) %>%
-  mutate(First_check = substring(First_check, first = 1, last = 12),
-         Second = substring(Second, first = 1, last = 12),
-         Third = substring(Third, first = 1, last = 12),
-         Four = substring(Four, first = 1, last = 12),
-         Closest_Relative = case_when(First_check %in% c("Mixta_calida", "Mixta_gavini") ~
-                                        case_when(Second %in% c("Mixta_calida", "Mixta_gavini") ~ Third,
-                                                  TRUE ~ Second),
-                                      TRUE ~ First_check))
-
-GD_gaviniae[] <- lapply(GD_gaviniae, gsub, pattern = "-", replacement = "")
-
-rm(GD_first_relative)
-
-PD_calida <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE)
-PD_gaviniae <- read.csv("9_Results_NT/four_relatives_gaviniae_NT.csv", stringsAsFactors = FALSE)
-
-#
-test_cal <- data.frame(cbind(GD_calida$gene, GD_calida$Closest_Relative, PD_calida$Gene, PD_calida$Closest_Relative))
-colnames(test_cal) <- c("GD_Gene", "GD_CR", "PD_Gene", "PD_CR")
-test_cal <- mutate(test_cal,
-                   gene_test = GD_Gene == PD_Gene,
-                   GD_CR2 = case_when(GD_CR == "Pantoea_sept" ~ "P_septica",
-                                      GD_CR == "Erwinia_tasm" ~ "E_tasmaniensis",
-                                      GD_CR == "Pantoea_aggl" ~ "P_agglomerans",
-                                      GD_CR == "Erwinia_amyl" ~ "E_amylovora",
-                                      GD_CR == "Tatumella_sa" ~ "T_saanichensis",
-                                      GD_CR == "Tatumella_pt" ~ "T_ptyseos",
-                                      GD_CR == "Enterobacter" ~ "E_cloacae"), 
-                   CR_test = GD_CR2 == PD_CR)
-
-table(test_cal$CR_test)
-
-test_gav <- data.frame(cbind(GD_gaviniae$gene, GD_gaviniae$Closest_Relative, PD_gaviniae$Gene, PD_gaviniae$Closest_Relative))
-colnames(test_gav) <- c("GD_Gene", "GD_CR", "PD_Gene", "PD_CR")
-test_gav <- mutate(test_gav,
-                   gene_test = GD_Gene == PD_Gene,
-                   GD_CR2 = case_when(GD_CR == "Pantoea_sept" ~ "P_septica",
-                                      GD_CR == "Erwinia_tasm" ~ "E_tasmaniensis",
-                                      GD_CR == "Pantoea_aggl" ~ "P_agglomerans",
-                                      GD_CR == "Erwinia_amyl" ~ "E_amylovora",
-                                      GD_CR == "Tatumella_sa" ~ "T_saanichensis",
-                                      GD_CR == "Tatumella_pt" ~ "T_ptyseos",
-                                      GD_CR == "Enterobacter" ~ "E_cloacae"), 
-                   CR_test = GD_CR2 == PD_CR)
-
-table(test_gav$CR_test)
-
-# Gather it all together
-number_relatives <- rbind(data.frame(Species = Spp,
-                                     Number = count_relatives(GD_calida),
-                                     Type = "GD_calida"),
-                          data.frame(Species = Spp,
-                                     Number = count_relatives(GD_gaviniae),
-                                     Type = "GD_gaviniae"),
-                          data.frame(Species = Spp,
-                                     Number = count_relatives(PD_calida),
-                                     Type = "PD_calida"),
-                          data.frame(Species = Spp,
-                                     Number = count_relatives(PD_gaviniae),
-                                     Type = "PD_gaviniae")) %>%
-  mutate(Percent = (Number / 799 * 100))
-
-write.csv(number_relatives, "10_Tables_and_Figures/Figure2_FirstRelativeBestvsAvailableModelNT.csv", row.names = FALSE)
-
-# ```{r Figure2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2. The percentage of genes (out of 799) that were most closely related to any 
-# of the eight non-*Mixta* species when using the recommended (best) model from model testing vs the restricted model (best available) options available 
-# for genetic distance analysis in MEGAX for nucleotide sequences. The species with the shortest genetic distance from both of the *Mixta* species is 
-# considered to be the closest relative. Evolutionary patterns may vary by gene; therefore, it is appropriate to conduct model testing and use the model 
-# that explains the most variation. Nevertheless, this model may not be available in some software programs or analysis methods within a software 
-# program. # Pink bars represent the percentage of *Mixta* genes that are most closely related to any of the non-*Mixta* species when using the 
-# recommended model. Orange bars represent the percentage of *Mixta* genes that are most closely related to any of the non-*Mixta* species when using the
-# best available model for genetic distance analysis in MEGAX in which GTR and HKY models and invariant sites parameter are not offered. The lighter 
-# shades represent *M. calida* and the darker shades represent *M. gavinaie*.", fig.width=6.5}
-number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure2_FirstRelativeBestvsAvailableModelNT.csv", 
-                             stringsAsFactors = FALSE) %>%
-  mutate(Species = factor(Species, levels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", 
-                                              "E. cloacae", "P. syringae"), ordered = TRUE),
-         Type = factor(Type, levels = c("PD_calida", "PD_gaviniae", "GD_calida", "GD_gaviniae"), ordered = TRUE))
-
-ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  scale_fill_manual(values = c("#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00"),
-                    labels = c(expression(paste("Best Model and ", italic("M. calida"), sep = "")), 
-                               expression(paste("Best Model and ", italic("M. gaviniae"), sep = "")), 
-                               expression(paste("Best Available Model and ", italic("M. calida"), sep = "")), 
-                               expression(paste("Best Available Model and ", italic("M. gaviniae"), sep = "")))) +
-  labs(y = "Percent of Genes", 
-       fill = expression(paste("Model and ", italic("Mixta"), " species", sep = ""))) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates and italicizes x axis labels
-        legend.position = c(0.95, 0.95),                                                  # Moves legend inside the plot and in the top-right corner
-        legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates
-        legend.text.align = 0,                                                            # Aligns legend text to the left
-        legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
-        text = element_text(size = 12,  family = "Times New Roman"))
-# ```
 ### Adding Gene Info ####################################################################################################################################
 # Nucleotides
 # M. calida
