@@ -7,6 +7,7 @@ library("tidyverse")
 library("msa")
 library("ggplot2")
 library("cowplot")
+library("ggpubr")
 library("RColorBrewer")
 library("extrafont")
 # loadfonts(device = "win")
@@ -308,7 +309,7 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
         text = element_text(size = 12,  family = "Times New Roman"))
 # ```
 
-# Figure 3. Circular Plot: Nucleotide and M. calida -------------------------------------------------------------------------------------------------------
+# Figure 3. Circular Plot: NTS+AAS and M. calida ----------------------------------------------------------------------------------------------------------
 FR_nucl_calida <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE) %>%
   mutate(Relative_Number = case_when(Closest_Relative == "P_septica" ~ 3, Closest_Relative == "P_agglomerans" ~ 4,
                                      Closest_Relative == "E_tasmaniensis" ~ 5, Closest_Relative == "E_amylovora" ~ 6,
@@ -323,31 +324,6 @@ FR_nucl_calida <- rbind(FR_nucl_calida, extra_genes_NT)                         
 
 write.csv(FR_nucl_calida, "10_Tables_and_Figures/Figure3_Circular_NT.csv", row.names = FALSE)
 
-# ```{r Figure3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3. The closest relatives to *M. calida* genes for nucleotide sequences around 
-# the *M. calida* chromosome. the length and colour of the bars represent the different species to which the gene is most closely related according to 
-# genetic distance. The *M. calida* genome has 4084 genes.", fig.width=6.5, fig.height=5}
-FR_nucl_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure3_Circular_NT.csv", stringsAsFactors = FALSE) %>%
-  mutate(Closest_Relative = factor(Closest_Relative, 
-                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
-                                              "T_saanichensis", "E_cloacae", "P_syringae"), ordered = TRUE))
-
-ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 20) +
-  coord_polar() +
-  scale_fill_brewer(palette = "Paired", 
-                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
-                               "P. syringae")) +
-  scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
-  labs(fill = "Closest Relative") +
-  theme_bw() +
-  theme(legend.text = element_text(face = "italic"),
-        axis.title = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        text = element_text(size = 12,  family = "Times New Roman"))
-# ```
-
-# Figure 4. Circular Plot, Amino Acids and M. calida ----------------------------------------------------------------------------------------------------
 FR_aa_calida <- read.csv("9_Results_AA/four_relatives_calida_AA.csv", stringsAsFactors = FALSE) %>%
   mutate(Relative_Number = case_when(Closest_Relative == "P_septica" ~ 3, Closest_Relative == "P_agglomerans" ~ 4,
                                      Closest_Relative == "E_tasmaniensis" ~ 5, Closest_Relative == "E_amylovora" ~ 6,
@@ -362,15 +338,20 @@ FR_aa_calida <- rbind(FR_aa_calida, extra_genes_AA)                             
 
 write.csv(FR_aa_calida, "10_Tables_and_Figures/Figure4_Circular_AA.csv", row.names = FALSE)
 
-# ``{r Figure4, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 4. The closest relatives to *M. calida* genes for amino acid sequences around 
-# the *M. calida* chromosome. The length and colour of the bars represent the different species to which the gene is most closely related according to 
-# genetic distance. The *M. calida* genome has 4084 genes.", fig.width=6.5, fig.height=5}
+# ```{r Figure3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3. The closest relatives to *M. calida* genes for (**A**) nucleotide and 
+# (**B**) amino acid sequences around the *M. calida* chromosome. The length and colour of the bars represent the different species to which the gene is 
+# most closely related according to genetic distance. The *M. calida* genome has 4092 genes.", fig.width=6.5, fig.height=3.9}
+FR_nucl_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure3_Circular_NT.csv", stringsAsFactors = FALSE) %>%
+  mutate(Closest_Relative = factor(Closest_Relative, 
+                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
+                                              "T_saanichensis", "E_cloacae", "P_syringae"), ordered = TRUE))
+
 FR_aa_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure4_Circular_AA.csv", stringsAsFactors = FALSE) %>%
   mutate(Closest_Relative = factor(Closest_Relative, 
                                    levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
                                               "T_saanichensis", "E_cloacae", "P_syringae"), ordered = TRUE))
 
-ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
+cal_NT <- ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
   geom_bar(stat = "identity", position = position_dodge(), width = 20) +
   coord_polar() +
   scale_fill_brewer(palette = "Paired", 
@@ -384,7 +365,50 @@ ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) 
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
         text = element_text(size = 12,  family = "Times New Roman"))
+
+cal_AA <- ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 20) +
+  coord_polar() +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
+                               "P. syringae")) +
+  scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
+  labs(fill = "Closest Relative") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+ggarrange(cal_NT, cal_AA, 
+          labels = c("A", "B"),
+          font.label = list(family = "Times New Roman"),
+          label.x = 0.04,
+          label.y = 0.98,
+          common.legend = TRUE, 
+          legend = "bottom")
 # ```
+
+# Figure 4. --------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Barrier -------------------------------------------------------------------------------------------------------------------------------------------------
 
