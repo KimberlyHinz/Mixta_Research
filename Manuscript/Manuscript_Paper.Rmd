@@ -13,6 +13,7 @@ csl: IJSEM.csl
 library("knitr")
 library("tidyverse")
 library("ggplot2")
+library("ggpubr")
 library("RColorBrewer")
 library("extrafont")
 theme_set(theme_classic())
@@ -85,7 +86,9 @@ Email: john.stavrinides@uregina.ca
 After the two filters, 799 of 954 homologous genes remained. The genes included those encoding rRNA sequences, enzymes, transporters, and housekeeping genes and were scattered across the M. calida and M. gaviniae genomes.
 
 ## Best Model vs Best Available Model
+In MEGAX [@Kumar2018], the user can either calculate genetic distance or estimate a phylogenetic tree. However, although model testing assesses all possible models available in the software, all models are not available for genetic distance analysis. The GTR (General Time Reversible) and HKY (Hasegawa-Kishino-Yano) models and the +I (invariant sites) parameter are available only for phylogenetic tree analysis. 
 
+The genetic distances for the nucleotide sequences (NTS) were estimated using both the recommended (RM) and best available models (BAM) for distance analysis to determine if different results would arise when using a model that does not explain most of the genetic variance. The RM is the model with the lowest Bayesian Information Criterion (BIC) among the available options. First, phylogenetic gene trees were computed using the recommended model from model testing. The software suggested twelve unique models for this method (Table 2). Genetic distance matrices were then extracted from the trees. Second, distance matrices were calculated directly using the BAM for calculating pairwise distances. Only four models were recommended for genetic distance analysis (Table 2). Of the 799 NTS, 242 genes required a different model between the two analyses, and the mean BIC difference between the two models was 13.8 (range: 0.1, 122.6). 
 
 ```{r Table2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
 models <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table2_BestAvailableModels.csv", stringsAsFactors = FALSE)
@@ -96,7 +99,7 @@ kable(models,
       caption = "Table 2. The number of genes that required each model according to the best model with the lowest BIC and the best available model for genetic distance analysis.")
 ```
 
-
+The closest relatives to both of the *Mixta* species were extracted from RM and BAM distance matrices. When the RM was used. *P. septica* was the closest relative to 66.3 and 66.5% of the *M. calida* and *M. gaviniae* sequences, respectively (Figure 1). These percentages increase by 12.6 and 14.4% for the *M. calida* and *M. gaviniae* sequences, respectively, when the BAM was used (Figure 1). Instead of *P. septica* when the RM is used, more genes were more closely related to *P. agglomerans*, *E. tasmaniensis*, *E. amylovora*, *T. saanichensis*, and *E. cloacae* (Figure 1). Additionally, there was more disparity between *M. calida* and *M. gaviniae* when the BAM was used (Figure 1).
 
 ```{r Figure1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 1. The percentage of genes (n = 799) that were most closely related to any of the eight non-*Mixta* species when using the recommended model from model testing versus the best available) model for genetic distance analysis in MEGAX. The sequences were nucleotide sequences. The species with the shortest genetic distance from the *Mixta* species is considered to be the closest relative. The pink and orange bars represent the percentage of *Mixta* genes that were most closely related to any of the non-*Mixta* species when using the recommended model and the best available model, respectively. The lighter shades represent *M. calida* and the darker shades represent *M. gavinaie*.", fig.width=6.5}
 number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure1_FirstRelativeBestvsAvailableModelNT.csv", 
@@ -122,10 +125,10 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
         text = element_text(size = 12,  family = "Times New Roman"))
 ```
 
-
+The RM and BAM were different for approximately 30.3% (n = 242) of the genes. Of these 242 genes, 20.2% (n = 49) were said to have different closest relatives between the two analyses. However, when the RM and BAM were the same (n = 557), 19.9% (n = 111) had different closest relatives.
 
 ## Closest Relative from Genetic Distance
-
+Genetic distance gives a numerical estimate of evolutionary change between species, and the taxa with which a species of interest has the shortest distance is regarded as the closest relative. Since the phylogenetic trees were calculated using the RM, the distance matrices exported from the trees were kept for future analyses. *P. septica* was consistently the closest relative for most of the *Mixta* sequences (Figure 2). However, the number of genes most closely related *P. septica* decreased from 66.3 and 66.5% (*M. calida* and *M. gaviniae*, respectively) with the NTS by 23.7% with the amino acid sequences (AAS; Figure 2). Instead, the *Mixta* AAS were most closely related to the other taxa within the dataset except for *P. syringae* (Figure 2). Interestingly, the number of genes most closely related to *E. cloacae* increased between the NTS and the AAS from 2.9% by 3.1% (Figure 2). Additionally, 55.1 and 55.2% of the *M. calida* and *M. gaviniae* sequences, respectively, had the same closest relatives between the NTS and the AAS analyses.
 
 ```{r Figure2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2. The percentage of genes (n = 799) that were most closely related to any of the eight non-*Mixta* species using the recommended models and genetic distances. The species with the shortest genetic distance from the *Mixta* species is considered to be the closest relative. The percentage of *Mixta* genes that were most closely related to any of the non-*Mixta* species are represented by the blue and green bars for the nucleotide and amino acid sequences, respectively. The lighter shades represent *M. calida* and the darker shades represent *M. gavinaie*.", fig.width=6.5}
 number_relatives <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure2_FirstRelativeNTAA.csv", 
@@ -153,39 +156,22 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
 ```
 
 ## Spatial Patterns in the Closest Relatives
+Circular plots were generated using the *Mixta* gene IDs to simulate their relative positions on the *Mixta* chromosomes and uncover positional and spatial patterns. The bars’ lengths and colours correspond to the species that was the closest relative to the *Mixta* gene at that position. The results between the two *Mixta* species for the closest relatives were the same except for one and two genes for the NTS and the AAS, respectively; therefore, only the results for *M. calida* are shown.
 
+Many of the genes most closely related to any of the other taxa in this study were evenly positioned around the *Mixta* chromosome in the NTS (Figure 3A). The exception is for the *Tatumella* species (pinks) and *E. amylovora* (dark green; Figure 3A). The former and most of the genes closely related to the latter were located on the right side of the chromosome (Figure 3A). Unexpectedly, genes closely related to *E. cloacae* (orange) were distributed throughout the *Mixta* genome.
 
-```{r Figure3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3. The closest relatives to *M. calida* genes for nucleotide sequences around the *M. calida* chromosome. The length and colour of the bars represent the different species to which the gene is most closely related according to genetic distance. The *M. calida* genome has 4092 genes.", fig.width=6.5, fig.height=5}
+```{r Figure3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3. The closest relatives to *M. calida* genes for (**A**) nucleotide and (**B**) amino acid sequences around the *M. calida* chromosome. The length and colour of the bars represent the different species to which the gene is most closely related according to genetic distance. The *M. calida* genome has 4092 genes.", fig.width=6.5, fig.height=3.9}
 FR_nucl_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure3_Circular_NT.csv", stringsAsFactors = FALSE) %>%
   mutate(Closest_Relative = factor(Closest_Relative, 
                                    levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
                                               "T_saanichensis", "E_cloacae", "P_syringae"), ordered = TRUE))
 
-ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 20) +
-  coord_polar() +
-  scale_fill_brewer(palette = "Paired", 
-                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
-                               "P. syringae")) +
-  scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
-  labs(fill = "Closest Relative") +
-  theme_bw() +
-  theme(legend.text = element_text(face = "italic"),
-        axis.title = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        text = element_text(size = 12,  family = "Times New Roman"))
-```
-
-
-
-```{r Figure4, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 4. The closest relatives to *M. calida* genes for amino acid sequences around the *M. calida* chromosome. The length and colour of the bars represent the different species to which the gene is most closely related according to genetic distance. The *M. calida* genome has 4092 genes.", fig.width=6.5, fig.height=5}
 FR_aa_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure4_Circular_AA.csv", stringsAsFactors = FALSE) %>%
   mutate(Closest_Relative = factor(Closest_Relative, 
                                    levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
                                               "T_saanichensis", "E_cloacae", "P_syringae"), ordered = TRUE))
 
-ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
+cal_NT <- ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
   geom_bar(stat = "identity", position = position_dodge(), width = 20) +
   coord_polar() +
   scale_fill_brewer(palette = "Paired", 
@@ -199,7 +185,32 @@ ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) 
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
         text = element_text(size = 12,  family = "Times New Roman"))
+
+cal_AA <- ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 20) +
+  coord_polar() +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
+                               "P. syringae")) +
+  scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
+  labs(fill = "Closest Relative") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+ggarrange(cal_NT, cal_AA, 
+          labels = c("A", "B"),
+          font.label = list(family = "Times New Roman"),
+          label.x = 0.04,
+          label.y = 0.98,
+          common.legend = TRUE, 
+          legend = "bottom")
 ```
+
+In the AAS analysis, the genes closely related to the *Tatumella* species were not exclusive to the right half (Figure 3B). Additionally, the genes closely related to the *Erwinia* species and *E. cloacae* were more evenly distributed across the genome (Figure 3B). Similar to the NTS analysis, no gene clusters related to a single taxon were evident (Figure 3B).
 
 
 
