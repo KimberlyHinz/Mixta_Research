@@ -155,7 +155,7 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
         text = element_text(size = 12,  family = "Times New Roman"))
 ```
 
-## Spatial Patterns in the Closest Relatives
+## Spatial Patterns in the Closest Relatives from Genetic Distances
 Circular plots were generated using the *Mixta* gene IDs to simulate their relative positions on the *Mixta* chromosomes and uncover positional and spatial patterns. The bars’ lengths and colours correspond to the species that was the closest relative to the *Mixta* gene at that position. The results between the two *Mixta* species for the closest relatives were the same except for one and two genes for the NTS and the AAS, respectively; therefore, only the results for *M. calida* are shown.
 
 Many of the genes most closely related to any of the other taxa in this study were evenly positioned around the *Mixta* chromosome in the NTS (Figure 3A). The exception is for the *Tatumella* species (pinks) and *E. amylovora* (dark green; Figure 3A). The former and most of the genes closely related to the latter were located on the right side of the chromosome (Figure 3A). Unexpectedly, genes closely related to *E. cloacae* (orange) were distributed throughout the *Mixta* genome.
@@ -247,7 +247,7 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
 
 When comparing the site identity analysis results, 89.2% of the NTS and 85.2% of the AAS agreed on the same closest relative between the two *Mixta* species. In contrast, only 55.1 and 53.9% of the *M. calida* and *M. gaviniae* sequences, respectively, had the same results between the NTS and AAS analyses.
 
-## Next Spatial
+## Spatial Patterns from Average Site Identity
 
 
 ```{r Figure5, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 5. The closest relatives to *M. calida* genes for (**A**) nucleotide and (**B**) amino acid sequences around the *M. calida* chromosome. The length and colour of the bars represent the different species to which the gene is most closely related according to site identity. The *M. calida* genome has 4092 genes.", fig.width=6.5, fig.height=3.9}
