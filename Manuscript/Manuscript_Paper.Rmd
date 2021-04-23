@@ -17,6 +17,9 @@ library("ggpubr")
 library("RColorBrewer")
 library("extrafont")
 theme_set(theme_classic())
+
+Spp <- c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", "T_saanichensis", 
+         "E_cloacae", "P_syringae")
 ```
 
 Kimberly N. Hinz, John Stavrinides^1^
@@ -248,7 +251,7 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
 When comparing the site identity analysis results, 89.2% of the NTS and 85.2% of the AAS agreed on the same closest relative between the two *Mixta* species. In contrast, only 55.1 and 53.9% of the *M. calida* and *M. gaviniae* sequences, respectively, had the same results between the NTS and AAS analyses.
 
 ## Spatial Patterns from Average Site Identity
-
+Positional effects were investigated in the site identity results. Only the results of *M. calida* are shown because the *M. gaviniae* results showed similar patterns. The genes most similar to either of the *Pantoea* species and *E. cloacae* were evenly dispersed across the *Mixta* chromosome for both the NTS and AAS (Figure 5A and 5B). Similar to the genetic distance results, genes that are labelled as being closely related to either of the *Tatumella* species are located only on right side of chromosome, and genes that are closely related to *E. amylovora* are predominantly on the right side as well (Figure 5A). Unexpectedly, the lower left quadrant of the chromosome contains primarily genes that are closely related to either of the *Pantoea* species with only a few exceptions (Figure 5A). 	In the AAS analysis, genes closely related to any of the other taxa were more evenly distributed across the genome (Figure 5B).
 
 ```{r Figure5, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 5. The closest relatives to *M. calida* genes for (**A**) nucleotide and (**B**) amino acid sequences around the *M. calida* chromosome. The length and colour of the bars represent the different species to which the gene is most closely related according to site identity. The *M. calida* genome has 4092 genes.", fig.width=6.5, fig.height=3.9}
 FR_nucl_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure5A_Circular_NTcalida_Identity.csv", 
@@ -304,133 +307,76 @@ ggarrange(cal_NT, cal_AA,
           legend = "bottom")
 ```
 
+## A Comparison of the Four Analyses
+The four above analyses (genetic distance and site identity, both using NTS and AAS) gave slightly different results for the *Mixta* sequences. When comparing the results, approximately 38.7% of both the *M. calida* and *M. gaviniae* sequences agreed upon a closest relative. However, the number of sequences closely related to any of the other taxa were slightly different between *M. calida* and *M. gaviniae* (Table 3). There were no genes for which all four analyses agreed on *T. ptyseos* being the closest relative (Table 3). Additionally, 7.5% of the *M. calida* and *M. gaviniae* homologs did not share the same closest relative.
+
+```{r Table3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
+CR_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_AllResults_calida.csv", 
+                      stringsAsFactors = FALSE)
+
+# table(CR_calida$ALL)
+# FALSE  TRUE         # FALSE: 61.3%
+# 490    309          # TRUE: 38.7% of M. calida genes had the same closest relative in all four analyses
+
+CR_gaviniae <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_AllResults_gaviniae.csv", 
+                        stringsAsFactors = FALSE)
+
+# table(CR_gaviniae$ALL)
+# FALSE  TRUE 
+# 490    309
+
+all_same_cal <- subset(CR_calida, ALL == TRUE); all_same_gav <- subset(CR_gaviniae, ALL == TRUE)
+
+all_same_species <- data.frame(table(all_same_cal$NT_dist),
+                               table(all_same_gav$NT_dist)) %>%
+  subset(select = -Var1.1) %>%
+  mutate(Var1 = factor(Var1, 
+                          levels = Spp, ordered = TRUE)) %>%
+  arrange(Var1)
+
+colnames(all_same_species) <- c("Species", "# of M. calida genes", "# of M. gaviniae genes")
+
+all_same_species$Species <- gsub("_", ". ", all_same_species$Species)
+
+kable(all_same_species, 
+      caption = "Table 3. The number of *M. calida* and *M. gaviniae* genes wherein all analyses gave the same species as the closest relative.")
+```
 
 
 
-# Old Results
-<!-- ```{r Figure6, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 6. The most similar taxa to *M. calida* genes for nucleotide sequences around its genome. The most similar taxon is that which sequence is most identical to the *M. calida* sequence. Length and colour of the bars represent the different species to which the gene is most similar.", fig.width=6.5, fig.height=5} -->
-<!-- FI_calida_NT <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6_CircularIdentities_NT.csv", -->
-<!--                          stringsAsFactors = FALSE) %>% -->
-<!--   mutate(Closest_Relative = factor(Closest_Relative, -->
-<!--                                    levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", -->
-<!--                                               "T_saanichensis", "E_cloacae", "P_syringiae"), ordered = TRUE)) -->
+```{r Table4, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
+CR_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_AllResults_calida.csv", 
+                      stringsAsFactors = FALSE)
 
-<!-- ggplot(FI_calida_NT, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) + -->
-<!--   geom_bar(stat = "identity", position = position_dodge(), width = 15) + -->
-<!--   coord_polar() + -->
-<!--   scale_fill_brewer(palette = "Paired", -->
-<!--                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae", -->
-<!--                                "P. syringae")) + -->
-<!--   scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) + -->
-<!--   labs(fill = "Most Similar Taxa") + -->
-<!--   theme_bw() + -->
-<!--   theme(legend.text = element_text(face = "italic"), -->
-<!--         axis.title = element_blank(), -->
-<!--         axis.text.y = element_blank(), -->
-<!--         axis.ticks.y = element_blank(), -->
-<!--         text = element_text(size = 12,  family = "Times New Roman")) -->
-<!-- ``` -->
-
-<!-- ```{r Figure7, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 7. The most similar taxa to *M. calida* genes for amino acid sequences around its genome. The most similar taxon is that which sequence is most identical to the *M. calida* sequence. Length and colour of the bars represent the different species to which the gene is most similar.", fig.width=6.5, fig.height=5} -->
-<!-- FI_calida_AA <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure7_CircularIdentities_AA.csv", -->
-<!--                          stringsAsFactors = FALSE) %>% -->
-<!--   mutate(Closest_Relative = factor(Closest_Relative, -->
-<!--                                    levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", -->
-<!--                                               "T_saanichensis", "E_cloacae", "P_syringiae"), ordered = TRUE)) -->
-
-<!-- ggplot(FI_calida_AA, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) + -->
-<!--   geom_bar(stat = "identity", position = position_dodge(), width = 15) + -->
-<!--   coord_polar() + -->
-<!--   scale_fill_brewer(palette = "Paired", -->
-<!--                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae", -->
-<!--                                "P. syringae")) + -->
-<!--   scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) + -->
-<!--   labs(fill = "Most Similar Taxa") + -->
-<!--   theme_bw() + -->
-<!--   theme(legend.text = element_text(face = "italic"), -->
-<!--         axis.title = element_blank(), -->
-<!--         axis.text.y = element_blank(), -->
-<!--         axis.ticks.y = element_blank(), -->
-<!--         text = element_text(size = 12,  family = "Times New Roman")) -->
-<!-- ``` -->
-
-<!-- ```{r Table5, echo = FALSE, message = FALSE, warning=FALSE, fig.cap=TRUE} -->
-<!-- stats_on_all <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/FigureO_AllStatsCalida.csv", stringsAsFactors = FALSE) -->
-
-<!-- same_spp <- data.frame(table(stats_on_all$Same_Species)) -->
-<!-- same_spp <- same_spp[which(same_spp$Var1 != "Nope"), ] -->
-
-<!-- same_spp <- rbind(same_spp, data.frame(Var1 = "T_ptyseos", Freq = 0)) -->
-
-<!-- colnames(same_spp) <- c("Species", "Number of Genes") -->
-
-<!-- same_spp <- mutate(same_spp, -->
-<!--                    Species = case_when(Species == "E_amylovora" ~ "E. amylovora", -->
-<!--                                        Species == "E_tasmaniensis" ~ "E. tasmaniensis", -->
-<!--                                        Species == "P_agglomerans" ~ "P. agglomerans", -->
-<!--                                        Species == "P_septica" ~ "P. septica", -->
-<!--                                        Species == "T_ptyseos" ~ "T. ptyseos", -->
-<!--                                        Species == "T_saanichensis" ~ "T. saanichensis", -->
-<!--                                        Species == "E_cloacae" ~ "E. cloacae")) %>% -->
-<!--   mutate(Species = factor(Species, levels = c("P. agglomerans", "P. septica", "E. amylovora", "E. tasmaniensis", -->
-<!--                                               "T. ptyseos", "T. saanichensis", "E. cloacae"), ordered = TRUE)) -->
+CR_gaviniae <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_AllResults_gaviniae.csv", 
+                        stringsAsFactors = FALSE)
 
 
-<!-- same_spp <- arrange(same_spp, Species) -->
+cal_genus <- subset(CR_calida, Genus != "Nope")
+gav_genus <- subset(CR_gaviniae, Genus != "Nope")
 
-<!-- kable(same_spp, caption = "Table 5. The number of genes that had each species as the closest or most similar relative for all four analyses.") -->
+all_same_genus <- data.frame(table(cal_genus$Genus),
+                             table(gav_genus$Genus))
 
-<!-- # table(stats_on_all$Same_Genus) -->
-<!-- # table(stats_on_all$NT_Same) -->
-<!-- # table(stats_on_all$AA_Same) -->
-<!-- # table(stats_on_all$Rel_Same) -->
-<!-- # table(stats_on_all$Ide_Same) -->
-<!-- ``` -->
+all_same_genus <- subset(all_same_genus, select = -Var1.1)
+colnames(all_same_genus) <- c("Genus", "# of M. calida genes", "# of M. gaviniae genes")
 
-<!-- ```{r Figure8, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 8. Sample for first 100 genes.", fig.width=6.5, fig.height=3} -->
-<!-- all_results_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/FigureN_AllResultsCalida.csv", -->
-<!--                                stringsAsFactors = TRUE) %>% -->
-<!--   pivot_longer(cols = c(Rel_NT:Ide_AA), names_to = "Analysis", values_to = "Closest_Similar") %>% -->
-<!--   mutate(Closest_Similar = factor(Closest_Similar, -->
-<!--                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", "T_saanichensis", -->
-<!--                                              "E_cloacae", "P_syringiae"), -->
-<!--                                   ordered = TRUE), -->
-<!--          Analysis = factor(Analysis, levels = c("Ide_AA", "Rel_AA", "Ide_NT", "Rel_NT"), ordered = TRUE), -->
-<!--          Gene_Name = reorder(Gene_Name, ID)) -->
+all_same_genus <- all_same_genus %>%
+  mutate(Genus = factor(Genus, 
+                       levels = c("Pantoea", "Erwinia", "Tatumella", "Enterobacter"), ordered = TRUE)) %>%
+  arrange(Genus)
 
-<!-- ggplot(all_results_calida[1:400, ], aes(x = Gene_Name, y = Analysis, fill = Closest_Similar)) + -->
-<!--   geom_tile() + -->
-<!--   scale_fill_brewer(palette = "Paired", -->
-<!--                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae", -->
-<!--                                "P. syringae")) + -->
-<!--   scale_y_discrete(labels = c("AA Identity", "AA Closest", "NT Identity", "NT Closest")) + -->
-<!--   labs(fill = "Closest Relative or \n Most Similar Taxa") + -->
-<!--   theme(legend.text = element_text(face = "italic"), -->
-<!--         # legend.position = "bottom", -->
-<!--         text = element_text(size = 12,  family = "Times New Roman"), -->
-<!--         axis.text.x = element_text(angle = 45, hjust = 1))               # Rotates x axis labels -->
+test <- data.frame(Gene = CR_calida$Gene, cal = CR_calida$Genus, gav = CR_gaviniae$Genus)
+test$Same <- case_when(test$cal == test$gav ~ test$cal,
+                       TRUE ~ "Nah")
+test <- subset(test, Same == "Nah")
+# table(test$Same)
+# FALSE  TRUE 
+# 39     760 
 
-<!-- stats_on_all <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/FigureO_AllStatsCalida.csv", stringsAsFactors = FALSE) -->
-
-<!-- # table(stats_on_all$Same_Species) -->
-<!-- # table(stats_on_all$Same_Genus) -->
-<!-- # table(stats_on_all$NT_Same) -->
-<!-- # table(stats_on_all$AA_Same) -->
-<!-- # table(stats_on_all$Rel_Same) -->
-<!-- # table(stats_on_all$Ide_Same) -->
-<!-- ``` -->
-
-<!-- ```{r Figure9, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 9. Maximum likelihood gene trees for ttuB for nucleotide (A) and amino acid sequences (B).", fig.width=3.25} -->
-<!-- knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure9_ttuB_NT.png") -->
-<!-- knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure9_ttuB_AA.png") -->
-<!-- ``` -->
-
-<!-- ```{r Figure10, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 10. Maximum likelihood gene trees for secY for nucleotide (A) and amino acid sequences (B). Since bifucations could not be seen in radial trees, condensed trees were computed with a 70% cutoff for both the nucleotide sequnces (C) and amino acid sequences (D).", fig.width=3.25} -->
-<!-- knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10_secY_NT.png") -->
-<!-- knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10_secY_AA.png") -->
-<!-- knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10b_secY_NT70.png") -->
-<!-- knitr::include_graphics("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10b_secY_AA70.png") -->
-<!-- ``` -->
+kable(all_same_genus, 
+      caption = "Table 4. The number of *M. calida* and *M. gaviniae* genes wherein all analyses gave the same genus as the closest relative.")
+```
 
 # Discussion
 
