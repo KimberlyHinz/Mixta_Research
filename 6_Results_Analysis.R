@@ -156,6 +156,18 @@ table(test_gav$CR_test)
 # FALSE  TRUE 
 # 178     621 
 
+### HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+test <- data.frame(Gene = test_cal$PD_Gene, 
+                   cal_PD = test_cal$PD_CR, 
+                   cal_GD = test_cal$GD_CR2, 
+                   gav_PD = test_gav$PD_CR, 
+                   gav_GD = test_gav$GD_CR2)
+test <- mutate(test,
+               cal = cal_PD == cal_GD,
+               gav = gav_PD == gav_GD,
+               PD = cal_PD == gav_PD,
+               GD = cal_GD == gav_GD)
+
 # Gather it all together
 number_relatives <- rbind(data.frame(Species = Spp,                                 # Counts the number of genes belonging to each taxa for analysis
                                      Number = count_relatives(GD_calida),           # Collects all four analyses into one (two each calida and gaviniae)
@@ -680,309 +692,140 @@ ggarrange(gav_NT, gav_AA,
           legend = "bottom")
 # ```
 
-# Next ---------------------------
+# Table 3. All Analyses Give Same Species ------------------------------------------------------------------------------------------------------------------
+CR_NT_cal_dist <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE) 
+CR_AA_cal_dist <- read.csv("9_Results_AA/four_relatives_calida_AA.csv", stringsAsFactors = FALSE)
+CR_NT_cal_iden <- read.csv("9_Results_NT/four_identities_calida_NT.csv", stringsAsFactors = FALSE) 
+CR_AA_cal_iden <- read.csv("9_Results_AA/four_identities_calida_AA.csv", stringsAsFactors = FALSE) 
+
+unique(CR_AA_cal_dist$Gene == CR_AA_cal_iden$Gene)
+unique(CR_AA_cal_dist$Gene == CR_NT_cal_dist$Gene)
+unique(CR_AA_cal_dist$Gene == CR_NT_cal_iden$Gene)
+
+CR_calida <- data.frame(Gene = CR_AA_cal_dist$Gene,
+                        ID = CR_AA_cal_dist$ID,
+                        NT_dist = CR_NT_cal_dist$Closest_Relative,
+                        AA_dist = CR_AA_cal_dist$Closest_Relative,
+                        NT_iden = CR_NT_cal_iden$Closest_Relative,
+                        AA_iden = CR_AA_cal_iden$Closest_Relative)
+rm(CR_AA_cal_dist, CR_AA_cal_iden, CR_NT_cal_dist, CR_NT_cal_iden)
+
+CR_calida <- mutate(CR_calida,
+                    ALL = case_when(NT_dist == AA_dist & NT_dist == NT_iden & NT_dist == AA_iden ~ TRUE,
+                                    TRUE ~ FALSE),
+                    Genus = case_when(NT_dist %in% c("P_septica", "P_agglomerans") & AA_dist %in% c("P_septica", "P_agglomerans") &
+                                        NT_iden %in% c("P_septica", "P_agglomerans") & AA_iden %in% c("P_septica", "P_agglomerans") ~ "Pantoea",
+                                      NT_dist %in% c("E_amylovora", "E_tasmaniensis") & AA_dist %in% c("E_amylovora", "E_tasmaniensis") &
+                                        NT_iden %in% c("E_amylovora", "E_tasmaniensis") & AA_iden %in% c("E_amylovora", "E_tasmaniensis") ~ "Erwinia",
+                                      NT_dist %in% c("T_ptyseos", "T_saanichensis") & AA_dist %in% c("T_ptyseos", "T_saanichensis") &
+                                        NT_iden %in% c("T_ptyseos", "T_saanichensis") & AA_iden %in% c("T_ptyseos", "T_saanichensis") ~ "Tatumella",
+                                      NT_dist == "E_cloacae" & AA_dist == "E_cloacae" & NT_iden == "E_cloacae" & AA_iden == "E_cloacae" ~ "Enterobacter",
+                                      TRUE ~ "Nope"))
+
+write.csv(CR_calida, "10_Tables_and_Figures/Table3_AllResults_calida.csv", row.names = FALSE)
+
+CR_NT_gav_dist <- read.csv("9_Results_NT/four_relatives_gaviniae_NT.csv", stringsAsFactors = FALSE)
+CR_AA_gav_dist <- read.csv("9_Results_AA/four_relatives_gaviniae_AA.csv", stringsAsFactors = FALSE)
+CR_NT_gav_iden <- read.csv("9_Results_NT/four_identities_gaviniae_NT.csv", stringsAsFactors = FALSE) 
+CR_AA_gav_iden <- read.csv("9_Results_AA/four_identities_gaviniae_AA.csv", stringsAsFactors = FALSE) 
+
+unique(CR_AA_gav_dist$Gene == CR_AA_gav_iden$Gene)
+unique(CR_AA_gav_dist$Gene == CR_NT_gav_dist$Gene)
+unique(CR_AA_gav_dist$Gene == CR_NT_gav_iden$Gene)
+
+CR_gaviniae <- data.frame(Gene = CR_AA_gav_dist$Gene,
+                          ID = CR_AA_gav_dist$ID,
+                          NT_dist = CR_NT_gav_dist$Closest_Relative,
+                          AA_dist = CR_AA_gav_dist$Closest_Relative,
+                          NT_iden = CR_NT_gav_iden$Closest_Relative,
+                          AA_iden = CR_AA_gav_iden$Closest_Relative)
+rm(CR_AA_gav_dist, CR_AA_gav_iden, CR_NT_gav_dist, CR_NT_gav_iden)
+
+CR_gaviniae <- mutate(CR_gaviniae,
+                      ALL = case_when(NT_dist == AA_dist & NT_dist == NT_iden & NT_dist == AA_iden ~ TRUE,
+                                      TRUE ~ FALSE),
+                      Genus = case_when(NT_dist %in% c("P_septica", "P_agglomerans") & AA_dist %in% c("P_septica", "P_agglomerans") &
+                                          NT_iden %in% c("P_septica", "P_agglomerans") & AA_iden %in% c("P_septica", "P_agglomerans") ~ "Pantoea",
+                                        NT_dist %in% c("E_amylovora", "E_tasmaniensis") & AA_dist %in% c("E_amylovora", "E_tasmaniensis") &
+                                          NT_iden %in% c("E_amylovora", "E_tasmaniensis") & AA_iden %in% c("E_amylovora", "E_tasmaniensis") ~ "Erwinia",
+                                        NT_dist %in% c("T_ptyseos", "T_saanichensis") & AA_dist %in% c("T_ptyseos", "T_saanichensis") &
+                                          NT_iden %in% c("T_ptyseos", "T_saanichensis") & AA_iden %in% c("T_ptyseos", "T_saanichensis") ~ "Tatumella",
+                                        NT_dist == "E_cloacae" & AA_dist == "E_cloacae" & NT_iden == "E_cloacae" & AA_iden == "E_cloacae" ~ "Enterobacter",
+                                        TRUE ~ "Nope"))
+
+write.csv(CR_gaviniae, "10_Tables_and_Figures/Table3_AllResults_gaviniae.csv", row.names = FALSE)
+
+# ```{r Table3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
+CR_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_AllResults_calida.csv", 
+                      stringsAsFactors = FALSE)
+
+table(CR_calida$ALL)
+# FALSE  TRUE 
+# 490    309 
+
+CR_gaviniae <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_AllResults_gaviniae.csv", 
+                        stringsAsFactors = FALSE)
+
+table(CR_gaviniae$ALL)
+# FALSE  TRUE 
+# 490    309
+
+all_same_cal <- subset(CR_calida, ALL == TRUE); all_same_gav <- subset(CR_gaviniae, ALL == TRUE)
+
+all_same_species <- data.frame(table(all_same_cal$NT_dist),
+                               table(all_same_gav$NT_dist)) %>%
+  subset(select = -Var1.1) %>%
+  mutate(Var1 = factor(Var1, 
+                          levels = Spp, ordered = TRUE)) %>%
+  arrange(Var1)
+
+colnames(all_same_species) <- c("Species", "# of M. calida genes", "# of M. gaviniae genes")
+
+all_same_species$Species <- gsub("_", ". ", all_same_species$Species)
+
+kable(all_same_species, 
+      caption = "Table 3. The number of *M. calida* and *M. gaviniae* genes wherein all analyses gave the same species as the closest relative.")
+# ```
+
+calgav_samespp <- data.frame(Gene = CR_calida$Gene, Same = (CR_calida$ALL == CR_gaviniae$ALL))
+table(calgav_samespp$Same)
+# FALSE  TRUE 
+# 60     739       # 7.5% of the M. calida and M. gaviniae homologs did not share the same closest relative 
+
+# Table 4. All Analyses Give Same Genus --------------------------------------------------------------------------------------------------------------------
+# ```{r Table4, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
+CR_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_AllResults_calida.csv", 
+                      stringsAsFactors = FALSE)
+
+CR_gaviniae <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_AllResults_gaviniae.csv", 
+                        stringsAsFactors = FALSE)
 
 
+cal_genus <- subset(CR_calida, Genus != "Nope")
+gav_genus <- subset(CR_gaviniae, Genus != "Nope")
 
+all_same_genus <- data.frame(table(cal_genus$Genus),
+                             table(gav_genus$Genus))
 
+all_same_genus <- subset(all_same_genus, select = -Var1.1)
+colnames(all_same_genus) <- c("Genus", "# of M. calida genes", "# of M. gaviniae genes")
+
+all_same_genus <- all_same_genus %>%
+  mutate(Genus = factor(Genus, 
+                       levels = c("Pantoea", "Erwinia", "Tatumella", "Enterobacter"), ordered = TRUE)) %>%
+  arrange(Genus)
+
+test <- data.frame(Gene = CR_calida$Gene, Same = (CR_calida$Genus == CR_gaviniae$Genus))
+table(test$Same)
+# FALSE  TRUE 
+# 39     760 
+
+kable(all_same_species, 
+      caption = "Table 4. The number of *M. calida* and *M. gaviniae* genes wherein all analyses gave the same genus as the closest relative.")
+# ```
 
 # Barrier -------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Table 2. Nucleotide Models ----------------------------------------------------------------------------------------------------------------------------
-phylo_models_NT <- read.csv("9_Results_NT/Phylo_Models_NT.csv", stringsAsFactors = FALSE)
-PM_NT <- data.frame(table(phylo_models_NT$BM))
-
-colnames(PM_NT) <- c("Model", "Number")
-
-PM_NT <- mutate(PM_NT,
-                Percentage = round((Number / sum(Number)) * 100, digits = 2))
-
-# PM_NT <- cbind(PM_NT[1:4, ], PM_NT[5:8, ], PM_NT[9:12, ])
-
-write.csv(PM_NT, "10_Tables_and_Figures/Table2_PmodelsNT.csv", row.names = FALSE)
-
-# ```{r Table2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
-PM_NT <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table2_PmodelsNT.csv", stringsAsFactors = FALSE)
-
-kable(PM_NT, caption = "Table 2. The number of genes that required each phylogenetic tree model according to model testing and the lowest BIC for 
-      nucleotide sequences.")
-# ```
-
-# Table 3. Amino Acid Models ----------------------------------------------------------------------------------------------------------------------------
-phylo_models_AA <- read.csv("9_Results_AA/Phylo_Models_AA.csv", stringsAsFactors = FALSE)
-PM_AA <- data.frame(table(phylo_models_AA$BM))
-
-colnames(PM_AA) <- c("Model", "Number")
-
-PM_AA <- mutate(PM_AA,
-                Percentage = round((Number / sum(Number)) * 100, digits = 2))
-
-# PM_AA <- rbind(PM_AA, c("--", "--", "--"))
-# 
-# PM_AA <- cbind(PM_AA[1:8, ], PM_AA[9:16, ], PM_AA[17:24, ])
-
-write.csv(PM_AA, "10_Tables_and_Figures/Table3_PmodelsAA.csv", row.names = FALSE)
-
-# ```{r Table3, echo = FALSE, message = FALSE, warning=FALSE, fig.cap=TRUE}
-PM_AA <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_PmodelsAA.csv", stringsAsFactors = FALSE)
-
-kable(PM_AA, caption = "Table 3. The number of genes that required each phylogenetic tree model according to model testing and the lowest BIC for amino 
-      acid sequences.")
-# ```
-# Figure 1. Nucleotide Models in MEGAX Genetic Distance --------------------------------------------------------------------------------------------------
-
-
-
-
-models <- pivot_longer(models, cols = c(Best, Avail), names_to = "Bst_Avlb", values_to = "Number"); test
-
-models <- mutate(models,
-                 Percent = round((Number / (sum(Number) / 2)) * 100, digits = 1))
-
-models$Model <- gsub("_", "+", models$Model)
-
-write.csv(models, "10_Tables_and_Figures/Figure1_BestvAvailableModels.csv", row.names = FALSE)
-
-#
-test_model <- data.frame(cbind(DM_models_NT$Gene, DM_models_NT$Code, phylo_models_NT$Gene, phylo_models_NT$BM))
-colnames(test_model) <- c("DM_Gene", "DM_Model", "P_Gene", "P_Model")
-
-test_model <- mutate(test_model,
-                   gene_test = DM_Gene == P_Gene,
-                   model_test = DM_Model == P_Model)
-
-table(test_model$model_test)
-
-# ```{r Figure1, echo = FALSE, message = FALSE, warning=FALSE, fig.cap="Figure 1. The percent of genes requiring each model when using the recommended model for phylogenetic tree analysis (red) and when using the best available model for genetic distance anaylis (blue). Models are for nucleotide sequences.", fig.width=6.5}
-models <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/O10_Tables_and_Figures/Figure1_BestvAvailableModels.csv", stringsAsFactors = FALSE)
-
-ggplot(data = models, aes(x = Model, y = Percent, fill = Bst_Avlb)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  scale_fill_brewer(palette = "Set1",
-                    labels = c("Phylogenetic", "Genetic Distance")) +
-  labs(y = "Percent of Genes \n Requiring Each Model",
-       fill = "Analysis") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),                                # Rotates x axis labels
-        legend.position = c(0.3, 0.95),                                                   # Moves legend inside the plot and in the top-left corner
-        legend.justification = c("right", "top"),                                         # Top right corner is at above coordinates
-        legend.text.align = 0,                                                            # Aligns legend text to the left
-        legend.margin = margin(6, 6, 6, 6),                                               # Margins around legend
-        text = element_text(size = 12,  family = "Times New Roman"))
-# ```
-
-### Adding Gene Info ####################################################################################################################################
-# Nucleotides
-# M. calida
-fastaFiles <- data.frame(File_name = list.files(path = "5_Aligned_NT/", pattern = ".fasta"))
-
-fastaFiles <- mutate(fastaFiles,
-                     Path_name = paste("5_Aligned_NT", File_name, sep = "/"),
-                     Gene = gsub(File_name, pattern = ".fasta", replacement = ""))
-
-gene_info <- data.frame(matrix(ncol = 3, nrow = 0))
-
-for(row in 1:nrow(fastaFiles)) {
-  gene_file <- readDNAStringSet(filepath = fastaFiles$Path_name[row])
-  
-  info <- data.frame(Gene_Check = fastaFiles$Gene[row],
-                     M_calida = gene_file@ranges@NAMES[5],
-                     M_gaviniae = gene_file@ranges@NAMES[6])
-  
-  gene_info <- rbind(gene_info, info)
-}; rm(fastaFiles, gene_file, info, row)
-
-FR_nucl_calida <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE)
-
-FR_nucl_calida <- mutate(FR_nucl_calida,
-                         Check = gene_info$Gene_Check,
-                         Check_TF = Gene == Check,
-                         M_calida_info = gene_info$M_calida)
-
-FR_nucl_calida <- separate(FR_nucl_calida, col = M_calida_info, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|")
-
-FR_nucl_calida <- subset(FR_nucl_calida, select = -c(Check, Check_TF, Species))
-
-write.csv(FR_nucl_calida, "9_Results_NT/four_relatives_calida_NT.csv", row.names = FALSE)
-
-# M. gaviniae
-FR_nucl_gaviniae <- read.csv("9_Results_NT/four_relatives_gaviniae_NT.csv", stringsAsFactors = FALSE)
-
-FR_nucl_gaviniae <- mutate(FR_nucl_gaviniae,
-                         Check = gene_info$Gene_Check,
-                         Check_TF = Gene == Check,
-                         M_gaviniae_info = gene_info$M_gaviniae)
-
-FR_nucl_gaviniae <- separate(FR_nucl_gaviniae, col = M_gaviniae_info, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|")
-
-FR_nucl_gaviniae <- subset(FR_nucl_gaviniae, select = -c(Check, Check_TF, Species))
-
-write.csv(FR_nucl_gaviniae, "9_Results_NT/four_relatives_gaviniae_NT.csv", row.names = FALSE)
-
-# Amino acids
-# M. calida
-fastaFiles <- data.frame(File_name = list.files(path = "5_Aligned_AA/", pattern = ".fasta"))
-
-fastaFiles <- mutate(fastaFiles,
-                     Path_name = paste("5_Aligned_AA", File_name, sep = "/"),
-                     Gene = gsub(File_name, pattern = ".fasta", replacement = ""))
-
-gene_info <- data.frame(matrix(ncol = 3, nrow = 0))
-
-for(row in 1:nrow(fastaFiles)) {
-  gene_file <- readAAStringSet(filepath = fastaFiles$Path_name[row])
-  
-  info <- data.frame(Gene_Check = fastaFiles$Gene[row],
-                     M_calida = gene_file@ranges@NAMES[5],
-                     M_gaviniae = gene_file@ranges@NAMES[6])
-  
-  gene_info <- rbind(gene_info, info)
-}; rm(fastaFiles, gene_file, info, row)
-
-FR_aa_calida <- read.csv("9_Results_AA/four_relatives_calida_AA.csv", stringsAsFactors = FALSE)
-
-FR_aa_calida <- mutate(FR_aa_calida,
-                       Check = gene_info$Gene_Check,
-                       Check_TF = Gene == Check,
-                       M_calida_info = gene_info$M_calida)
-
-FR_aa_calida <- separate(FR_aa_calida, col = M_calida_info, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|")
-
-FR_aa_calida <- subset(FR_aa_calida, select = -c(Check, Check_TF, Species))
-
-write.csv(FR_aa_calida, "9_Results_AA/four_relatives_calida_AA.csv", row.names = FALSE)
-
-# M. gaviniae
-FR_aa_gaviniae <- read.csv("9_Results_AA/four_relatives_gaviniae_AA.csv", stringsAsFactors = FALSE)
-
-FR_aa_gaviniae <- mutate(FR_aa_gaviniae,
-                         Check = gene_info$Gene_Check,
-                         Check_TF = Gene == Check,
-                         M_gaviniae_info = gene_info$M_gaviniae)
-
-FR_aa_gaviniae <- separate(FR_aa_gaviniae, col = M_gaviniae_info, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|")
-
-FR_aa_gaviniae <- subset(FR_aa_gaviniae, select = -c(Check, Check_TF, Species))
-
-write.csv(FR_aa_gaviniae, "9_Results_AA/four_relatives_gaviniae_AA.csv", row.names = FALSE)
-
-# Figure 3. Circular Plot, Nucleotide and M. calida -----------------------------------------------------------------------------------------------------
-FR_nucl_calida <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE) %>%
-  mutate(Relative_Number = case_when(Closest_Relative == "P_septica" ~ 3, Closest_Relative == "P_agglomerans" ~ 4,
-                                     Closest_Relative == "E_tasmaniensis" ~ 5, Closest_Relative == "E_amylovora" ~ 6,
-                                     Closest_Relative == "T_ptyseos" ~ 7, Closest_Relative == "T_saanichensis" ~ 8,
-                                     Closest_Relative == "E_cloacae" ~ 9, Closest_Relative == "P_syringae" ~ 0))
-
-extra_genes_NT <- data.frame(Gene = NA_character_, First = NA_character_, Second = NA_character_, Third = NA_character_, Fourth = NA_character_,
-                             Mixta_check = NA, Closest_Relative = "P_syringae", Gene_Length = NA_real_, Beg = NA_real_, End = NA_real_, 
-                             ID = as.numeric((max(FR_nucl_calida$ID) + 1):4084), Relative_Number = 0)
-
-FR_nucl_calida <- rbind(FR_nucl_calida, extra_genes_NT)                                   # Combines M_calida with the extra genes
-
-write.csv(FR_nucl_calida, "10_Tables_and_Figures/Figure3_Circular_NT.csv", row.names = FALSE)
-
-# ```{r Figure3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3. Closest relatives to *M. calida* genes for nucleotide sequences around the 
-# *M. calida* genome. Length and colour of the bars represent the different species to which the gene is most closely related according to genetic 
-# distance. The *M. calida* genome has 4084 genes. No distinct patterns emerged; however, genes that are most closely related to *P. septca* are the 
-# most common and occur throughout the entire genome. Therefore, *P. septica* and *Mixta* are likely to have a common recent ancestor.", fig.width=6.5, 
-# fig.height=5}
-FR_nucl_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure3_Circular_NT.csv", stringsAsFactors = FALSE) %>%
-  mutate(Closest_Relative = factor(Closest_Relative, 
-                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
-                                              "T_saanichensis", "E_cloacae", "P_syringae"), ordered = TRUE))
-
-ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 15) +
-  coord_polar() +
-  scale_fill_brewer(palette = "Paired", 
-                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
-                               "P. syringae")) +
-  scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
-  labs(fill = "Closest Relative") +
-  theme_bw() +
-  theme(legend.text = element_text(face = "italic"),
-        axis.title = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        text = element_text(size = 12,  family = "Times New Roman"))
-# ```
-# Figure 4. Circular Plot, Amino Acids and M. calida ----------------------------------------------------------------------------------------------------
-FR_aa_calida <- read.csv("9_Results_AA/four_relatives_calida_AA.csv", stringsAsFactors = FALSE) %>%
-  mutate(Relative_Number = case_when(Closest_Relative == "P_septica" ~ 3, Closest_Relative == "P_agglomerans" ~ 4,
-                                     Closest_Relative == "E_tasmaniensis" ~ 5, Closest_Relative == "E_amylovora" ~ 6,
-                                     Closest_Relative == "T_ptyseos" ~ 7, Closest_Relative == "T_saanichensis" ~ 8,
-                                     Closest_Relative == "E_cloacae" ~ 9, Closest_Relative == "P_syringae" ~ 0))
-
-extra_genes_AA <- data.frame(Gene = NA_character_, First = NA_character_, Second = NA_character_, Third = NA_character_, Fourth = NA_character_,
-                             Mixta_check = NA, Closest_Relative = "P_syringae", Gene_Length = NA_real_, Beg = NA_real_, End = NA_real_, 
-                             ID = as.numeric((max(FR_aa_calida$ID) + 1):4084), Relative_Number = 0)
-
-FR_aa_calida <- rbind(FR_aa_calida, extra_genes_AA)                                   # Combines M_calida with the extra genes
-
-write.csv(FR_aa_calida, "10_Tables_and_Figures/Figure4_Circular_AA.csv", row.names = FALSE)
-
-# ````{r Figure4, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 4. Closest relatives to *M. calida* genes for amino acid sequences around 
-# the *M. calida* genome. Length and colour of the bars represent the different species to which the gene is most closely related according to genetic 
-# distance. The *M. calida* genome has 4084 genes. No distinct patterns emerged; however, genes that are most closely related to *P. septca* are the 
-# most common and occur throughout the entire genome. Therefore, *P. septica* and *Mixta* are likely to have a common recent ancestor.", fig.width=6.5, 
-# fig.height=5}
-FR_aa_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure4_Circular_AA.csv", stringsAsFactors = FALSE) %>%
-  mutate(Closest_Relative = factor(Closest_Relative, 
-                                   levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", 
-                                              "T_saanichensis", "E_cloacae", "P_syringae"), ordered = TRUE))
-
-ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_Relative)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 15) +
-  coord_polar() +
-  scale_fill_brewer(palette = "Paired", 
-                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
-                               "P. syringae")) +
-  scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
-  labs(fill = "Closest Relative") +
-  theme_bw() +
-  theme(legend.text = element_text(face = "italic"),
-        axis.title = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        text = element_text(size = 12,  family = "Times New Roman"))
-# ```
-# Figure 8. Compare all for M. calida ---------------------------------------------------------------------------------------------------------------------
-Spp <- c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", "T_saanichensis", 
-         "E_cloacae", "P_syringae")
-
-FR_cal_NT <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE) %>%
-  mutate(Closest_Relative = factor(Closest_Relative, levels = Spp, ordered = TRUE))
-
-FI_calida_NT <- read.csv("9_Results_NT/four_identities_calida_NT.csv", stringsAsFactors = FALSE) %>%
-  separate(col = Mixta, into = c("Mixta_Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
-  mutate(Closest_Relative = factor(Closest_Relative, levels = Spp, ordered = TRUE),
-         ID = as.numeric(ID))
-
-FR_cal_AA <- read.csv("9_Results_AA/four_relatives_calida_AA.csv", stringsAsFactors = FALSE) %>%
-  mutate(Closest_Relative = factor(Closest_Relative, levels = Spp, ordered = TRUE))
-
-FI_calida_AA <- read.csv("9_Results_AA/four_identities_calida_AA.csv", stringsAsFactors = FALSE) %>%
-  separate(col = Mixta, into = c("Mixta_Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
-  mutate(Closest_Relative = factor(Closest_Relative, levels = Spp, ordered = TRUE),
-         ID = as.numeric(ID))
-
-unique(FR_cal_NT$ID == FI_calida_AA$ID)
-
-all_results_calida <- data.frame(Gene = FR_cal_NT$Gene,
-                                 ID = FR_cal_NT$ID,
-                                 Rel_NT = FR_cal_NT$Closest_Relative,
-                                 Ide_NT = FI_calida_NT$Closest_Relative,
-                                 Rel_AA = FR_cal_AA$Closest_Relative,
-                                 Ide_AA = FI_calida_AA$Closest_Relative)
-
-rm(FI_calida_AA, FI_calida_NT, FR_cal_AA, FR_cal_NT)
-
-all_results_calida <- all_results_calida %>%
-  mutate(Gene_Name = substring(all_results_calida$Gene, first = 7)) %>%
-  arrange(ID)
-
-all_results_calida$Gene_Name <- substring(all_results_calida$Gene, first = 7)
-
-write.csv(all_results_calida, "10_Tables_and_Figures/FigureN_AllResultsCalida.csv", row.names = FALSE)
 
 ###
 all_results_calida <- read.csv("10_Tables_and_Figures/FigureN_AllResultsCalida.csv", stringsAsFactors = TRUE) %>%
@@ -1003,92 +846,3 @@ ggplot(all_results_calida[1:400,], aes(x = Gene_Name, y = Analysis, fill = Close
   theme(legend.text = element_text(face = "italic"),
         text = element_text(size = 12,  family = "Times New Roman"),
         axis.text.x = element_text(angle = 45, hjust = 1))               # Rotates x axis labels
-
-### Added stats
-uniq_genes <- data.frame(Gene = unique(all_results_calida$Gene))
-
-stats_on_all <- data.frame(matrix(ncol = 6, nrow = 0))
-for(row in 1:nrow(uniq_genes)) {
-  one <- subset(all_results_calida, Gene == uniq_genes$Gene[row])
-  
-  stats <- data.frame(Gene = one$Gene[1],
-                      ID = one$ID[1],
-                      Same_Species = case_when(one$Closest_Similar[1] == "P_septica" &&
-                                                 one$Closest_Similar[2] == "P_septica" &&
-                                                 one$Closest_Similar[3] == "P_septica" &&
-                                                 one$Closest_Similar[4] == "P_septica" ~ "P_septica",
-                                               one$Closest_Similar[1] == "P_agglomerans" &&
-                                                 one$Closest_Similar[2] == "P_agglomerans" &&
-                                                 one$Closest_Similar[3] == "P_agglomerans" &&
-                                                 one$Closest_Similar[4] == "P_agglomerans" ~ "P_agglomerans",
-                                               one$Closest_Similar[1] == "E_tasmaniensis" &&
-                                                 one$Closest_Similar[2] == "E_tasmaniensis" &&
-                                                 one$Closest_Similar[3] == "E_tasmaniensis" &&
-                                                 one$Closest_Similar[4] == "E_tasmaniensis" ~ "E_tasmaniensis",
-                                               one$Closest_Similar[1] == "E_amylovora" &&
-                                                 one$Closest_Similar[2] == "E_amylovora" &&
-                                                 one$Closest_Similar[3] == "E_amylovora" &&
-                                                 one$Closest_Similar[4] == "E_amylovora" ~ "E_amylovora",
-                                               one$Closest_Similar[1] == "T_ptyseos" &&
-                                                 one$Closest_Similar[2] == "T_ptyseos" &&
-                                                 one$Closest_Similar[3] == "T_ptyseos" &&
-                                                 one$Closest_Similar[4] == "T_ptyseos" ~ "T_ptyseos",
-                                               one$Closest_Similar[1] == "T_saanichensis" &&
-                                                 one$Closest_Similar[2] == "T_saanichensis" &&
-                                                 one$Closest_Similar[3] == "T_saanichensis" &&
-                                                 one$Closest_Similar[4] == "T_saanichensis" ~ "T_saanichensis",
-                                               one$Closest_Similar[1] == "E_cloacae" &&
-                                                 one$Closest_Similar[2] == "E_cloacae" &&
-                                                 one$Closest_Similar[3] == "E_cloacae" &&
-                                                 one$Closest_Similar[4] == "E_cloacae" ~ "E_cloacae",
-                                               TRUE ~ "Nope"),
-                      Same_Genus = case_when(one$Closest_Similar[1] %in% c("P_septica", "P_agglomerans") &&
-                                               one$Closest_Similar[2] %in% c("P_septica", "P_agglomerans") &&
-                                               one$Closest_Similar[3] %in% c("P_septica", "P_agglomerans") &&
-                                               one$Closest_Similar[4] %in% c("P_septica", "P_agglomerans") ~ "Pantoea",
-                                             one$Closest_Similar[1] %in% c("E_tasmaniensis", "E_amylovora") &&
-                                               one$Closest_Similar[2] %in% c("E_tasmaniensis", "E_amylovora") &&
-                                               one$Closest_Similar[3] %in% c("E_tasmaniensis", "E_amylovora") &&
-                                               one$Closest_Similar[4] %in% c("E_tasmaniensis", "E_amylovora") ~ "Erwinia",
-                                             one$Closest_Similar[1] %in% c("T_ptyseos", "T_saanichensis") &&
-                                               one$Closest_Similar[2] %in% c("T_ptyseos", "T_saanichensis") &&
-                                               one$Closest_Similar[3] %in% c("T_ptyseos", "T_saanichensis") &&
-                                               one$Closest_Similar[4] %in% c("T_ptyseos", "T_saanichensis") ~ "Tatumella",
-                                             one$Closest_Similar[1] == "E_cloacae" &&
-                                               one$Closest_Similar[2] == "E_cloacae" &&
-                                               one$Closest_Similar[3] == "E_cloacae" &&
-                                               one$Closest_Similar[4] == "E_cloacae" ~ "Enterobacter",
-                                             TRUE ~ "Nope"),
-                      NT_Same = case_when(one$Closest_Similar[1] == one$Closest_Similar[2] ~ TRUE,
-                                          TRUE ~ FALSE),
-                      AA_Same = case_when(one$Closest_Similar[3] == one$Closest_Similar[4] ~ TRUE,
-                                          TRUE ~ FALSE),
-                      Rel_Same = case_when(one$Closest_Similar[1] == one$Closest_Similar[3] ~ TRUE,
-                                           TRUE ~ FALSE),
-                      Ide_Same = case_when(one$Closest_Similar[2] == one$Closest_Similar[4] ~ TRUE,
-                                           TRUE ~ FALSE))
-  
-  stats_on_all <- rbind(stats_on_all, stats)
-}
-rm(one, stats, uniq_genes, row, Spp)
-
-write.csv(stats_on_all, "10_Tables_and_Figures/FigureO_AllStatsCalida.csv", row.names = FALSE)
-
-
-#
-# Figure 8b. ----------------------------------------------------------------------------------------------------------------------------------------
-FI_gaviniae_NT <- read.csv("9_Results_NT/four_identities_gaviniae_NT.csv", stringsAsFactors = FALSE) %>%
-  separate(col = Mixta, into = c("Mixta_Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
-  mutate(Relative_Number = case_when(Closest_Relative == "P_septica" ~ 3, Closest_Relative == "P_agglomerans" ~ 4,
-                                     Closest_Relative == "E_tasmaniensis" ~ 5, Closest_Relative == "E_amylovora" ~ 6,
-                                     Closest_Relative == "T_ptyseos" ~ 7, Closest_Relative == "T_saanichensis" ~ 8,
-                                     Closest_Relative == "E_cloacae" ~ 9, Closest_Relative == "P_syringae" ~ 0),
-         ID = as.numeric(ID))
-
-FI_gaviniae_AA <- read.csv("9_Results_AA/four_identities_gaviniae_AA.csv", stringsAsFactors = FALSE) %>%
-  separate(col = Mixta, into = c("Mixta_Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
-  mutate(Relative_Number = case_when(Closest_Relative == "P_septica" ~ 3, Closest_Relative == "P_agglomerans" ~ 4,
-                                     Closest_Relative == "E_tasmaniensis" ~ 5, Closest_Relative == "E_amylovora" ~ 6,
-                                     Closest_Relative == "T_ptyseos" ~ 7, Closest_Relative == "T_saanichensis" ~ 8,
-                                     Closest_Relative == "E_cloacae" ~ 9, Closest_Relative == "P_syringae" ~ 0),
-         ID = as.numeric(ID))
