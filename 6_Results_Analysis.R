@@ -156,17 +156,34 @@ table(test_gav$CR_test)
 # FALSE  TRUE 
 # 178     621 
 
-### HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-test <- data.frame(Gene = test_cal$PD_Gene, 
-                   cal_PD = test_cal$PD_CR, 
-                   cal_GD = test_cal$GD_CR2, 
-                   gav_PD = test_gav$PD_CR, 
-                   gav_GD = test_gav$GD_CR2)
-test <- mutate(test,
-               cal = cal_PD == cal_GD,
-               gav = gav_PD == gav_GD,
-               PD = cal_PD == gav_PD,
-               GD = cal_GD == gav_GD)
+#
+all <- data.frame(Gene = GD_calida$gene,
+                  GD_cal = GD_calida$Closest_Relative,
+                  GD_gav = GD_gaviniae$Closest_Relative,
+                  PD_cal = PD_calida$Closest_Relative,
+                  PD_gav = PD_gaviniae$Closest_Relative)
+
+all <- mutate(all,
+              GD_cal = case_when(GD_cal == "Pantoea_sept" ~ "P_septica",
+                                 GD_cal == "Erwinia_tasm" ~ "E_tasmaniensis",
+                                 GD_cal == "Pantoea_aggl" ~ "P_agglomerans",
+                                 GD_cal == "Erwinia_amyl" ~ "E_amylovora",
+                                 GD_cal == "Tatumella_sa" ~ "T_saanichensis",
+                                 GD_cal == "Tatumella_pt" ~ "T_ptyseos",
+                                 GD_cal == "Enterobacter" ~ "E_cloacae"),
+              GD_gav = case_when(GD_gav == "Pantoea_sept" ~ "P_septica",
+                                 GD_gav == "Erwinia_tasm" ~ "E_tasmaniensis",
+                                 GD_gav == "Pantoea_aggl" ~ "P_agglomerans",
+                                 GD_gav == "Erwinia_amyl" ~ "E_amylovora",
+                                 GD_gav == "Tatumella_sa" ~ "T_saanichensis",
+                                 GD_gav == "Tatumella_pt" ~ "T_ptyseos",
+                                 GD_gav == "Enterobacter" ~ "E_cloacae"),)
+
+all <- mutate(all,
+              cal = GD_cal == PD_cal,
+              gav = GD_gav == PD_gav,
+              GD = GD_cal == GD_gav,
+              PD = PD_cal == PD_gav)
 
 # Gather it all together
 number_relatives <- rbind(data.frame(Species = Spp,                                 # Counts the number of genes belonging to each taxa for analysis
@@ -824,25 +841,65 @@ kable(all_same_species,
       caption = "Table 4. The number of *M. calida* and *M. gaviniae* genes wherein all analyses gave the same genus as the closest relative.")
 # ```
 
-# Barrier -------------------------------------------------------------------------------------------------------------------------------------------------
+# Figure 6. All Results: M. calida -------------------------------------------------------------------------------------------------------------------------
+NT_dist <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE)
+AA_dist <- read.csv("9_Results_AA/four_relatives_calida_AA.csv", stringsAsFactors = FALSE)
+NT_iden <- read.csv("9_Results_NT/four_identities_calida_NT.csv", stringsAsFactors = FALSE) %>%
+  separate(col = Mixta, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
+  subset(select = -c(Species)) %>%
+  mutate(Gene_Length = as.numeric(Gene_Length),
+         Beg = as.numeric(Beg),
+         End = as.numeric(End),
+         ID = as.numeric(ID))
+AA_iden <- read.csv("9_Results_AA/four_identities_calida_AA.csv", stringsAsFactors = FALSE) %>%
+  separate(col = Mixta, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
+  subset(select = -c(Species)) %>%
+  mutate(Gene_Length = as.numeric(Gene_Length),
+         Beg = as.numeric(Beg),
+         End = as.numeric(End),
+         ID = as.numeric(ID))
 
+all <- data.frame(Gene = NT_dist$Gene,
+                  ID = NT_dist$ID,
+                  Distance_NTS = NT_dist$Closest_Relative,
+                  Distance_AAS = AA_dist$Closest_Relative,
+                  Identity_NTS = NT_iden$Closest_Relative,
+                  Identity_AAS = AA_iden$Closest_Relative); # rm(AA_dist, AA_iden, NT_dist, NT_iden)
 
-###
-all_results_calida <- read.csv("10_Tables_and_Figures/FigureN_AllResultsCalida.csv", stringsAsFactors = TRUE) %>%
-  pivot_longer(cols = c(Rel_NT:Ide_AA), names_to = "Analysis", values_to = "Closest_Similar") %>%
-  mutate(Closest_Similar = factor(Closest_Similar, 
-                                  levels = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", "T_saanichensis", 
-                                             "E_cloacae", "P_syringiae"), 
-                                  ordered = TRUE),
-         Analysis = factor(Analysis, levels = c("Ide_AA", "Rel_AA", "Ide_NT", "Rel_NT"), ordered = TRUE),
-         Gene_Name = reorder(Gene_Name, ID))
+all <- all %>%
+  mutate(Agreement = case_when(Distance_NTS == Distance_AAS &
+                                 Distance_NTS == Identity_NTS &
+                                 Distance_NTS == Identity_AAS ~ "Yes",
+                               TRUE ~ "No")) %>%
+  pivot_longer(cols = c(Distance_NTS:Agreement),
+               names_to = "Analysis",
+               values_to = "Closest_Relative") %>%
+  mutate(Gene = substring(Gene, first = 7),
+         Analysis = factor(Analysis, levels = c("Identity_AAS", "Identity_NTS", "Distance_AAS", "Distance_NTS", "Agreement"), ordered = TRUE),
+         Closest_Relative = factor(Closest_Relative, levels = c(Spp, "Yes", "No"), ordered = TRUE))
 
-ggplot(all_results_calida[1:400,], aes(x = Gene_Name, y = Analysis, fill = Closest_Similar)) +
+all <- all[order(all$ID),]
+
+my_colours <- c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C", "#FDBF6F",
+                "#000000", "#FFFFFF")
+
+my_labels <- c(expression(italic("P. septica")),
+               expression(italic("P. agglomerans")),
+               expression(italic("E. tasmaniensis")),
+               expression(italic("E. amylovora")),
+               expression(italic("T. ptyseos")),
+               expression(italic("T. saanichensis")),
+               expression(italic("E. cloacae")),
+               "Yes", "No")
+
+expression( italic(p~value) == 0.01 )
+
+ggplot(all, aes(x = Gene, y = Analysis, fill = Closest_Relative)) +
   geom_tile() +
-  scale_fill_brewer(palette = "Paired", 
-                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
-                               "P. syringae")) +
-  labs(fill = "Closest Relative or \n Most Similar Taxa") +
-  theme(legend.text = element_text(face = "italic"),
-        text = element_text(size = 12,  family = "Times New Roman"),
-        axis.text.x = element_text(angle = 45, hjust = 1))               # Rotates x axis labels
+  scale_fill_manual(values = my_colours,
+                    labels = my_labels) +
+  labs(fill = "Closest Relative") +
+  theme(text = element_text(size = 12,  family = "Times New Roman"),
+        axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates x axis labels
+        legend.text.align = 0)
+# Split into two and use ggarrange
