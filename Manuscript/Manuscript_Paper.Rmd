@@ -159,7 +159,7 @@ ggplot(data = number_relatives, aes(x = Species, y = Percent, fill = Type)) +
 ```
 
 ## Spatial Patterns in the Closest Relatives from Genetic Distances
-Circular plots were generated using the *Mixta* gene IDs to simulate their relative positions on the *Mixta* chromosomes and uncover positional and spatial patterns. The bars’ lengths and colours correspond to the species that was the closest relative to the *Mixta* gene at that position. The results between the two *Mixta* species for the closest relatives were the same except for one and two genes for the NTS and the AAS, respectively; therefore, only the results for *M. calida* are shown.
+Circular plots were generated using the *Mixta* gene IDs to simulate their relative positions on the *Mixta* chromosomes and uncover positional and spatial patterns. The bars’ lengths and colours correspond to the species that was the closest relative to the *Mixta* gene at that position. The results between the two *Mixta* species for the closest relatives were the same except for one (*ttuB*) and two (*ttuB* and *secY*) genes for the NTS and the AAS, respectively; therefore, only the results for *M. calida* are shown.
 
 Many of the genes most closely related to any of the other taxa in this study were evenly positioned around the *Mixta* chromosome in the NTS (Figure 3A). The exception is for the *Tatumella* species (pinks) and *E. amylovora* (dark green; Figure 3A). The former and most of the genes closely related to the latter were located on the right side of the chromosome (Figure 3A). Unexpectedly, genes closely related to *E. cloacae* (orange) were distributed throughout the *Mixta* genome.
 
