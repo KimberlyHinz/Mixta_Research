@@ -864,42 +864,35 @@ all <- data.frame(Gene = NT_dist$Gene,
                   Distance_NTS = NT_dist$Closest_Relative,
                   Distance_AAS = AA_dist$Closest_Relative,
                   Identity_NTS = NT_iden$Closest_Relative,
-                  Identity_AAS = AA_iden$Closest_Relative); # rm(AA_dist, AA_iden, NT_dist, NT_iden)
+                  Identity_AAS = AA_iden$Closest_Relative); rm(AA_dist, AA_iden, NT_dist, NT_iden)
 
 all <- all %>%
   mutate(Agreement = case_when(Distance_NTS == Distance_AAS &
                                  Distance_NTS == Identity_NTS &
-                                 Distance_NTS == Identity_AAS ~ "Yes",
+                                 Distance_NTS == Identity_AAS ~ Distance_NTS,
                                TRUE ~ "No")) %>%
-  pivot_longer(cols = c(Distance_NTS:Agreement),
-               names_to = "Analysis",
-               values_to = "Closest_Relative") %>%
-  mutate(Gene = substring(Gene, first = 7),
-         Analysis = factor(Analysis, levels = c("Identity_AAS", "Identity_NTS", "Distance_AAS", "Distance_NTS", "Agreement"), ordered = TRUE),
-         Closest_Relative = factor(Closest_Relative, levels = c(Spp, "Yes", "No"), ordered = TRUE))
+  subset(Agreement != "No") %>%
+  mutate(Gene_Name = substring(Gene, first = 7),
+         Agreement = factor(Agreement, levels = Spp, ordered = TRUE),
+         ID = as.numeric(ID))
+
+all$Gene <- reorder(all$Gene, all$ID)
 
 all <- all[order(all$ID),]
 
-my_colours <- c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C", "#FDBF6F",
-                "#000000", "#FFFFFF")
-
-my_labels <- c(expression(italic("P. septica")),
-               expression(italic("P. agglomerans")),
-               expression(italic("E. tasmaniensis")),
-               expression(italic("E. amylovora")),
-               expression(italic("T. ptyseos")),
-               expression(italic("T. saanichensis")),
-               expression(italic("E. cloacae")),
-               "Yes", "No")
-
-expression( italic(p~value) == 0.01 )
-
-ggplot(all, aes(x = Gene, y = Analysis, fill = Closest_Relative)) +
-  geom_tile() +
-  scale_fill_manual(values = my_colours,
-                    labels = my_labels) +
+ggplot(all, aes(x = ID, y = 9, fill = Agreement)) +
+  geom_bar(stat = "identity", position = position_dodge()) + # 
+  # coord_polar() +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
+                               "P. syringae")) +
+  scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
   labs(fill = "Closest Relative") +
-  theme(text = element_text(size = 12,  family = "Times New Roman"),
-        axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),               # Rotates x axis labels
-        legend.text.align = 0)
-# Split into two and use ggarrange
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        panel.border = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
