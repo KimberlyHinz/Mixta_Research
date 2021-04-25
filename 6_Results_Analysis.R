@@ -841,7 +841,7 @@ kable(all_same_species,
       caption = "Table 4. The number of *M. calida* and *M. gaviniae* genes wherein all analyses gave the same genus as the closest relative.")
 # ```
 
-# Figure 6. All Results: M. calida -------------------------------------------------------------------------------------------------------------------------
+# Figure 6. All Results: M. calida and M. gaviniae ---------------------------------------------------------------------------------------------------------
 NT_dist <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE)
 AA_dist <- read.csv("9_Results_AA/four_relatives_calida_AA.csv", stringsAsFactors = FALSE)
 NT_iden <- read.csv("9_Results_NT/four_identities_calida_NT.csv", stringsAsFactors = FALSE) %>%
@@ -859,14 +859,14 @@ AA_iden <- read.csv("9_Results_AA/four_identities_calida_AA.csv", stringsAsFacto
          End = as.numeric(End),
          ID = as.numeric(ID))
 
-all <- data.frame(Gene = NT_dist$Gene,
-                  ID = NT_dist$ID,
-                  Distance_NTS = NT_dist$Closest_Relative,
-                  Distance_AAS = AA_dist$Closest_Relative,
-                  Identity_NTS = NT_iden$Closest_Relative,
-                  Identity_AAS = AA_iden$Closest_Relative); rm(AA_dist, AA_iden, NT_dist, NT_iden)
+all_cal <- data.frame(Gene = NT_dist$Gene,
+                      ID = NT_dist$ID,
+                      Distance_NTS = NT_dist$Closest_Relative,
+                      Distance_AAS = AA_dist$Closest_Relative,
+                      Identity_NTS = NT_iden$Closest_Relative,
+                      Identity_AAS = AA_iden$Closest_Relative); rm(AA_dist, AA_iden, NT_dist, NT_iden)
 
-all <- all %>%
+all_cal <- all_cal %>%
   mutate(Agreement = case_when(Distance_NTS == Distance_AAS &
                                  Distance_NTS == Identity_NTS &
                                  Distance_NTS == Identity_AAS ~ Distance_NTS,
@@ -876,17 +876,114 @@ all <- all %>%
          Agreement = factor(Agreement, levels = Spp, ordered = TRUE),
          ID = as.numeric(ID))
 
-all$Gene <- reorder(all$Gene, all$ID)
+all_cal <- rbind(all_cal,
+                 data.frame(Gene = NA_character_, ID = as.numeric((max(all_cal$ID) + 1):4092), 
+                            Distance_NTS = NA_character_,
+                            Distance_AAS = NA_character_,
+                            Identity_NTS = NA_character_,
+                            Identity_AAS = NA_character_,
+                            Agreement = NA_character_,
+                            Gene_Name = NA_character_))
 
-all <- all[order(all$ID),]
+all_cal$Gene <- reorder(all_cal$Gene, all_cal$ID)
 
-ggplot(all, aes(x = ID, y = 9, fill = Agreement)) +
-  geom_bar(stat = "identity", position = position_dodge()) + # 
-  # coord_polar() +
+all_cal <- all_cal[order(all_cal$ID),]
+
+write.csv(all_cal, "10_Tables_and_Figures/Figure6A_AllAgreement_calida.csv", row.names = FALSE)
+
+
+NT_dist_g <- read.csv("9_Results_NT/four_relatives_gaviniae_NT.csv", stringsAsFactors = FALSE)
+AA_dist_g <- read.csv("9_Results_AA/four_relatives_gaviniae_AA.csv", stringsAsFactors = FALSE)
+NT_iden_g <- read.csv("9_Results_NT/four_identities_gaviniae_NT.csv", stringsAsFactors = FALSE) %>%
+  separate(col = Mixta, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
+  subset(select = -c(Species)) %>%
+  mutate(Gene_Length = as.numeric(Gene_Length),
+         Beg = as.numeric(Beg),
+         End = as.numeric(End),
+         ID = as.numeric(ID))
+AA_iden_g <- read.csv("9_Results_AA/four_identities_gaviniae_AA.csv", stringsAsFactors = FALSE) %>%
+  separate(col = Mixta, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
+  subset(select = -c(Species)) %>%
+  mutate(Gene_Length = as.numeric(Gene_Length),
+         Beg = as.numeric(Beg),
+         End = as.numeric(End),
+         ID = as.numeric(ID))
+
+all_gav <- data.frame(Gene = NT_dist_g$Gene,
+                      ID = NT_dist_g$ID,
+                      Distance_NTS = NT_dist_g$Closest_Relative,
+                      Distance_AAS = AA_dist_g$Closest_Relative,
+                      Identity_NTS = NT_iden_g$Closest_Relative,
+                      Identity_AAS = AA_iden_g$Closest_Relative); rm(AA_dist_g, AA_iden_g, NT_dist_g, NT_iden_g)
+
+all_gav <- all_gav %>%
+  mutate(Agreement = case_when(Distance_NTS == Distance_AAS &
+                                 Distance_NTS == Identity_NTS &
+                                 Distance_NTS == Identity_AAS ~ Distance_NTS,
+                               TRUE ~ "No")) %>%
+  subset(Agreement != "No") %>%
+  mutate(Gene_Name = substring(Gene, first = 7),
+         Agreement = factor(Agreement, levels = Spp, ordered = TRUE),
+         ID = as.numeric(ID))
+
+all_gav$Gene <- reorder(all_gav$Gene, all_gav$ID)
+
+all_gav <- all_gav[order(all_gav$ID),]
+
+write.csv(all_gav, "10_Tables_and_Figures/Figure6B_AllAgreement_gaviniae.csv", row.names = FALSE)
+
+#
+all_cal <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6A_AllAgreement_calida.csv", stringsAsFactors = FALSE) %>%
+  mutate(Agreement = factor(Agreement, levels = Spp, ordered = TRUE))
+
+all_gav <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6B_AllAgreement_gaviniae.csv", stringsAsFactors = FALSE) %>%
+  mutate(Agreement = factor(Agreement, levels = Spp, ordered = TRUE))
+
+calida <- ggplot(all_cal, aes(x = ID, y = 1, fill = Agreement)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 5) + # 
+  coord_polar() +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis")) +
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 1)) +
+  labs(fill = "Closest Relative") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        panel.border = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman")); calida
+
+#### HERE!! Add extra genes, look into removing NAs from the legend, and look into donut plots
+
+
+ggplot(all_cal, aes(ymin = ID, ymax = ID+10, xmin = 3, xmax = 4, fill = Agreement)) +
+  geom_rect() + # 
+  xlim(c(2, 4)) +
+  coord_polar(theta = "y") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        panel.border = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+ggplot(data, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=category)) +
+  geom_rect() +
+  coord_polar(theta="y") + # Try to remove that to understand how the chart is built initially
+  xlim(c(2, 4)) # Try to remove that to see how to make a pie chart
+
+
+
+
+gaviniae <- ggplot(all_gav, aes(x = ID, y = 1, fill = Agreement)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 5) + # 
+  coord_polar() +
   scale_fill_brewer(palette = "Paired", 
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
                                "P. syringae")) +
-  scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 1)) +
   labs(fill = "Closest Relative") +
   theme_bw() +
   theme(legend.text = element_text(face = "italic"),
@@ -896,3 +993,10 @@ ggplot(all, aes(x = ID, y = 9, fill = Agreement)) +
         axis.ticks.y = element_blank(),
         text = element_text(size = 12,  family = "Times New Roman"))
 
+ggarrange(calida, gaviniae, 
+          labels = c("A", "B"),
+          font.label = list(family = "Times New Roman"),
+          label.x = 0.04,
+          label.y = 0.98,
+          common.legend = TRUE, 
+          legend = "bottom")
