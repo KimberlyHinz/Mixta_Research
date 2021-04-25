@@ -378,6 +378,57 @@ kable(all_same_genus,
       caption = "Table 4. The number of *M. calida* and *M. gaviniae* genes wherein all analyses gave the same genus as the closest relative.")
 ```
 
+
+
+```{r Figure6, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 5. The closest relatives to *M. calida* (**A**) and *M. gaviniae (**B**) genes that were agreed upon by all four analyses that were conducted in this study. The circular plot simulates the circular chromosome of the respective species. The colour of the bars represent the different species to which the gene is most closely related. The *M. calida* and *M. gaviniae* genomes have 4092 and 4242 genes, respectively.", fig.width=6.5, fig.height=3.9}
+all_cal <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6A_AllAgreement_calida.csv", stringsAsFactors = FALSE) %>%
+  mutate(Agreement = factor(Agreement, levels = Spp, ordered = TRUE))
+
+all_gav <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6B_AllAgreement_gaviniae.csv", stringsAsFactors = FALSE) %>%
+  mutate(Agreement = factor(Agreement, levels = Spp, ordered = TRUE))
+
+calida <- ggplot(all_cal, aes(x = ID, y = 1, fill = Agreement)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 5) + # 
+  coord_polar() +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
+                               "P. syringae")) +
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 1)) +
+  labs(fill = "Closest Relative") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        panel.border = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+gaviniae <- ggplot(all_gav, aes(x = ID, y = 1, fill = Agreement)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 5) + # 
+  coord_polar() +
+  scale_fill_brewer(palette = "Paired", 
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
+                               "P. syringae")) +
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 1)) +
+  labs(fill = "Closest Relative") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        panel.border = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+ggarrange(calida, gaviniae, 
+          labels = c("A", "B"),
+          font.label = list(family = "Times New Roman"),
+          label.x = 0.04,
+          label.y = 0.98,
+          common.legend = TRUE, 
+          legend = "bottom")
+```
+
+
 # Discussion
 
 # Acknowledgements
