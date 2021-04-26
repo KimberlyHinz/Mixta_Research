@@ -40,7 +40,7 @@ S4S0A2
 Ph: (306) 337-8478  
 Email: john.stavrinides@uregina.ca
 
-**Keywords:**
+**Keywords:** *Mixta*, phylogenetic analyses, average nucleotide identity, average amino acid identity
 
 <!-- \newpage -->
 # Abstract
@@ -180,6 +180,7 @@ cal_NT <- ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest
   scale_fill_brewer(palette = "Paired", 
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
                                "P. syringae")) +
+  xlim(-19, 4092) +
   scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
   labs(fill = "Closest Relative") +
   theme_bw() +
@@ -196,6 +197,7 @@ cal_AA <- ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_R
   scale_fill_brewer(palette = "Paired", 
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
                                "P. syringae")) +
+  xlim(-19, 4092) +
   scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
   labs(fill = "Closest Relative") +
   theme_bw() +
@@ -272,6 +274,7 @@ cal_NT <- ggplot(FR_nucl_calida, aes(x = ID, y = Relative_Number, fill = Closest
   scale_fill_brewer(palette = "Paired", 
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
                                "P. syringae")) +
+  xlim(-19, 4092) +
   scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
   labs(fill = "Closest Relative") +
   theme_bw() +
@@ -288,6 +291,7 @@ cal_AA <- ggplot(FR_aa_calida, aes(x = ID, y = Relative_Number, fill = Closest_R
   scale_fill_brewer(palette = "Paired", 
                     labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
                                "P. syringae")) +
+  xlim(-19, 4092) +
   scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
   labs(fill = "Closest Relative") +
   theme_bw() +
@@ -308,30 +312,34 @@ ggarrange(cal_NT, cal_AA,
 ```
 
 ## A Comparison of the Four Analyses
-The four above analyses (genetic distance and site identity, both using NTS and AAS) gave slightly different results for the *Mixta* sequences. When comparing the results, approximately 38.7% of both the *M. calida* and *M. gaviniae* sequences agreed upon a closest relative. However, the number of sequences closely related to any of the other taxa were slightly different between *M. calida* and *M. gaviniae* (Table 3). There were no genes for which all four analyses agreed on *T. ptyseos* being the closest relative (Table 3). Additionally, 7.5% of the *M. calida* and *M. gaviniae* homologs did not share the same closest relative.
+The four above analyses (genetic distance and site identity, both using NTS and AAS) gave slightly different results for the *Mixta* sequences. The four analyses agreed upon a closest relative for approximately 38.7% of each of the *M. calida* and *M. gaviniae* sequences. The number of sequences that were closely related to one of the other taxa differed between the two *Mixta* species (Table 3). Additionally, although 38.7% of both *Mixta* species’ sequences had a consistent closest relative, 30 genes differed between them. For these 30 genes, there was a consensus for only one of the *Mixta* species and not the other. Nevertheless, 34.9% of the *M. calida* and *M. gaviniae* homologs agreed on the same species.
 
 ```{r Table3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
 CR_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_AllResults_calida.csv", 
                       stringsAsFactors = FALSE)
 
 # table(CR_calida$ALL)
-# FALSE  TRUE         # FALSE: 61.3%
-# 490    309          # TRUE: 38.7% of M. calida genes had the same closest relative in all four analyses
+# E_amylovora      E_cloacae E_tasmaniensis             No  P_agglomerans      P_septica T_saanichensis 
+#           8              6             17            490             22            255              1 
+# FALSE  TRUE 
+# 490    309
 
 CR_gaviniae <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_AllResults_gaviniae.csv", 
                         stringsAsFactors = FALSE)
 
+
 # table(CR_gaviniae$ALL)
+# E_amylovora      E_cloacae E_tasmaniensis             No  P_agglomerans      P_septica T_saanichensis 
+#           7              7             20            490             22            252              1 
 # FALSE  TRUE 
 # 490    309
 
-all_same_cal <- subset(CR_calida, ALL == TRUE); all_same_gav <- subset(CR_gaviniae, ALL == TRUE)
+all_same_cal <- subset(CR_calida, ALL != "No"); all_same_gav <- subset(CR_gaviniae, ALL != "No")
 
-all_same_species <- data.frame(table(all_same_cal$NT_dist),
-                               table(all_same_gav$NT_dist)) %>%
+all_same_species <- data.frame(table(all_same_cal$ALL),
+                               table(all_same_gav$ALL)) %>%
   subset(select = -Var1.1) %>%
-  mutate(Var1 = factor(Var1, 
-                          levels = Spp, ordered = TRUE)) %>%
+  mutate(Var1 = factor(Var1, levels = Spp, ordered = TRUE)) %>%
   arrange(Var1)
 
 colnames(all_same_species) <- c("Species", "# of M. calida genes", "# of M. gaviniae genes")
@@ -342,7 +350,60 @@ kable(all_same_species,
       caption = "Table 3. The number of *M. calida* and *M. gaviniae* genes wherein all analyses gave the same species as the closest relative.")
 ```
 
+Displaying these results in a circular plot showed that genes closely related to any of the taxa were dispersed across the *M. calida* and *M. gaviniae* chromosomes (Figures 6A and 6B, respectively). Given that similar patterns were found in the four analyses, genes with a consistent closest relative are randomly distributed across the genome and the position within the genome does not have an effect on whether the analyses agree (Figures 6A and 6B).
 
+```{r Figure6, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 6. The closest relatives to the *M. calida* (**A**) and *M. gaviniae (**B**) genes that were agreed upon by all four analyses that were conducted in this study. The circular plot simulates the circular chromosome of the respective species. The length and colour of the bars represent the different species to which the gene is most closely related. The *M. calida* and *M. gaviniae* genomes have 4092 and 4242 genes, respectively.", fig.width=6.5, fig.height=3.9}
+all_cal <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6A_AllAgreement_calida.csv", stringsAsFactors = FALSE) %>%
+  mutate(Agreement = factor(Agreement, levels = Spp, ordered = TRUE))
+
+all_gav <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6B_AllAgreement_gaviniae.csv", stringsAsFactors = FALSE) %>%
+  mutate(Agreement = factor(Agreement, levels = Spp, ordered = TRUE))
+
+my_colours <- c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", 
+                "#E31A1C", "#FDBF6F") # For P_septica, P_agglomerans, E_tasmaniensis, E_amylovora, T_saanichensis, and E_cloacae
+
+calida <- ggplot(all_cal, aes(x = ID, y = CR_Number, fill = Agreement)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 20) +
+  coord_polar() +
+  scale_fill_manual(values = my_colours,
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. saanichensis", "E. cloacae")) +
+  xlim(-19, 4092) +
+  scale_y_continuous(limits = c(0, 9), breaks = c(0, 2, 4, 6, 8)) +
+  labs(fill = "Closest Relative") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        panel.border = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+gaviniae <- ggplot(all_gav, aes(x = ID, y = CR_Number, fill = Agreement)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 20) +
+  coord_polar() +
+  scale_fill_manual(values = my_colours,
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. saanichensis", "E. cloacae")) +
+  xlim(-19, 4242) +
+  scale_y_continuous(limits = c(0, 9), breaks = c(0, 9)) +
+  labs(fill = "Closest Relative") +
+  theme_bw() +
+  theme(legend.text = element_text(face = "italic"),
+        axis.title = element_blank(),
+        panel.border = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+ggarrange(calida, gaviniae, 
+          labels = c("A", "B"),
+          font.label = list(family = "Times New Roman"),
+          label.x = 0.04,
+          label.y = 0.98,
+          common.legend = TRUE, 
+          legend = "bottom")
+```
+
+Interestingly, the four analyses agreed on a genus being the closest relative for a total of 63.4 and 63.2% of the *M. calida* and *M. gaviniae* sequences, respectively (Table 4). Unexpectedly, only 39 of the *M. calida* and the *M. gaviniae* homologs did not agree on which genus was the closest relative. Of these genes, there was a consensus for one of *M. calida* or *M. gaviniae* and not the other for 38 homologs. For only one gene (*ttuB*) did the analyses agree on *Tatumella* for *M. calida* and *Pantoea* for *M. gaviniae.
 
 ```{r Table4, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=TRUE}
 CR_calida <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Table3_AllResults_calida.csv", 
@@ -378,55 +439,9 @@ kable(all_same_genus,
       caption = "Table 4. The number of *M. calida* and *M. gaviniae* genes wherein all analyses gave the same genus as the closest relative.")
 ```
 
+## Phylogenetic Trees
 
 
-```{r Figure6, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 5. The closest relatives to *M. calida* (**A**) and *M. gaviniae (**B**) genes that were agreed upon by all four analyses that were conducted in this study. The circular plot simulates the circular chromosome of the respective species. The colour of the bars represent the different species to which the gene is most closely related. The *M. calida* and *M. gaviniae* genomes have 4092 and 4242 genes, respectively.", fig.width=6.5, fig.height=3.9}
-all_cal <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6A_AllAgreement_calida.csv", stringsAsFactors = FALSE) %>%
-  mutate(Agreement = factor(Agreement, levels = Spp, ordered = TRUE))
-
-all_gav <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure6B_AllAgreement_gaviniae.csv", stringsAsFactors = FALSE) %>%
-  mutate(Agreement = factor(Agreement, levels = Spp, ordered = TRUE))
-
-calida <- ggplot(all_cal, aes(x = ID, y = 1, fill = Agreement)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 5) + # 
-  coord_polar() +
-  scale_fill_brewer(palette = "Paired", 
-                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
-                               "P. syringae")) +
-  scale_y_continuous(limits = c(0, 1), breaks = c(0, 1)) +
-  labs(fill = "Closest Relative") +
-  theme_bw() +
-  theme(legend.text = element_text(face = "italic"),
-        axis.title = element_blank(),
-        panel.border = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        text = element_text(size = 12,  family = "Times New Roman"))
-
-gaviniae <- ggplot(all_gav, aes(x = ID, y = 1, fill = Agreement)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 5) + # 
-  coord_polar() +
-  scale_fill_brewer(palette = "Paired", 
-                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "T. ptyseos", "T. saanichensis", "E. cloacae",
-                               "P. syringae")) +
-  scale_y_continuous(limits = c(0, 1), breaks = c(0, 1)) +
-  labs(fill = "Closest Relative") +
-  theme_bw() +
-  theme(legend.text = element_text(face = "italic"),
-        axis.title = element_blank(),
-        panel.border = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        text = element_text(size = 12,  family = "Times New Roman"))
-
-ggarrange(calida, gaviniae, 
-          labels = c("A", "B"),
-          font.label = list(family = "Times New Roman"),
-          label.x = 0.04,
-          label.y = 0.98,
-          common.legend = TRUE, 
-          legend = "bottom")
-```
 
 
 # Discussion
