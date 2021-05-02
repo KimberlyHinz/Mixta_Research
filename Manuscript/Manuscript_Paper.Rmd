@@ -453,7 +453,53 @@ Phylogenetic analyses often use several concatenated essential gene sequences to
 
 ![Figure 9. Maximum-likelihood phylogenetic trees for members of the *Erwiniaceae* with *E. cloacae* and *P. syringiae* as outgroups. The trees were reconstructed from the concantenated nucleotide (**A**) and amino acid (**B**) sequences of the genes *atpA*, *atpB*, *atpC*, *atpE*, *atpF*, *atpG*, *atpH*, *infA*, *infB*, *rpoA*, *rpoB*, *rpoC*, *rpoD*, and *rpoH*. GTR+G+I and LG+G+F models were used for the nucleotide and amino acid sequences, respectively. Both trees required a discrete Gamma distribution (5 categories) to model the evolutionary rate differences among sites. The nucleotide model allowed for some sites to be evolutionary invariable. Branch support was inferred from 500 bootstrap replicates; the percentage of trees in which the associated taxa clustered together are adjacent to the branches. The tree is drawn to scale, with branch lengths measured in the number of substitutions per site. Evolutionary analyses were conducted in MEGAX.](C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure9_Four_Tree.png)
 
-The four analyses conducted in this study agreed on a closest relative for only four of these genes – *atpA*, atpG*, *rpoB*, and *rpoC* – for both *M. calida* and *M. gaviniae*. This closest relative was *P. septica* for these genes. The other genes were more closely related to *P. agglomerans*, *E. tasmaniensis*, *E. amylovora*, and *E. cloacae* and these varied amongst the analyses. The gene *rpoD* was the only gene that was said to be closely related to *E. cloacae* by one of the analyses. The NTS genetic distance analysis labelled both the *Mixta* species as being closely related to *E. cloacae* and the remaining three analyses labelled this gene as being closely related to *P. septica*.
+The four analyses conducted in this study agreed on a closest relative for only four of these genes – *atpA*, *atpG*, *rpoB*, and *rpoC* – for both *M. calida* and *M. gaviniae* (Figures 10A and 10B). This closest relative was *P. septica* for these genes. The other genes were more closely related to *P. agglomerans*, *E. tasmaniensis*, *E. amylovora*, and *E. cloacae* and these varied amongst the analyses (Figures 10A and 10B). One only of the genes, *rpoD*, was said to be closely related to *E. cloacae* by one of the analyses; the NTS genetic distance analysis labelled both the *Mixta* species as being closely related to *E. cloacae* and the remaining three analyses labelled this gene as being closely related to *P. septica* (Figures 10A and 10B).
+
+```{r Figure10, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 10. The closest relatives to the *M. calida* (**A**) and *M. gaviniae (**B**) MLSA genes for each of the four analyses. The colour of the tiles represent the different species to which the gene is most closely related.", fig.width=6.5}
+four_cal <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10A_PhyloTreeFour_calida.csv", 
+                     stringsAsFactors = FALSE) %>%
+  pivot_longer(cols = Distance_NTS:Identity_AAS, names_to = "Analysis", values_to = "Species") %>%
+  mutate(Gene = substring(Gene, first = 7),
+         Analysis = factor(Analysis, levels = c("Distance_NTS", "Distance_AAS", "Identity_NTS", "Identity_AAS"), ordered = TRUE),
+         Species = factor(Species, levels = Spp, ordered = TRUE))
+
+four_gav <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10B_PhyloTreeFour_gaviniae.csv", 
+                     stringsAsFactors = FALSE) %>%
+  pivot_longer(cols = Distance_NTS:Identity_AAS, names_to = "Analysis", values_to = "Species") %>%
+  mutate(Gene = substring(Gene, first = 7),
+         Analysis = factor(Analysis, levels = c("Distance_NTS", "Distance_AAS", "Identity_NTS", "Identity_AAS"), ordered = TRUE),
+         Species = factor(Species, levels = Spp, ordered = TRUE))
+
+my_colours2 <- c("#A6CEE3", "#1F78B4",  # P. septica and P. agglomerans
+                 "#B2DF8A", "#33A02C",  # E. tasmaniensis and E. amylovora
+                 "#FDBF6F")             # E. cloacae
+
+cal <- ggplot(four_cal, aes(x = Analysis, y = Gene, fill = Species)) +
+  geom_tile() +
+  scale_fill_manual(values = my_colours2,
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "E. cloacae")) +
+  labs(fill = "Closest Relative") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(face = "italic"),
+        legend.text = element_text(face = "italic"),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+gav <- ggplot(four_gav, aes(x = Analysis, y = Gene, fill = Species)) +
+  geom_tile() +
+  scale_fill_manual(values = my_colours2,
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "E. cloacae")) +
+  labs(fill = "Closest Relative") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(face = "italic"),
+        legend.text = element_text(face = "italic"),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+ggarrange(cal, gav, 
+          labels = c("A", "B"),
+          font.label = list(family = "Times New Roman"),
+          common.legend = TRUE, 
+          legend = "right")
+```
 
 ## Phylogenetic Trees Showing Other Results
 
