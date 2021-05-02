@@ -1042,3 +1042,8 @@ four_cal <- rbind(filter(all_cal, grepl("atp", Gene)),
 four_gav <- rbind(filter(all_gav, grepl("atp", Gene)),
                   filter(all_gav, grepl("inf", Gene)),
                   filter(all_gav, grepl("rpo", Gene)))
+
+cal <- pivot_longer(four_cal, cols = c(Distance_NTS:Identity_AAS), names_to = "Analysis", values_to = "Species")
+
+ggplot(cal, aes(Analysis, Gene)) +
+  geom_tile(aes(fill = z), colour = "grey50")
