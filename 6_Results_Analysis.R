@@ -25,6 +25,9 @@ count_relatives <- function(data) {
 
 Spp <- c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", "T_saanichensis", 
          "E_cloacae", "P_syringae")
+
+colours <- data.frame(col = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00"),
+                      spp = c("P_septica", "P_agglomerans", "E_tasmaniensis", "E_amylovora", "T_ptyseos", "T_saanichensis", "E_cloacae", "P_syringae"))
 #
 # Table 1. Genomes ----------------------------------------------------------------------------------------------------------------------------------------
 strain <- data.frame(Species = c("Mixta calida", "Mixta gaviniae", "Pantoea agglomerans", "Pantoea septica", "Erwinia amylovora",
@@ -1038,12 +1041,59 @@ all_gav <- all_gav %>%
 four_cal <- rbind(filter(all_cal, grepl("atp", Gene)),
                   filter(all_cal, grepl("inf", Gene)),
                   filter(all_cal, grepl("rpo", Gene)))
+
+write.csv(four_cal, "10_Tables_and_Figures/Figure10A_PhyloTreeFour_calida.csv", row.names = FALSE)
   
 four_gav <- rbind(filter(all_gav, grepl("atp", Gene)),
                   filter(all_gav, grepl("inf", Gene)),
                   filter(all_gav, grepl("rpo", Gene)))
 
-cal <- pivot_longer(four_cal, cols = c(Distance_NTS:Identity_AAS), names_to = "Analysis", values_to = "Species")
+write.csv(four_gav, "10_Tables_and_Figures/Figure10B_PhyloTreeFour_gaviniae.csv", row.names = FALSE)
 
-ggplot(cal, aes(Analysis, Gene)) +
-  geom_tile(aes(fill = z), colour = "grey50")
+# ```{r Figure10, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 10. The closest relatives to the *M. calida* (**A**) and *M. gaviniae (**B**) 
+# MLSA genes for each of the four analyses. The colour of the tiles represent the different species to which the gene is most closely related.", 
+# fig.width=6.5}
+four_cal <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10A_PhyloTreeFour_calida.csv", 
+                     stringsAsFactors = FALSE) %>%
+  pivot_longer(cols = Distance_NTS:Identity_AAS, names_to = "Analysis", values_to = "Species") %>%
+  mutate(Gene = substring(Gene, first = 7),
+         Analysis = factor(Analysis, levels = c("Distance_NTS", "Distance_AAS", "Identity_NTS", "Identity_AAS"), ordered = TRUE),
+         Species = factor(Species, levels = Spp, ordered = TRUE))
+
+four_gav <- read.csv("C:/Users/Kim/OneDrive/2020_3Fall/Biology_396/10_Tables_and_Figures/Figure10B_PhyloTreeFour_gaviniae.csv", 
+                     stringsAsFactors = FALSE) %>%
+  pivot_longer(cols = Distance_NTS:Identity_AAS, names_to = "Analysis", values_to = "Species") %>%
+  mutate(Gene = substring(Gene, first = 7),
+         Analysis = factor(Analysis, levels = c("Distance_NTS", "Distance_AAS", "Identity_NTS", "Identity_AAS"), ordered = TRUE),
+         Species = factor(Species, levels = Spp, ordered = TRUE))
+
+my_colours2 <- c("#A6CEE3", "#1F78B4",  # P. septica and P. agglomerans
+                 "#B2DF8A", "#33A02C",  # E. tasmaniensis and E. amylovora
+                 "#FDBF6F")             # E. cloacae
+
+cal <- ggplot(four_cal, aes(x = Analysis, y = Gene, fill = Species)) +
+  geom_tile() +
+  scale_fill_manual(values = my_colours2,
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "E. cloacae")) +
+  labs(fill = "Closest Relative") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(face = "italic"),
+        legend.text = element_text(face = "italic"),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+gav <- ggplot(four_gav, aes(x = Analysis, y = Gene, fill = Species)) +
+  geom_tile() +
+  scale_fill_manual(values = my_colours2,
+                    labels = c("P. septica", "P. agglomerans", "E. tasmaniensis", "E. amylovora", "E. cloacae")) +
+  labs(fill = "Closest Relative") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(face = "italic"),
+        legend.text = element_text(face = "italic"),
+        text = element_text(size = 12,  family = "Times New Roman"))
+
+ggarrange(cal, gav, 
+          labels = c("A", "B"),
+          font.label = list(family = "Times New Roman"),
+          common.legend = TRUE, 
+          legend = "right")
+# ```
