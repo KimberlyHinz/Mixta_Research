@@ -973,3 +973,72 @@ ggarrange(calida, gaviniae,
           common.legend = TRUE, 
           legend = "bottom")
 # ```
+
+# Phylogenetic Trees: Four Genes (MLSA) ------------------------------------------------------------------------------------------------------------------
+NT_dist <- read.csv("9_Results_NT/four_relatives_calida_NT.csv", stringsAsFactors = FALSE)
+AA_dist <- read.csv("9_Results_AA/four_relatives_calida_AA.csv", stringsAsFactors = FALSE)
+NT_iden <- read.csv("9_Results_NT/four_identities_calida_NT.csv", stringsAsFactors = FALSE) %>%
+  separate(col = Mixta, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
+  subset(select = -c(Species)) %>%
+  mutate(Gene_Length = as.numeric(Gene_Length),
+         Beg = as.numeric(Beg),
+         End = as.numeric(End),
+         ID = as.numeric(ID))
+AA_iden <- read.csv("9_Results_AA/four_identities_calida_AA.csv", stringsAsFactors = FALSE) %>%
+  separate(col = Mixta, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
+  subset(select = -c(Species)) %>%
+  mutate(Gene_Length = as.numeric(Gene_Length),
+         Beg = as.numeric(Beg),
+         End = as.numeric(End),
+         ID = as.numeric(ID))
+
+all_cal <- data.frame(Gene = NT_dist$Gene,
+                      ID = NT_dist$ID,
+                      Distance_NTS = NT_dist$Closest_Relative,
+                      Distance_AAS = AA_dist$Closest_Relative,
+                      Identity_NTS = NT_iden$Closest_Relative,
+                      Identity_AAS = AA_iden$Closest_Relative); rm(AA_dist, AA_iden, NT_dist, NT_iden)
+
+all_cal <- all_cal %>%
+  mutate(Agreement = case_when(Distance_NTS == Distance_AAS &
+                                 Distance_NTS == Identity_NTS &
+                                 Distance_NTS == Identity_AAS ~ Distance_NTS,
+                               TRUE ~ "No"))
+
+NT_dist_g <- read.csv("9_Results_NT/four_relatives_gaviniae_NT.csv", stringsAsFactors = FALSE)
+AA_dist_g <- read.csv("9_Results_AA/four_relatives_gaviniae_AA.csv", stringsAsFactors = FALSE)
+NT_iden_g <- read.csv("9_Results_NT/four_identities_gaviniae_NT.csv", stringsAsFactors = FALSE) %>%
+  separate(col = Mixta, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
+  subset(select = -c(Species)) %>%
+  mutate(Gene_Length = as.numeric(Gene_Length),
+         Beg = as.numeric(Beg),
+         End = as.numeric(End),
+         ID = as.numeric(ID))
+AA_iden_g <- read.csv("9_Results_AA/four_identities_gaviniae_AA.csv", stringsAsFactors = FALSE) %>%
+  separate(col = Mixta, into = c("Species", "Gene_Length", "Beg", "End", "ID"), sep = "\\|") %>%
+  subset(select = -c(Species)) %>%
+  mutate(Gene_Length = as.numeric(Gene_Length),
+         Beg = as.numeric(Beg),
+         End = as.numeric(End),
+         ID = as.numeric(ID))
+
+all_gav <- data.frame(Gene = NT_dist_g$Gene,
+                      ID = NT_dist_g$ID,
+                      Distance_NTS = NT_dist_g$Closest_Relative,
+                      Distance_AAS = AA_dist_g$Closest_Relative,
+                      Identity_NTS = NT_iden_g$Closest_Relative,
+                      Identity_AAS = AA_iden_g$Closest_Relative); rm(AA_dist_g, AA_iden_g, NT_dist_g, NT_iden_g)
+
+all_gav <- all_gav %>%
+  mutate(Agreement = case_when(Distance_NTS == Distance_AAS &
+                                 Distance_NTS == Identity_NTS &
+                                 Distance_NTS == Identity_AAS ~ Distance_NTS,
+                               TRUE ~ "No"))
+
+four_cal <- rbind(filter(all_cal, grepl("atp", Gene)),
+                  filter(all_cal, grepl("inf", Gene)),
+                  filter(all_cal, grepl("rpo", Gene)))
+  
+four_gav <- rbind(filter(all_gav, grepl("atp", Gene)),
+                  filter(all_gav, grepl("inf", Gene)),
+                  filter(all_gav, grepl("rpo", Gene)))
