@@ -8,6 +8,8 @@ Date of Study: 2020-09-02 -- 2021-04-28
 ## Abstract
 *Mixta* is a recently described genus within the bacterial family *Erwiniaceae* and is closely related to *Pantoea*, *Erwinia*, and *Tatumella*. Depending on the genes and method used for phylogenetic analysis, the genus with which *Mixta* shares the most recent ancestor differs. This study aimed to determine the cause behind these contentious results. Ten complete or partial genomes – two *Mixta* species, six species from other *Erwiniaceae* genera, and two outgroups – were retrieved from NCBI and annotated. Homologous genes were extracted yielding a dataset of 799 genes. The genes were aligned with the ClustalW algorithm, and MEGA-CC was used to calculate the most appropriate model, distance matrices, and phylogenetic trees for both nucleotide and amino acid sequences. Nucleotide and amino acid identity analyses were also done using the programming language R. *Pantoea* was the closest relative to the Mixta species in most analyses; however, results were not consistent. Some genes were also found to be more similar to other, non-*Pantoea* species. Diligence must be given to selecting genes for phylogenetic analysis and the method chosen to prevent any xenologous signal from distorting the actual relationships. Furthermore, future research should consider that different phylogenetic analyses may provide different results.
 
+![Mixta](https://user-images.githubusercontent.com/52579730/189576850-85ebf862-947c-4c87-aecd-cbb00b075d2f.png)
+
 Publicly available genomes of the type strains of the species included in this study were retrieved from NCBI.
 1. *Mixta calida* DSM_22759 ----------------------------> complete genome
 2. *Mixta gaviniae* DSM_22758 --------------------------> complete genome
@@ -19,7 +21,6 @@ Publicly available genomes of the type strains of the species included in this s
 8. *Tatumella saanichensis* NML_06-3099 ----------------> contigs
 9. *Enterobacter cloacae subsp cloacae* ATCC_13047 -----> complete genome
 10. *Pseudomonas syringiae pv. syringae* ICMP_3023 -----> scaffold
-11. *Vibrio cholerae* CECT_514 -------------------------> complete genome
 
 These genomes were annotated using PROKKA version 1.14.1 and core genes were extracted using the GET_HOMOLOGUES software package with the bidirectional best-hit search algorithm using default parameters.
 
