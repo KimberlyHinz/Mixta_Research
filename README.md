@@ -1,14 +1,14 @@
 # Mixta Research 
 
-This is for the Independent Research (BIOL396) course at the University of Regina for the Fall 2020 Semester.
+This is for the Independent Research (BIOL396 and BIOL490BM) courses at the University of Regina for the Fall 2020 and Winter 2021 Semesters.
  
 Author: Kimberly Hinz
-Date of Study: 2020-09-02 -- 2020-12-23
+Date of Study: 2020-09-02 -- 2021-04-28
 
 
-Purpose: To det-rmine the cause behind the contentious phylogenetic results for Mixta species.
+Purpose: To determine the cause behind the contentious phylogenetic results for Mixta species.
 
-The code contained within this repository is for the phylogenetic study of two Mixta species (Erwiniaceae). Depending on which genes are used in the analysis, model, and statistical method chosen, the Mixta species group with different genera (see Palmer et al. 2018 and Rezzonico et al. 2016 for an example).
+The code contained within this repository is for the phylogenetic study of two Mixta species (Erwiniaceae). Depending on the genes included, model, sequence type, and statistical method chosen, the Mixta species group with different genera.
 
 Publicly available genomes of the type strains of the species included in this study were retrieved from NCBI.
 1. *Mixta calida* DSM_22759 ----------------------------> complete genome
